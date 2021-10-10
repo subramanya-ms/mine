@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<suite name="Suite">
+	<test verbose ="2" name = "StandaloneWin10" group-by-instances="true" thread-count="1">	
+		 	<classes>
+		 			  
+		 	  <class name = "com.wisefinch.java.PrerequisitesClass" >
+				<methods>
+		
+					<include name = "validate_PrerequisitePage_Rev1" />	
+
+				</methods>
+  			</class>
+  			<class name = "com.wisefinch.java.PlClass" >
+				<methods>
+		
+					<include name = "validate_Aseedtest_PL_Rev1" />	
+
+				</methods>
+  			</class>
+		 			 
+		 	
+		 			 
+	 	 </classes>
+	</test> <!-- Default Test -->
+	
+</suite> <!-- Suite -->

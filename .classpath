@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER">
+		<attributes>
+			<attribute name="module" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry exported="true" kind="con" path="org.testng.TESTNG_CONTAINER"/>
+	<classpathentry kind="lib" path="C:/subramanya/workspace/wisefinch/master_framework/seleniumjars/alljars/activation.jar"/>
+	<classpathentry kind="lib" path="C:/subramanya/workspace/wisefinch/master_framework/seleniumjars/alljars/common-lang3.jar"/>
+	<classpathentry kind="lib" path="C:/subramanya/workspace/wisefinch/master_framework/seleniumjars/alljars/commons-collections4-4.1.jar"/>
+	<classpathentry kind="lib" path="C:/subramanya/workspace/wisefinch/master_framework/seleniumjars/alljars/commons-io-2.8.0.jar"/>
+	<classpathentry kind="lib" path="C:/subramanya/workspace/wisefinch/master_framework/seleniumjars/alljars/dom4j-1.6.1.jar"/>
+	<classpathentry kind="lib" path="C:/subramanya/workspace/wisefinch/master_framework/seleniumjars/alljars/extentreports-java-2.41.0-beta1.jar"/>
+	<classpathentry kind="lib" path="C:/subramanya/workspace/wisefinch/master_framework/seleniumjars/alljars/freemarker-2.3.23.jar"/>
+	<classpathentry kind="lib" path="C:/subramanya/workspace/wisefinch/master_framework/seleniumjars/alljars/javax.mail-1.6.0.jar"/>
+	<classpathentry kind="lib" path="C:/subramanya/workspace/wisefinch/master_framework/seleniumjars/alljars/javax.mail-api-1.5.5.jar"/>
+	<classpathentry kind="lib" path="C:/subramanya/workspace/wisefinch/master_framework/seleniumjars/alljars/jsoup-1.8.3.jar"/>
+	<classpathentry kind="lib" path="C:/subramanya/workspace/wisefinch/master_framework/seleniumjars/alljars/poi-3.17.jar"/>
+	<classpathentry kind="lib" path="C:/subramanya/workspace/wisefinch/master_framework/seleniumjars/alljars/poi-ooxml-3.17.jar"/>
+	<classpathentry kind="lib" path="C:/subramanya/workspace/wisefinch/master_framework/seleniumjars/alljars/poi-ooxml-schemas-3.9.jar"/>
+	<classpathentry kind="lib" path="C:/subramanya/workspace/wisefinch/master_framework/seleniumjars/alljars/selenium-server-standalone-3.141.59.jar"/>
+	<classpathentry kind="lib" path="C:/subramanya/workspace/wisefinch/master_framework/seleniumjars/alljars/sikulixapi.jar"/>
+	<classpathentry kind="lib" path="C:/subramanya/workspace/wisefinch/master_framework/seleniumjars/alljars/smtp-1.4.4.jar"/>
+	<classpathentry kind="lib" path="C:/subramanya/workspace/wisefinch/master_framework/seleniumjars/alljars/sqlite-jdbc-3.8.11.1.jar"/>
+	<classpathentry kind="lib" path="C:/subramanya/workspace/wisefinch/master_framework/seleniumjars/alljars/xmlbeans-2.3.0.jar"/>
+	<classpathentry kind="lib" path="C:/subramanya/workspace/wisefinch/master_framework/seleniumjars/alljars/xmlbeans-2.6.0.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

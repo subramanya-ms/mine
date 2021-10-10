@@ -1,0 +1,3 @@
+java -jar selenium-server-standalone-3.141.59.jar -role webdriver -hub http://192.168.1.9:4444/grid.register -port 5550 -browser browserName="chrome",version=ANY,platform=VISTA,maxInstances=5 -Dwebdriver.chrome.driver=D:\users\subramanya\workspace\weinvest\project\seleniumjars\chromedriver.exe
+
+java -Dwebdriver.chrome.driver=D:\users\subramanya\workspace\weinvest\project\seleniumjars\chromedriver.exe -jar selenium-server-standalone-3.141.59.jar -role node -hub http://192.168.1.9:4444/grid/register

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<suite name="Suite" parallel="tests" thread-count="1" >
+	
+	
+		<parameters>		 	
+		 	<parameter name ="platform" value = "WIn10" />
+		 	<parameter name ="browserName" value = "chrome" />
+		 	<!--parameter name ="remoteurl" value = "http://10.1.113.178:5550/wd/hub" /-->
+		 	<parameter name ="remoteurl" value = "http://192.168.1.9:47784/wd/hub" />
+		 	
+		 </parameters>	
+		 	<test name = "wisefinch" >
+		 	<classes>
+		 			  
+		 	  <class name = "com.wisefinch.java.OpenhrmliveClass" >
+				<methods>
+		
+					<include name = "validate_Openhrm_live_Rev1" />	
+				<!--	<include name = "validate_WeInvest_Rev2" />	/-->
+		
+		 			
+				</methods>
+  			</class>
+		 			 
+		 	
+		 			 
+	 	 </classes>
+	 	 
+	 	 <classes>
+		 			  
+		 	  <class name = "com.wisefinch.java.OpenhrmliveClass" >
+				<methods>
+		
+					<include name = "validate_Openhrm_live_Rev1" />	
+				<!--	<include name = "validate_WeInvest_Rev2" />	/-->
+		
+		 			
+				</methods>
+  			</class>
+		 			 
+		 	
+		 			 
+	 	 </classes>
+	</test> <!-- Default Test -->
+	
+</suite> <!-- Suite -->

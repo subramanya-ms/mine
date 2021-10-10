@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<suite name="Suite" parallel="tests" thread-count="1" >
+	<test verbose ="2" name = "WinVDI8" group-by-instances="true" thread-count="1">
+	
+		<parameters>		 	
+		 	<parameter name ="platform" value = "WIn10" />
+		 	<parameter name ="browserName" value = "chrome" />
+		 	<!--parameter name ="remoteurl" value = "http://10.1.113.178:5550/wd/hub" /-->
+		 	<parameter name ="remoteurl" value = "http://192.168.1.9:42708/wd/hub" />
+		 </parameters>	
+		 	<classes>
+		 			  
+		 	  <class name = "com.ust.java.AseedClass" >
+				<methods>
+		
+					<include name = "validate_Aseedtest_Rev1" />	
+				<!--	<include name = "validate_WeInvest_Rev2" />	/-->
+		
+		 			
+				</methods>
+  			</class>
+		 			 
+		 	
+		 			 
+	 	 </classes>
+	</test> <!-- Default Test -->
+	
+</suite> <!-- Suite -->

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<suite name="Suite">
+	<test verbose ="2" name = "StandaloneWin10" group-by-instances="true" thread-count="1">	
+		 	<classes>
+		 			  
+		 	  <class name = "com.wisefinch.java.PayableClass" >
+				<methods>
+		
+					<include name = "validate_PayablePage_Rev1" />	
+
+				</methods>
+  			</class>
+		 			 
+		 	
+		 			 
+	 	 </classes>
+	</test> <!-- Default Test -->
+	
+</suite> <!-- Suite -->
