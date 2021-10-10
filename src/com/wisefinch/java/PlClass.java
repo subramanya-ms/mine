@@ -218,6 +218,133 @@ public class PlClass extends DriverScript{
 
 	}		
 	
+	@Test
+	@Parameters({"platform" , "browserName" , "remoteurl"}) 
+	public synchronized void validate_Hashmap(@Optional("opt platform") String platform ,@Optional("opt browser name") String browserName ,@Optional("opt remoteurl") String remoteurl) throws IOException, AWTException{
+		
+
+		
+		
+		TESTCASENAME = new Object(){}.getClass().getEnclosingMethod().getName();
+		
+		TESTCASENAME = "Test-2676";
+		String strClassName = new Object(){}.getClass().getName();
+		
+		strClassName = "Financial Reports PL";
+		String testMethod = strClassName+" - "+TESTCASENAME;
+		String workingDir = System.getProperty("user.dir");
+    
+		
+		int threadID = (int) (long) Thread.currentThread().getId();
+		
+		List<String> tempResultList = new ArrayList<String>();
+			
+		String url = reusableComponents.getPropValues("PLURL");
+		browser.manage().deleteAllCookies();
+		//browser.get(url);
+		//browser.navigate().to(url);
+
+	ReusableComponents.reportInfo(threadID,tempResultList,testMethod , "Chrome Browser started", browser ,pathLoc+"/"+TESTCASENAME , false );
+		
+		
+		ReusableComponents.reportInfo(threadID,tempResultList,testMethod , "Launch : Launching of Browser with Application "+url+" is Successful", browser ,pathLoc+"/"+TESTCASENAME , false );
+//		System.out.println("Launch : Launching of Browser with Application "+url+" is Successful");
+		browser.manage().window().maximize();
+		//browser.manage().window().fullscreen();
+
+		//Printing Id of the thread on using which test method got executed
+//		System.out.println("Test Case  with Thread Id:- "+ Thread.currentThread().getId());
+//		ReusableComponents.reportInfo(threadID,tempResultList,testMethod , "Test Case with Thread Id:- "+ threadID, browser ,pathLoc+"/"+TESTCASENAME , false );
+		
+		Page page = new Page(browser);
+		
+		
+		String path;
+		switch (browserName) {
+			
+		case "Firefox":
+			path = workingDir+reusableComponents.getPropValues("FirefoxResultspath")+"/"+TESTCASENAME;
+			break;
+		case "Chrome":
+			path = workingDir+reusableComponents.getPropValues("ChromeResultspath")+"/"+TESTCASENAME;
+			break;
+		case "internet explorer":
+			path = workingDir+reusableComponents.getPropValues("IEResultspath")+"/"+TESTCASENAME;
+			break;	
+		case "firefox":
+			path = workingDir+reusableComponents.getPropValues("FirefoxResultspath")+"/"+TESTCASENAME;
+			break;
+		case "chrome":
+			path = workingDir+reusableComponents.getPropValues("ChromeResultspath")+"/"+TESTCASENAME;
+			break;	
+		default:
+			path = workingDir+reusableComponents.getPropValues("ChromeResultspath")+"/"+TESTCASENAME;			
+			break;
+	    }
+		String pathLoc = reusableComponents.pathBuilder(path);
+	    
+		resultList = new ArrayList<String>();
+		ReusableComponents.reportInfo(threadID,tempResultList,testMethod , "Validation Steps --  Step Status starts here", browser ,pathLoc+"/"+TESTCASENAME , false );
+	
+			
+		page.navigateToPlPage(threadID,tempResultList ,pathLoc)
+		//.Salesforce_login(threadID, tempResultList, pathLoc) //this is login page
+		//.validateTestC(threadID, tempResultList, pathLoc)  // excel read and multiple options
+		//.validateTestD(threadID, tempResultList, pathLoc)
+		//.validateTestB(threadID, tempResultList, pathLoc)
+		//.validateTestOpp(threadID, tempResultList, pathLoc)
+		.Hashmaper(threadID, tempResultList, pathLoc)
+
+		
+			;
+		
+	
+				
+		ReusableComponents.reportInfo(threadID,tempResultList,testMethod , "Test case : Validating the Aseed Page test case", browser ,pathLoc+"/"+TESTCASENAME , false );
+		
+		logger = report.startTest(testMethod);
+		List<String > testList = hmap.get(threadID);		
+		for(int i=0 ; i<testList.size();i++){
+			String eachElement = testList.get(i);
+			System.out.println("Test Case in Extent Reporting with Thread Id step "+(i+1)+" :- "+eachElement);
+			String[] testResult = eachElement.split("&");
+			
+			String stepStatus = testResult[0].toLowerCase();
+			
+			String testMethodName = testResult[1].toLowerCase();
+			
+			//String testDesc = testResult[2].toLowerCase();
+			String testDesc = testResult[2];
+			
+			String filePath = "";
+			
+			if(testResult.length>3){
+				filePath =  testResult[3].toLowerCase();
+			}
+			
+			switch (stepStatus){
+				case "info":
+					logger.log(LogStatus.INFO, testMethodName , testDesc);
+					break;
+				case "pass":
+					logger.log(LogStatus.PASS, testMethodName , testDesc);
+					break;
+				case "unknown": // updated the logger to handle specific type of logger, which was unused
+					logger.log(LogStatus.UNKNOWN, testMethodName , testDesc +logger.addScreenCapture(filePath));
+					break;	
+				case "fail":
+					logger.log(LogStatus.FAIL, testMethodName , testDesc +logger.addScreenCapture(filePath));
+					failcounter++;
+					break;	
+			}
+			
+		}
+		
+		// out here
+		
+
+	}		
+	
 	
 
 	@Test

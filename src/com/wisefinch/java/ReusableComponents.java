@@ -762,13 +762,13 @@ public class ReusableComponents extends DriverScript {
 
 	public static void reportSpecific(int threadID, List<String> tempList, String testMethod, String description,
 			WebDriver browser, String screenShotPath, boolean flag) {
-		System.out.println("----------------> reportSpecific <----------------");
-		System.out.println("----------------> threadID " + threadID);
-		System.out.println("----------------> tempList " + tempList);
-		System.out.println("----------------> testMethod " + testMethod);
-		System.out.println("----------------> description " + description);
-		System.out.println("----------------> browser " + browser);
-		System.out.println("----------------> screenShotPath " + screenShotPath);
+//		System.out.println("----------------> reportSpecific <----------------");
+//		System.out.println("----------------> threadID " + threadID);
+//		System.out.println("----------------> tempList " + tempList);
+//		System.out.println("----------------> testMethod " + testMethod);
+//		System.out.println("----------------> description " + description);
+//		System.out.println("----------------> browser " + browser);
+//		System.out.println("----------------> screenShotPath " + screenShotPath);
 
 		if (flag == true) {
 
@@ -797,13 +797,13 @@ public class ReusableComponents extends DriverScript {
 		System.out.println(testMethod + " : " + description + " FAIL");
 		resultList.add(testMethod + " : " + description + " -- FAIL");
 
-		System.out.println("----------------> reportFail <----------------");
-		System.out.println("----------------> threadID " + threadID);
-		System.out.println("----------------> tempList " + tempList);
-		System.out.println("----------------> testMethod " + testMethod);
-		System.out.println("----------------> description " + description);
-		System.out.println("----------------> browser " + browser);
-		System.out.println("----------------> screenShotPath " + screenShotPath);
+//		System.out.println("----------------> reportFail <----------------");
+//		System.out.println("----------------> threadID " + threadID);
+//		System.out.println("----------------> tempList " + tempList);
+//		System.out.println("----------------> testMethod " + testMethod);
+//		System.out.println("----------------> description " + description);
+//		System.out.println("----------------> browser " + browser);
+//		System.out.println("----------------> screenShotPath " + screenShotPath);
 
 		if (flag == true) {
 
@@ -830,14 +830,14 @@ public class ReusableComponents extends DriverScript {
 			WebDriver browser, String screenShotPath, boolean flag) {
 		System.out.println(testMethod + " : " + description + " DONE");
 		resultList.add(testMethod + " : " + description + " -- DONE");
-
-		System.out.println("----------------> reportInfo <----------------");
-		System.out.println("----------------> threadID " + threadID);
-		System.out.println("----------------> tempList " + tempList);
-		System.out.println("----------------> testMethod " + testMethod);
-		System.out.println("----------------> description " + description);
-		System.out.println("----------------> browser " + browser);
-		System.out.println("----------------> screenShotPath " + screenShotPath);
+//
+//		System.out.println("----------------> reportInfo <----------------");
+//		System.out.println("----------------> threadID " + threadID);
+//		System.out.println("----------------> tempList " + tempList);
+//		System.out.println("----------------> testMethod " + testMethod);
+//		System.out.println("----------------> description " + description);
+//		System.out.println("----------------> browser " + browser);
+//		System.out.println("----------------> screenShotPath " + screenShotPath);
 
 		if (flag == true) {
 
@@ -865,13 +865,13 @@ public class ReusableComponents extends DriverScript {
 		System.out.println(testMethod + " : " + description + " PASS");
 		resultList.add(testMethod + " : " + description + " -- PASS");
 
-		System.out.println("----------------> reportPassFunction <----------------");
-		System.out.println("----------------> threadID " + threadID);
-		System.out.println("----------------> tempList " + tempList);
-		System.out.println("----------------> testMethod " + testMethod);
-		System.out.println("----------------> description " + description);
-		System.out.println("----------------> browser " + browser);
-		System.out.println("----------------> screenShotPath " + screenShotPath);
+//		System.out.println("----------------> reportPassFunction <----------------");
+//		System.out.println("----------------> threadID " + threadID);
+//		System.out.println("----------------> tempList " + tempList);
+//		System.out.println("----------------> testMethod " + testMethod);
+//		System.out.println("----------------> description " + description);
+//		System.out.println("----------------> browser " + browser);
+//		System.out.println("----------------> screenShotPath " + screenShotPath);
 
 		if (flag == true) {
 

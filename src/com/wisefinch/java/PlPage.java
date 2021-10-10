@@ -9,8 +9,11 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -2678,6 +2681,140 @@ if(ReusableComponents.isElementPresent(dyn_dropdown1)) { //dropdown1
 
 			outarray.clear();
 
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+	}catch(NoSuchElementException e){
+		ReusableComponents.reportFail( threadID , tempList , testcasemethod , " Object is not present"+e.getStackTrace() , browser ,pathLoc+"/"+testcasemethod , false );
+	}
+		
+		return new PlPage(browser);
+	}
+	
+	/*** Test case Method Name : Validatexpathreader
+	 * 	 Functionality         : validate navigation to Accounting seed salesforce financial reports page Lightning
+	 * 	 Created By			   : Subramanya MS
+	 * @throws IOException 
+	 * @throws AWTException 
+	 * 
+	***/
+	public synchronized  PlPage Hashmaper(int threadID , List<String> tempList , String pathLoc ) throws IOException, AWTException {
+		String testcasemethod = new Object(){}.getClass().getEnclosingMethod().getName();
+	try{
+		
+		try {
+			
+			try {
+
+				String filename = reusableComponents.getPropValues("inputfile");
+				String sheetname = reusableComponents.getPropValues("PLSheet");
+				
+				//xpather.put("Financialreportsinput", filename);
+				//xpather.put("TC1", sheetname);
+				//String outfilename = reusableComponents.getPropValues("outputfilename");
+				//String outsheetname = reusableComponents.getPropValues("outputsheetname");
+
+				File file = new File(workingDir + "/xpath/" + filename);
+				System.out.println(" file location "+file);
+				FileInputStream istream = new FileInputStream(file);
+
+				Workbook myworkbook = null;
+
+				String fileExtensionName = filename.substring(filename.indexOf("."));
+
+				if (fileExtensionName.equals(".xlsx")) {
+					// If it is xlsx file then create object of XSSFWorkbook class
+					myworkbook = new XSSFWorkbook(istream);
+				}
+				// Check condition if the file is xls file
+				else if (fileExtensionName.equals(".xls")) {
+					// If it is xls file then create object of HSSFWorkbook class
+					myworkbook = new HSSFWorkbook(istream);
+				}
+
+				Sheet workbooksheet = myworkbook.getSheet(sheetname);
+				int rowCount = workbooksheet.getLastRowNum() - workbooksheet.getFirstRowNum();
+				int columnCount = workbooksheet.getRow(0).getLastCellNum();
+				System.out.println("Row count is " +rowCount+ " Column count is " +columnCount);
+
+				// read rows and columns
+				
+				Iterator<Row> itr = workbooksheet.iterator();
+				
+				while(itr.hasNext()) {
+					Row row = itr.next();
+					 if(row.getRowNum()==0 ){
+					       continue; //just skip the rows if row number is 0 or 1
+					      }
+
+					
+					
+					 else {
+						 
+						 Iterator<Cell> celliterator = row.cellIterator();
+							
+							while(celliterator.hasNext()) {
+			  
+								  Cell cell = celliterator.next(); 
+								  
+
+								  final DataFormatter formatter = new DataFormatter(); 
+						
+								  
+								  //startdate_arr.add(formatter.formatCellValue(cell)); //throw new
+								  xpather.put(formatter.formatCellValue(row.getCell(0)), formatter.formatCellValue(row.getCell(1)));
+								   
+							}
+						 
+					 }
+					 
+					 
+					
+				}
+			
+				String s = "New";
+				//System.out.println(Arrays.asList(xpather));
+				
+//				for (Entry<String, String> valcheck : xpather.entrySet()) {
+//					
+//					System.out.println(valcheck.getKey()+" : "+valcheck.getValue());
+//				}
+				
+				for (Entry<String, String> valcheck : xpather.entrySet()) {
+					
+					if(valcheck.getKey().equals(s)) {
+						
+						System.out.println("printing the value "+valcheck.getValue());
+					}
+					
+					//System.out.println(valcheck.getKey()+" : "+valcheck.getValue());
+				}
+
+				
+				// write the action type as well so that when we perform actions
+				// we can call the specific method directly
+				// like new button is to click then action should be click
+				// if the field is text box like login , mark it as send
+				// if its checkbox mark the method as check
+				//if its radio button, mark it as radio
+				
+
+			
+
+			} catch (NoSuchElementException e) {
+				
+				outarray.add("File name NA");
+				outarray.add("Sheet name NA");
+				ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+						" Object is not present" + e.getStackTrace(), browser, pathLoc + "/" + testcasemethod, false);
+			}
+			
+			
+			
+			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
