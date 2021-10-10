@@ -551,6 +551,19 @@ public class Page extends DriverScript {
 	}
 
 	/***
+	 * Test case Method Name : navigateToT2688Page Functionality : Validate T2688
+	 * Page Created By : Lakshman
+	 * 
+	 ***/
+	public synchronized T2688Page navigateToT2688Page(int threadID, List<String> tempList, String pathLoc) {
+		String testcasemethod = new Object() {
+		}.getClass().getEnclosingMethod().getName();
+		ReusableComponents.reportInfo(threadID, tempList, testcasemethod, "Validation T2688 Page", browser,
+				pathLoc + "\\" + testcasemethod, false);
+		return new T2688Page(browser);
+	}
+
+	/***
 	 * Test case Method Name : navigateToT2687Page Functionality : Validate T2687
 	 * Page Created By : Lakshman
 	 * 
