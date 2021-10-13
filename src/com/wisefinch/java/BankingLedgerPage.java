@@ -3,14 +3,17 @@ package com.wisefinch.java;
 import java.awt.AWTException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.By.ByXPath;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.remote.server.handler.GetElementAttribute;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -26,13 +29,14 @@ public class BankingLedgerPage extends DriverScript {
 
 	static String valueToSet, dateGatheredToGiveNam, cdbName, newGLName, newGLAccountName, reportName, reportUniqueName,
 			startingAccountPeriod, accountingPeriodToClose, nSFReportURL, financialReportURL, accountingPeriod,
-			cashDisbursementName, per_stat, DB_Name = null, testCaseNumber, currentAccountingPeriodForTheTestCase;
+			cashDisbursementName, per_stat, DB_Name = null, testCaseNumber, currentAccountingPeriodForTheTestCase,
+			newLedgerName;
 	int previousYearClose, Nextyear;
 
 	static String newAccountname, testDataNewBillingName = null, testDataNewPayableName = null;
 	static String CDB_Name;
 	static boolean accountCreatedStatus = false, testDataNewBillingCreated = false, testDataNewDisbursement = false,
-			newPayableStatus = false;
+			newPayableStatus = false, newLedgerCreatedStatus = false, newGLAccountCreationStatus = false;
 
 	static ReusableComponents reusableComponents = new ReusableComponents();
 
@@ -53,6 +57,48 @@ public class BankingLedgerPage extends DriverScript {
 	}
 
 	// Webelement declaration
+
+	@FindBy(xpath = "(.//input[@type='text'])[2]")
+	static WebElement budgetLedget_PandLVsBudget;
+
+	@FindBy(xpath = "(.//*[@title='Remove selected option'])[2]")
+	static WebElement removeBudgetLedger_PandLVsBudget;
+
+	@FindBy(xpath = ".//*[@class='actionBody']//*[@title='Budget']")
+	static WebElement selectBudget_LedgerPopup;
+
+	@FindBy(xpath = ".//*[@class='actionBody']//*[@class='slds-modal__header']/h2[contains(text(),'New Ledger')]")
+	static WebElement newLedgerPopup;
+
+	@FindBy(xpath = "(.//*[@class='actionBody']//input[@role='combobox'])[1]")
+	static WebElement type_NewLedgerPopup;
+
+	@FindBy(xpath = "(.//lightning-button//button[contains(text(),'Save')])[2]")
+	static WebElement saveButton_LedgerPage;
+
+	@FindBy(xpath = ".//*[@name='Name']")
+	static WebElement ledgerName_LedgerPage;
+
+	@FindBy(xpath = ".//*[@class='panel-content scrollable']//*[@class='slds-truncate']/*[contains(text(),'Ledgers')]")
+	static WebElement selectLedgerFromApp;
+
+	@FindBy(xpath = ".//li//*[contains(text(),'New')]")
+	static WebElement newLink_LedgerPage;
+
+	@FindBy(xpath = ".//*[@class='actionBody']//button[@name='SaveEdit']")
+	static WebElement saveButton_EditAccountingPeriod;
+
+	@FindBy(xpath = ".//*[@class='actionBody']//*[contains(text(),'Closed')]")
+	static WebElement selectStatusAsClosed_EditAccountingPeriod;
+
+	@FindBy(xpath = ".//*[@class='actionBody']//*[contains(text(),'Open')]")
+	static WebElement selectStatusAsOpen_EditAccountingPeriod;
+
+	@FindBy(xpath = ".//*[@class='actionBody']//input[@role='combobox']")
+	static WebElement statusDropDown_EditAccountingPeriod;
+
+	@FindBy(xpath = ".//button[@name='Edit']")
+	static WebElement edit_AccountingPeriod;
 
 	@FindBy(xpath = ".//*[@class='slds-text-heading_small']")
 	static WebElement trialBalanceErrorMessageHeading;
@@ -248,6 +294,9 @@ public class BankingLedgerPage extends DriverScript {
 	@FindBy(xpath = ".//span[normalize-space()='Balance Sheet']")
 	static WebElement balanceSheet_selectStandartReport_FinancialReport;
 
+	@FindBy(xpath = ".//span[normalize-space()='P & L vs. Budget']")
+	static WebElement pandlvsBudger_selectStandartReport_FinancialReport;
+
 	@FindBy(xpath = ".//span[normalize-space()='Trial Balance']")
 	static WebElement trialBalance_selectStandartReport_FinancialReport;
 
@@ -411,7 +460,7 @@ public class BankingLedgerPage extends DriverScript {
 	static WebElement cloneButton_cash1000;
 
 	@FindBy(xpath = ".//*[@class='actionBody']//*[contains(text(),'New GL Account')]")
-	static WebElement clonePopup_cash1000;
+	static WebElement newGLAccountPopup;
 
 	@FindBy(xpath = ".//*[@name='Name']")
 	static WebElement name_NewGLAccount;
@@ -591,9 +640,7 @@ public class BankingLedgerPage extends DriverScript {
 	 * @throws Exception
 	 */
 	public static BankingLedgerPage selectAppFromSearchAppAndItem(int threadID, List<String> tempList,
-			String pathLocation,
-
-			String appNameToSearch, WebElement selectAppXpath) throws Exception {
+			String pathLocation, String appNameToSearch, WebElement selectAppXpath) throws Exception {
 		String testcasemethod = new Object() {
 		}.getClass().getEnclosingMethod().getName();
 
@@ -616,12 +663,12 @@ public class BankingLedgerPage extends DriverScript {
 				ReusableComponents.reportPass(threadID, tempList, testcasemethod,
 						appNameToSearch + " page opened successfully", browser, pathLocation + "\\" + testcasemethod,
 						false);
-
 				ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ", browser,
 						pathLocation + "\\" + testcasemethod, true);
 			} else {
 				throw new throwNewException(appNameToSearch, "Page is not opened");
 			}
+
 		} catch (throwNewException e) {
 			e.printStackTrace();
 			ReusableComponents.reportFail(threadID, tempList, testcasemethod, e.getErrorMessage(), browser,
@@ -704,7 +751,6 @@ public class BankingLedgerPage extends DriverScript {
 						threadID, tempList, testcasemethod, "Accounting period " + accountingPeriod
 								+ " status displayed as expected " + statusOfTheAccountingPeriod,
 						browser, pathLocation + "\\" + testcasemethod, false);
-
 				ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ", browser,
 						pathLocation + "\\" + testcasemethod, true);
 			} else {
@@ -1406,7 +1452,7 @@ public class BankingLedgerPage extends DriverScript {
 		}.getClass().getEnclosingMethod().getName();
 
 		try {
-			
+
 			navigateToAccountingHomePage();
 
 			String account_namefull;
@@ -1826,7 +1872,7 @@ public class BankingLedgerPage extends DriverScript {
 
 			// --> Provide values on 1000-Cash clone button
 
-			if (clonePopup_cash1000.isDisplayed() == true) {
+			if (newGLAccountPopup.isDisplayed() == true) {
 				newGLName = ReusableComponents.getCurrentDateAndTime("yyyyMMdd_HHmmss") + "_GLAccount";
 				ReusableComponents.sendKey(name_NewGLAccount, newGLName, "Cloned GL Account Name");
 				ReusableComponents.reportSpecific(threadID, tempList, testcasemethod,
@@ -1887,13 +1933,17 @@ public class BankingLedgerPage extends DriverScript {
 		String testcasemethod = new Object() {
 		}.getClass().getEnclosingMethod().getName();
 
-		newGLName = "GLAccount_" + testCaseNumber + "_" + ReusableComponents.getCurrentDateAndTime("yyyyMMdd_HHmmss");
+		if (reusableComponents.getPropValues(testCaseNumber + "_GLName") == null) {
+			newGLName = "GLAccount_" + testCaseNumber + "_"
+					+ ReusableComponents.getCurrentDateAndTime("yyyyMMdd_HHmmss");
+		} else {
+			newGLName = reusableComponents.getPropValues(testCaseNumber + "_GLName");
+		}
 		String glAccountTypeValue = reusableComponents.getPropValues(testCaseNumber + "_" + "GLAccountTypeValue");
 		String glAccountSubTypeValue = reusableComponents.getPropValues(testCaseNumber + "_" + "GLAccountSubTypeValue");
 
 		try {
 			selectAppFromSearchAppAndItem(threadID, tempList, pathLocation, "GL Accounts", SelectGLAccount);
-			ReusableComponents.wait(10000);
 
 			// --> Click on new button
 
@@ -1902,7 +1952,7 @@ public class BankingLedgerPage extends DriverScript {
 
 			// --> Provide values for new GL account
 
-			if (clonePopup_cash1000.isDisplayed() == true) {
+			if (newGLAccountPopup.isDisplayed() == true) {
 				ReusableComponents.sendKey(name_NewGLAccount, newGLName, "Provide GL Account Name");
 				/*
 				 * ReusableComponents.reportSpecific(threadID, tempList, testcasemethod,
@@ -1926,12 +1976,14 @@ public class BankingLedgerPage extends DriverScript {
 				String newGLAccount = ".//*[@slot='primaryField']/lightning-formatted-text[contains(text(),'"
 						+ newGLName + "')]";
 				if (browser.findElement(By.xpath(newGLAccount)).isDisplayed() == true) {
+					newGLAccountCreationStatus = true;
 					ReusableComponents.reportPass(threadID, tempList, testcasemethod,
 							"New GL Account " + newGLName + " is displayed", browser,
 							pathLocation + "\\" + testcasemethod, false);
 					ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ", browser,
 							pathLocation + "\\" + testcasemethod, true);
 				} else {
+					newGLAccountCreationStatus = false;
 					ReusableComponents.reportFail(threadID, tempList, testcasemethod,
 							"New GL Account " + newGLName + " is not displayed", browser,
 							pathLocation + "\\" + testcasemethod, true);
@@ -4090,8 +4142,10 @@ public class BankingLedgerPage extends DriverScript {
 				if (newRecord.contains("FRR") && !oldRecordName.equalsIgnoreCase(newRecord)) {
 					String hreflink = reusableComponents.getAttribute(firstReport_FinancialReport, "href");
 					financialReportURL = hreflink;
-					ReusableComponents.reportPass(threadID, tempList, testcasemethod, "Created Financial report Name : "
-							+ newRecord + ". Link of created financial report : " + hreflink, browser, pathLocation + "\\" + testcasemethod, false);
+					ReusableComponents.reportPass(
+							threadID, tempList, testcasemethod, "Created Financial report Name : " + newRecord
+									+ ". Link of created financial report : " + hreflink,
+							browser, pathLocation + "\\" + testcasemethod, false);
 					ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ", browser,
 							pathLocation + "\\" + testcasemethod, true);
 				} else {
@@ -4495,8 +4549,10 @@ public class BankingLedgerPage extends DriverScript {
 				if (newRecord.contains("FRR") && !oldRecordName.equalsIgnoreCase(newRecord)) {
 					String hreflink = reusableComponents.getAttribute(firstReport_FinancialReport, "href");
 					financialReportURL = hreflink;
-					ReusableComponents.reportPass(threadID, tempList, testcasemethod, "Created Financial report Name : "
-							+ newRecord + ". Link of created financial report : " + hreflink, browser, pathLocation + "\\" + testcasemethod, false);
+					ReusableComponents.reportPass(
+							threadID, tempList, testcasemethod, "Created Financial report Name : " + newRecord
+									+ ". Link of created financial report : " + hreflink,
+							browser, pathLocation + "\\" + testcasemethod, false);
 					ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ", browser,
 							pathLocation + "\\" + testcasemethod, true);
 				} else {
@@ -4668,11 +4724,10 @@ public class BankingLedgerPage extends DriverScript {
 				if (newRecord.contains("FRR") && !oldRecordName.equalsIgnoreCase(newRecord)) {
 					String hreflink = reusableComponents.getAttribute(firstReport_FinancialReport, "href");
 					reportOpen = hreflink;
-					ReusableComponents
-							.reportPass(threadID, tempList, testcasemethod,
-									"Created PL Financial report Name : " + newRecord
-											+ ". Link of created PL financial report : " + hreflink,
-									browser, pathLocation + "\\" + testcasemethod, false);
+					ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+							"Created PL Financial report Name : " + newRecord
+									+ ". Link of created PL financial report : " + hreflink,
+							browser, pathLocation + "\\" + testcasemethod, false);
 				} else {
 
 					ReusableComponents.reportFail(threadID, tempList, testcasemethod,
@@ -5049,8 +5104,10 @@ public class BankingLedgerPage extends DriverScript {
 				if (newRecord.contains("FRR") && !oldRecordName.equalsIgnoreCase(newRecord)) {
 					String hreflink = reusableComponents.getAttribute(firstReport_FinancialReport, "href");
 					financialReportURL = hreflink;
-					ReusableComponents.reportPass(threadID, tempList, testcasemethod, "Created Financial report Name : "
-							+ newRecord + ". Link of created financial report : " + hreflink, browser, pathLocation + "\\" + testcasemethod, false);
+					ReusableComponents.reportPass(
+							threadID, tempList, testcasemethod, "Created Financial report Name : " + newRecord
+									+ ". Link of created financial report : " + hreflink,
+							browser, pathLocation + "\\" + testcasemethod, false);
 					ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ", browser,
 							pathLocation + "\\" + testcasemethod, true);
 				} else {
@@ -5853,8 +5910,8 @@ public class BankingLedgerPage extends DriverScript {
 												"Created Financial report Name : " + newRecord
 														+ ". Link of created financial report : " + hreflink,
 												browser, pathLocation + "\\" + testcasemethod, false);
-										ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ", browser,
-												pathLocation + "\\" + testcasemethod, true);
+										ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ",
+												browser, pathLocation + "\\" + testcasemethod, true);
 									} else {
 										ReusableComponents.reportFail(threadID, tempList, testcasemethod,
 												"There are no new records created , please verify the input values",
@@ -5912,6 +5969,237 @@ public class BankingLedgerPage extends DriverScript {
 					"There is a exception while executing this test case" + e.getMessage(), browser,
 					pathLocation + "\\" + testcasemethod, true);
 
+		}
+		return new BankingLedgerPage(browser);
+	}
+
+	/**
+	 * @author Wisefinch Menaka
+	 * @see This method will change the provided accounting period status to have
+	 *      closed.
+	 * 
+	 * @param threadID
+	 * @param tempList
+	 * @param pathLocation
+	 * @param accountingPeriod -- Pass the accounting period in correct format [Ex :
+	 *                         2020-01]
+	 */
+	private static BankingLedgerPage close_a_AccountingPeriod(int threadID, List<String> tempList, String pathLocation,
+			String accountingPeriod) {
+		// TODO Auto-generated method stub
+		String testcasemethod = new Object() {
+		}.getClass().getEnclosingMethod().getName();
+
+		try {
+			// --> Navigate to home page
+			navigateToAccountingHomePage();
+
+			// --> Move to accounting periods page
+			selectAppFromSearchAppAndItem(threadID, tempList, pathLocation, "Accounting Periods",
+					SelectAccountingPeriods);
+
+			// --> Perform search action
+			ReusableComponents.sendKey(searchTextBox_AccountPeriod, accountingPeriod, "Year close");
+			ReusableComponents.sendkey_InputKey(searchTextBox_AccountPeriod, Keys.ENTER, "Pass Enter");
+			ReusableComponents.wait(2000);
+			ReusableComponents.clickElement(listViewe_AccoutingPeriod, "Click Sort");
+			ReusableComponents.wait(2000);
+			ReusableComponents.clickElement(listViewe_AccoutingPeriod, "Click Sort");
+			ReusableComponents.wait(3000);
+
+			// --> Verify the status
+			String xpathToOpenAccountingPeriod = ".//*[@scope='row']//a[contains(text(),'" + accountingPeriod + "')]";
+			System.out.println("********** xpathToCheckStatus " + xpathToOpenAccountingPeriod);
+
+			List<WebElement> openAccountingPeriod = browser.findElements(By.xpath(xpathToOpenAccountingPeriod));
+			System.out.println("*********** openAccountingPeriod size : " + openAccountingPeriod.size());
+
+			// Verify accouting period is displayed
+			if (openAccountingPeriod.size() != 0) {
+				WebElement openAccountingPeriodElement = browser.findElement(By.xpath(xpathToOpenAccountingPeriod));
+				ReusableComponents.clickElement(openAccountingPeriodElement, "Open accounting period");
+				ReusableComponents.wait(8000);
+
+				String xpathToCheckAccountingPeriod = ".//*[@slot='primaryField']/lightning-formatted-text[contains(text(),'"
+						+ accountingPeriod + "')]";
+				System.out.println("*********** xpathToCheckNewAccount : " + xpathToCheckAccountingPeriod);
+
+				List<WebElement> accountingPeriodName = browser.findElements(By.xpath(xpathToCheckAccountingPeriod));
+				System.out.println("*********** accountName size : " + accountingPeriodName.size());
+
+				// Verify accounting period page is displayed
+				if (accountingPeriodName.size() != 0) {
+					ReusableComponents.clickElement(edit_AccountingPeriod,
+							"Click on edit buttion of accounting period");
+					ReusableComponents.wait(8000);
+					String xpathToCheckEditAccountingPeriodPopup = ".//*[@class='actionBody']//*[contains(text(),'Edit "
+							+ accountingPeriod + "')]";
+					List<WebElement> editPopup = browser.findElements(By.xpath(xpathToCheckEditAccountingPeriodPopup));
+					System.out.println("*********** editPopup size : " + editPopup.size());
+
+					// Verify accounting period edit popup displaye
+					if (editPopup.size() != 0) {
+
+						// change the status
+						ReusableComponents.clickElement(statusDropDown_EditAccountingPeriod,
+								"Click on status dropdown");
+						ReusableComponents.wait(2000);
+
+						if (!ReusableComponents.isDisplayed(selectStatusAsClosed_EditAccountingPeriod,
+								"Check close open is displayed")) {
+							ReusableComponents.clickElement(statusDropDown_EditAccountingPeriod,
+									"Click on status dropdown");
+							ReusableComponents.wait(2000);
+						}
+						ReusableComponents.clickElement(selectStatusAsClosed_EditAccountingPeriod,
+								"Select Close From the drop down");
+
+						// Save the status
+						ReusableComponents.clickElement(saveButton_EditAccountingPeriod, "Click on save button");
+						ReusableComponents.wait(5000);
+
+					} else {
+						ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+								"Edit Accounting period " + accountingPeriod + " pop up is not displayed", browser,
+								pathLocation + "\\" + testcasemethod, true);
+					}
+
+				} else {
+
+					ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+							"Accounting period " + accountingPeriod + " is not opened", browser,
+							pathLocation + "\\" + testcasemethod, true);
+				}
+			} else {
+				ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+						"No such Accounting period present " + accountingPeriod, browser,
+						pathLocation + "\\" + testcasemethod, true);
+			}
+
+		} catch (throwNewException e) {
+			e.printStackTrace();
+			ReusableComponents.reportFail(threadID, tempList, testcasemethod, e.getErrorMessage(), browser,
+					pathLocation + "\\" + testcasemethod, true);
+		} catch (Exception e) {
+			e.printStackTrace();
+			ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+					"Exception when trying to open a period closeOneAccountingPeriod" + e.getStackTrace(), browser,
+					pathLocation + "\\" + testcasemethod, true);
+		}
+		return new BankingLedgerPage(browser);
+	}
+
+	/**
+	 * @author Wisefinch Menaka
+	 * @see This method will change the provided accounting period status to have
+	 *      Open.
+	 * 
+	 * @param threadID
+	 * @param tempList
+	 * @param pathLocation
+	 * @param accountingPeriod -- Pass the accounting period in correct format [Ex :
+	 *                         2020-01]
+	 */
+	private static BankingLedgerPage open_a_AccountingPeriod(int threadID, List<String> tempList, String pathLocation,
+			String accountingPeriod) {
+		// TODO Auto-generated method stub
+		String testcasemethod = new Object() {
+		}.getClass().getEnclosingMethod().getName();
+
+		try {
+			// --> Navigate to home page
+			navigateToAccountingHomePage();
+
+			// --> Move to accounting periods page
+			selectAppFromSearchAppAndItem(threadID, tempList, pathLocation, "Accounting Periods",
+					SelectAccountingPeriods);
+
+			// --> Perform search action
+			ReusableComponents.sendKey(searchTextBox_AccountPeriod, accountingPeriod, "Year close");
+			ReusableComponents.sendkey_InputKey(searchTextBox_AccountPeriod, Keys.ENTER, "Pass Enter");
+			ReusableComponents.wait(2000);
+			ReusableComponents.clickElement(listViewe_AccoutingPeriod, "Click Sort");
+			ReusableComponents.wait(2000);
+			ReusableComponents.clickElement(listViewe_AccoutingPeriod, "Click Sort");
+			ReusableComponents.wait(3000);
+
+			// --> Verify the status
+			String xpathToOpenAccountingPeriod = ".//*[@scope='row']//a[contains(text(),'" + accountingPeriod + "')]";
+			System.out.println("********** xpathToCheckStatus " + xpathToOpenAccountingPeriod);
+
+			List<WebElement> openAccountingPeriod = browser.findElements(By.xpath(xpathToOpenAccountingPeriod));
+			System.out.println("*********** openAccountingPeriod size : " + openAccountingPeriod.size());
+
+			// Verify accounting period displayed
+			if (openAccountingPeriod.size() != 0) {
+				WebElement openAccountingPeriodElement = browser.findElement(By.xpath(xpathToOpenAccountingPeriod));
+				ReusableComponents.clickElement(openAccountingPeriodElement, "Open accounting period");
+				ReusableComponents.wait(8000);
+
+				String xpathToCheckAccountingPeriod = ".//*[@slot='primaryField']/lightning-formatted-text[contains(text(),'"
+						+ accountingPeriod + "')]";
+				System.out.println("*********** xpathToCheckNewAccount : " + xpathToCheckAccountingPeriod);
+
+				List<WebElement> accountingPeriodName = browser.findElements(By.xpath(xpathToCheckAccountingPeriod));
+				System.out.println("*********** accountName size : " + accountingPeriodName.size());
+
+				// Verify accounting period page displayed
+				if (accountingPeriodName.size() != 0) {
+					ReusableComponents.clickElement(edit_AccountingPeriod,
+							"Click on edit buttion of accounting period");
+					ReusableComponents.wait(8000);
+					String xpathToCheckEditAccountingPeriodPopup = ".//*[@class='actionBody']//*[contains(text(),'Edit "
+							+ accountingPeriod + "')]";
+					List<WebElement> editPopup = browser.findElements(By.xpath(xpathToCheckEditAccountingPeriodPopup));
+					System.out.println("*********** editPopup size : " + editPopup.size());
+
+					// Verify edit accounting period popup displayed
+					if (editPopup.size() != 0) {
+						// Change the status
+						ReusableComponents.clickElement(statusDropDown_EditAccountingPeriod,
+								"Click on status dropdown");
+						ReusableComponents.wait(2000);
+
+						if (!ReusableComponents.isDisplayed(selectStatusAsOpen_EditAccountingPeriod,
+								"Check open is displayed")) {
+							ReusableComponents.clickElement(statusDropDown_EditAccountingPeriod,
+									"Click on status dropdown");
+							ReusableComponents.wait(2000);
+						}
+						ReusableComponents.clickElement(selectStatusAsOpen_EditAccountingPeriod,
+								"Select Open From the drop down");
+
+						// Save the changes
+						ReusableComponents.clickElement(saveButton_EditAccountingPeriod, "Click on save button");
+						ReusableComponents.wait(5000);
+
+					} else {
+						ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+								"Edit Accounting period " + accountingPeriod + " pop up is not displayed", browser,
+								pathLocation + "\\" + testcasemethod, true);
+					}
+
+				} else {
+
+					ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+							"Accounting period " + accountingPeriod + " is not opened", browser,
+							pathLocation + "\\" + testcasemethod, true);
+				}
+			} else {
+				ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+						"No such Accounting period present " + accountingPeriod, browser,
+						pathLocation + "\\" + testcasemethod, true);
+			}
+
+		} catch (throwNewException e) {
+			e.printStackTrace();
+			ReusableComponents.reportFail(threadID, tempList, testcasemethod, e.getErrorMessage(), browser,
+					pathLocation + "\\" + testcasemethod, true);
+		} catch (Exception e) {
+			e.printStackTrace();
+			ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+					"Exception when trying to open a period closeOneAccountingPeriod" + e.getStackTrace(), browser,
+					pathLocation + "\\" + testcasemethod, true);
 		}
 		return new BankingLedgerPage(browser);
 	}
@@ -6422,8 +6710,11 @@ public class BankingLedgerPage extends DriverScript {
 																					+ newRecord
 																					+ ". Link of created financial report : "
 																					+ hreflink,
-																			browser, pathLocation + "\\" + testcasemethod, false);
-																	ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ", browser,
+																			browser,
+																			pathLocation + "\\" + testcasemethod,
+																			false);
+																	ReusableComponents.reportSpecific(threadID,
+																			tempList, testcasemethod, " ", browser,
 																			pathLocation + "\\" + testcasemethod, true);
 																} else {
 
@@ -6484,8 +6775,10 @@ public class BankingLedgerPage extends DriverScript {
 																				browser,
 																				pathLocation + "\\" + testcasemethod,
 																				false);
-																		ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ", browser,
-																				pathLocation + "\\" + testcasemethod, true);
+																		ReusableComponents.reportSpecific(threadID,
+																				tempList, testcasemethod, " ", browser,
+																				pathLocation + "\\" + testcasemethod,
+																				true);
 																	} else {
 																		ReusableComponents.reportFail(threadID,
 																				tempList, testcasemethod,
@@ -7110,8 +7403,11 @@ public class BankingLedgerPage extends DriverScript {
 																					+ newRecord
 																					+ ". Link of created financial report : "
 																					+ hreflink,
-																			browser, pathLocation + "\\" + testcasemethod, false);
-																	ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ", browser,
+																			browser,
+																			pathLocation + "\\" + testcasemethod,
+																			false);
+																	ReusableComponents.reportSpecific(threadID,
+																			tempList, testcasemethod, " ", browser,
 																			pathLocation + "\\" + testcasemethod, true);
 																} else {
 
@@ -7172,8 +7468,10 @@ public class BankingLedgerPage extends DriverScript {
 																				browser,
 																				pathLocation + "\\" + testcasemethod,
 																				false);
-																		ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ", browser,
-																				pathLocation + "\\" + testcasemethod, true);
+																		ReusableComponents.reportSpecific(threadID,
+																				tempList, testcasemethod, " ", browser,
+																				pathLocation + "\\" + testcasemethod,
+																				true);
 																	} else {
 																		ReusableComponents.reportFail(threadID,
 																				tempList, testcasemethod,
@@ -7789,8 +8087,11 @@ public class BankingLedgerPage extends DriverScript {
 																					+ newRecord
 																					+ ". Link of created financial report : "
 																					+ hreflink,
-																			browser, pathLocation + "\\" + testcasemethod, false);
-																	ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ", browser,
+																			browser,
+																			pathLocation + "\\" + testcasemethod,
+																			false);
+																	ReusableComponents.reportSpecific(threadID,
+																			tempList, testcasemethod, " ", browser,
 																			pathLocation + "\\" + testcasemethod, true);
 																} else {
 
@@ -7851,8 +8152,10 @@ public class BankingLedgerPage extends DriverScript {
 																				browser,
 																				pathLocation + "\\" + testcasemethod,
 																				false);
-																		ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ", browser,
-																				pathLocation + "\\" + testcasemethod, true);
+																		ReusableComponents.reportSpecific(threadID,
+																				tempList, testcasemethod, " ", browser,
+																				pathLocation + "\\" + testcasemethod,
+																				true);
 																	} else {
 																		ReusableComponents.reportFail(threadID,
 																				tempList, testcasemethod,
@@ -8158,8 +8461,8 @@ public class BankingLedgerPage extends DriverScript {
 												"Created Financial report Name : " + newRecord
 														+ ". Link of created financial report : " + hreflink,
 												browser, pathLocation + "\\" + testcasemethod, false);
-										ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ", browser,
-												pathLocation + "\\" + testcasemethod, true);
+										ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ",
+												browser, pathLocation + "\\" + testcasemethod, true);
 									} else {
 
 										ReusableComponents.reportFail(threadID, tempList, testcasemethod,
@@ -8201,8 +8504,8 @@ public class BankingLedgerPage extends DriverScript {
 													"Created Financial report Name : " + newRecord
 															+ ". Link of created financial report : " + hreflink,
 													browser, pathLocation + "\\" + testcasemethod, false);
-											ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ", browser,
-													pathLocation + "\\" + testcasemethod, true);
+											ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ",
+													browser, pathLocation + "\\" + testcasemethod, true);
 										} else {
 											ReusableComponents.reportFail(threadID, tempList, testcasemethod,
 													"There are no new records created , please verify the input values",
@@ -8463,8 +8766,8 @@ public class BankingLedgerPage extends DriverScript {
 												"Created Financial report Name : " + newRecord
 														+ ". Link of created financial report : " + hreflink,
 												browser, pathLocation + "\\" + testcasemethod, false);
-										ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ", browser,
-												pathLocation + "\\" + testcasemethod, true);
+										ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ",
+												browser, pathLocation + "\\" + testcasemethod, true);
 									} else {
 
 										ReusableComponents.reportFail(threadID, tempList, testcasemethod,
@@ -8506,8 +8809,8 @@ public class BankingLedgerPage extends DriverScript {
 													"Created Financial report Name : " + newRecord
 															+ ". Link of created financial report : " + hreflink,
 													browser, pathLocation + "\\" + testcasemethod, false);
-											ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ", browser,
-													pathLocation + "\\" + testcasemethod, true);
+											ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ",
+													browser, pathLocation + "\\" + testcasemethod, true);
 										} else {
 											ReusableComponents.reportFail(threadID, tempList, testcasemethod,
 													"There are no new records created , please verify the input values",
@@ -8770,8 +9073,8 @@ public class BankingLedgerPage extends DriverScript {
 												"Created Financial report Name : " + newRecord
 														+ ". Link of created financial report : " + hreflink,
 												browser, pathLocation + "\\" + testcasemethod, false);
-										ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ", browser,
-												pathLocation + "\\" + testcasemethod, true);
+										ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ",
+												browser, pathLocation + "\\" + testcasemethod, true);
 									} else {
 
 										ReusableComponents.reportFail(threadID, tempList, testcasemethod,
@@ -8813,8 +9116,8 @@ public class BankingLedgerPage extends DriverScript {
 													"Created Financial report Name : " + newRecord
 															+ ". Link of created financial report : " + hreflink,
 													browser, pathLocation + "\\" + testcasemethod, false);
-											ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ", browser,
-													pathLocation + "\\" + testcasemethod, true);
+											ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ",
+													browser, pathLocation + "\\" + testcasemethod, true);
 										} else {
 											ReusableComponents.reportFail(threadID, tempList, testcasemethod,
 													"There are no new records created , please verify the input values",
@@ -9066,8 +9369,8 @@ public class BankingLedgerPage extends DriverScript {
 												"Created Financial report Name : " + newRecord
 														+ ". Link of created financial report : " + hreflink,
 												browser, pathLocation + "\\" + testcasemethod, false);
-										ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ", browser,
-												pathLocation + "\\" + testcasemethod, true);
+										ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ",
+												browser, pathLocation + "\\" + testcasemethod, true);
 									} else {
 
 										ReusableComponents.reportFail(threadID, tempList, testcasemethod,
@@ -9109,8 +9412,8 @@ public class BankingLedgerPage extends DriverScript {
 													"Created Financial report Name : " + newRecord
 															+ ". Link of created financial report : " + hreflink,
 													browser, pathLocation + "\\" + testcasemethod, false);
-											ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ", browser,
-													pathLocation + "\\" + testcasemethod, true);
+											ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ",
+													browser, pathLocation + "\\" + testcasemethod, true);
 										} else {
 											ReusableComponents.reportFail(threadID, tempList, testcasemethod,
 													"There are no new records created , please verify the input values",
@@ -9537,6 +9840,485 @@ public class BankingLedgerPage extends DriverScript {
 	}
 
 	/**
+	 * @author Wisefinch Menaka
+	 * @see This method is to create new ledger with the type "Budget"
+	 * 
+	 * @param threadID
+	 * @param tempList
+	 * @param pathLocation
+	 * @return
+	 * @throws Exception
+	 */
+	public static BankingLedgerPage createLedger(int threadID, List<String> tempList, String pathLocation)
+			throws Exception {
+
+		String testcasemethod = new Object() {
+		}.getClass().getEnclosingMethod().getName();
+
+		newLedgerName = "Ledger_" + testCaseNumber + "_" + ReusableComponents.getCurrentDateAndTime("yyyyMMdd_HHmmss");
+
+		try {
+			selectAppFromSearchAppAndItem(threadID, tempList, testcasemethod, "Ledgers", selectLedgerFromApp);
+			ReusableComponents.clickElement(newLink_LedgerPage, "New Link From Ledger Page");
+			ReusableComponents.wait(5000);
+
+			if (ReusableComponents.isDisplayed(newLedgerPopup, "Verify new ledger popup displayed")) {
+
+				ReusableComponents.sendKey(ledgerName_LedgerPage, newLedgerName, "New Ledger Name");
+
+				ReusableComponents.clickElement(type_NewLedgerPopup, "Click type dropdown");
+				ReusableComponents.clickElement(type_NewLedgerPopup, "Click type dropdown");
+				ReusableComponents.wait(5000);
+
+				try {
+					Boolean budgetTypeOpen = ReusableComponents.isDisplayed(selectBudget_LedgerPopup,
+							"Verify type displayed");
+					System.out.println("********** budgetTypeOpen " + budgetTypeOpen);
+
+					if (!budgetTypeOpen) {
+						ReusableComponents.clickElement(type_NewLedgerPopup, "Click type dropdown");
+						ReusableComponents.wait(2000);
+					}
+
+					ReusableComponents.clickElement(selectBudget_LedgerPopup, "Select budget from type drop down");
+					ReusableComponents.wait(2000);
+				} catch (Exception e) {
+					System.out.println("****** This is just to skip the exception");
+				}
+
+				ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+						"Ledger mandatory values are selected ", browser, pathLoc + "/" + testcasemethod, false);
+				ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ", browser,
+						pathLocation + "\\" + testcasemethod, true);
+				ReusableComponents.clickElement(saveButton_LedgerPage, "Save Button Of Ledgerpage");
+				ReusableComponents.wait(10000);
+
+				String newLedgerPage = ".//*[@slot='primaryField']/lightning-formatted-text[contains(text(),'"
+						+ newLedgerName + "')]";
+				if (browser.findElement(By.xpath(newLedgerPage)).isDisplayed() == true) {
+					newLedgerCreatedStatus = true;
+					ReusableComponents.reportPass(threadID, tempList, testcasemethod, newLedgerName + " is created",
+							browser, pathLocation + "\\" + testcasemethod, false);
+
+					ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ", browser,
+							pathLocation + "\\" + testcasemethod, true);
+
+				} else {
+					newLedgerCreatedStatus = false;
+					ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+							"New Ledger" + newLedgerName + " is not created", browser,
+							pathLocation + "\\" + testcasemethod, true);
+				}
+			} else {
+				ReusableComponents.reportFail(threadID, tempList, testcasemethod, "New ledger popup is not displayed. ",
+						browser, pathLocation + "\\" + testcasemethod, true);
+			}
+		} catch (throwNewException e) {
+			e.printStackTrace();
+			ReusableComponents.reportFail(threadID, tempList, testcasemethod, e.getErrorMessage(), browser,
+					pathLocation + "\\" + testcasemethod, true);
+		} catch (Exception e) {
+			e.printStackTrace();
+			ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+					"Exception when trying to login. " + e.getMessage(), browser, pathLocation + "\\" + testcasemethod,
+					true);
+		}
+		return new BankingLedgerPage(browser);
+	}
+
+	/**
+	 * @author WisefinchMenaka
+	 * @see [P&LvB] If the 'Suppress Zero Amount Rows?' checkbox is checked before
+	 *      running the report only GL accounts that have transactions posted to
+	 *      them are shown.
+	 * 
+	 * @param threadID
+	 * @param tempList
+	 * @param pathLocation
+	 * @return
+	 * @throws Exception
+	 */
+	public static BankingLedgerPage test2642_BudgetLedgerReport(int threadID, List<String> tempList,
+			String pathLocation) throws Exception {
+
+		String testcasemethod = new Object() {
+		}.getClass().getEnclosingMethod().getName();
+
+		testCaseNumber = "Testcase2642";
+
+		try {
+			LoginToWebpage(threadID, tempList, pathLocation);
+			try {
+				createLedger(threadID, tempList, pathLocation);
+			} catch (Exception e) {
+				ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+						"Exception when creating new Ledger" + e.getMessage(), browser,
+						pathLocation + "\\" + testcasemethod, true);
+			}
+
+			if (newLedgerCreatedStatus) {
+				try {
+					createGLAccount(threadID, tempList, pathLocation);
+				} catch (Exception e) {
+					ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+							"Exception when creating new GL Account" + e.getMessage(), browser,
+							pathLocation + "\\" + testcasemethod, true);
+				}
+				if (newGLAccountCreationStatus) {
+
+					// Run Financial Report
+					String financialReportsURL = reusableComponents.getPropValues("FinancialReports");
+					browser.get(financialReportsURL);
+					// Browser.get is used here since there are issue in launching financial report
+					// from search app. Once the issue resolved we can comment it and unccomment
+					// selectAppFromSearchAppAndItem(threadID, tempList, testcasemethod, "Financial
+					// Reports",
+					ReusableComponents.wait(5000);
+
+					ReusableComponents.wait(5000);
+					ReusableComponents.clickElement(selectStandartReport_FinancialReport,
+							"Click Select standard reportd");
+					ReusableComponents.wait(5000);
+					ReusableComponents.clickElement(pandlvsBudger_selectStandartReport_FinancialReport,
+							"Click P & L vs. Budget");
+					ReusableComponents.wait(5000);
+
+					ReusableComponents.clickElement(removeBudgetLedger_PandLVsBudget, "Remove Budget value");
+					ReusableComponents.sendKey(budgetLedget_PandLVsBudget, newLedgerName, "Provide Ledger Name");
+					ReusableComponents.wait(2000);
+					String selectLedger = ".//*[normalize-space()='" + newLedgerName + "']";
+
+					List<WebElement> newBudgetList = browser.findElements(By.xpath(selectLedger));
+					System.out.println("************ Number of elements " + newBudgetList.size());
+
+					if (newBudgetList.size() != 0) {
+						ReusableComponents.clickElement(browser.findElement(By.xpath(selectLedger)),
+								"Select Ledger Value");
+
+						ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+								"New Ledger : " + newLedgerName + " selected under budget lendger section", browser,
+								pathLocation + "\\" + testcasemethod, false);
+						ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ", browser,
+								pathLocation + "\\" + testcasemethod, true);
+
+						ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+								"By default, Supress Zero amount check box will be checked. so the assumption will be the check box is checked",
+								browser, pathLocation + "\\" + testcasemethod, false);
+						ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ", browser,
+								pathLocation + "\\" + testcasemethod, true);
+
+						ReusableComponents.scrollDown(browser, 500);
+						// --> Click on run button and get new record URL
+
+						List<WebElement> recordsList = browser.findElements(
+								By.xpath("(.//tr//*[@class='slds-truncate']//a[contains(text(),'FRR')])[1]"));
+						System.out.println("************ Number of elements " + recordsList.size());
+
+						if (recordsList.size() != 0) {
+							String oldRecordName = firstReport_FinancialReport.getText();
+
+							ReusableComponents.clickElement(runButton_FinancialReport, "Clicked on run button");
+							ReusableComponents.reportPass(threadID, tempList, testcasemethod, "Run button clicked",
+									browser, " ", false);
+
+							ReusableComponents.wait(20000);
+
+							String newRecord = firstReport_FinancialReport.getText();
+							if (!newRecord.contains("FRR")) {
+								ReusableComponents.wait(20000);
+
+								newRecord = firstReport_FinancialReport.getText();
+							}
+
+							if (newRecord.contains("FRR") && !oldRecordName.equalsIgnoreCase(newRecord)) {
+								String hreflink = reusableComponents.getAttribute(firstReport_FinancialReport, "href");
+								financialReportURL = hreflink;
+								ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+										"Created Financial report Name : " + newRecord
+												+ ". Link of created financial report : " + hreflink,
+										browser, pathLocation + "\\" + testcasemethod, false);
+								ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ", browser,
+										pathLocation + "\\" + testcasemethod, true);
+							} else {
+
+								ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+										"There are no new records created, provide valid inputs ", browser,
+										pathLocation + "\\" + testcasemethod, true);
+							}
+						} else {
+
+							ReusableComponents.clickElement(runButton_FinancialReport, "Clicked on run button");
+							ReusableComponents.reportPass(threadID, tempList, testcasemethod, "Run button clicked",
+									browser, pathLocation + "\\" + testcasemethod, false);
+
+							ReusableComponents.wait(20000);
+
+							List<WebElement> newRecordsList = browser.findElements(
+									By.xpath("(.//tr//*[@class='slds-truncate']//a[contains(text(),'FRR')])[1]"));
+							System.out.println("************ Number of elements " + newRecordsList.size());
+
+							if (newRecordsList.size() == 0) {
+								ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+										"There are no new records created , please verify the input values", browser,
+										pathLocation + "\\" + testcasemethod, true);
+							} else {
+
+								String newRecord = firstReport_FinancialReport.getText();
+
+								if (!newRecord.contains("FRR")) {
+									ReusableComponents.wait(20000);
+
+									newRecord = firstReport_FinancialReport.getText();
+								}
+
+								String hreflink = reusableComponents.getAttribute(firstReport_FinancialReport, "href");
+								financialReportURL = hreflink;
+								if (newRecord.contains("FRR")) {
+									ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+											"Created Financial report Name : " + newRecord
+													+ ". Link of created financial report : " + hreflink,
+											browser, pathLocation + "\\" + testcasemethod, false);
+									ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ", browser,
+											hreflink, true);
+								} else {
+									ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+											"There are no new records created , please verify the input values",
+											browser, pathLocation + "\\" + testcasemethod, true);
+								}
+							}
+						}
+
+					} else {
+						ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+								"Newly created ledger is not displayed under P & L vs Budget , Ledger dropdown, Hence can not continue with the test case",
+								browser, pathLocation + "\\" + testcasemethod, true);
+					}
+
+				} else {
+					ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+							"There is a issue when new GL Account test data creation as part of test case "
+									+ testCaseNumber + " hence can not continue with the test case",
+							browser, pathLocation + "\\" + testcasemethod, true);
+				}
+			} else {
+				ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+						"There is a issue when new ledger test data creation as part of test case " + testCaseNumber
+								+ " hence can not continue with the test case",
+						browser, pathLocation + "\\" + testcasemethod, true);
+			}
+
+		} catch (throwNewException e) {
+			e.printStackTrace();
+			ReusableComponents.reportFail(threadID, tempList, testcasemethod, e.getErrorMessage(), browser,
+					pathLocation + "\\" + testcasemethod, true);
+		} catch (Exception e) {
+			e.printStackTrace();
+			ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+					"Exception when trying to login. " + e.getMessage(), browser, pathLocation + "\\" + testcasemethod,
+					true);
+		}
+		return new BankingLedgerPage(browser);
+	}
+
+	/**
+	 * @author WisefinchMenaka
+	 * @see [P&LvB] If the 'Suppress Zero Amount Rows?' checkbox is unchecked before
+	 *      running the report all GL accounts are shown whether or not they have
+	 *      transactions posted to them
+	 * 
+	 * 
+	 * @param threadID
+	 * @param tempList
+	 * @param pathLocation
+	 * @return
+	 * @throws Exception
+	 */
+	public static BankingLedgerPage test2643_BudgetLedgerReport(int threadID, List<String> tempList,
+			String pathLocation) throws Exception {
+
+		String testcasemethod = new Object() {
+		}.getClass().getEnclosingMethod().getName();
+
+		testCaseNumber = "Testcase2643";
+
+		try {
+			LoginToWebpage(threadID, tempList, pathLocation);
+			try {
+				createLedger(threadID, tempList, pathLocation);
+			} catch (Exception e) {
+				ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+						"Exception when creating new Ledger" + e.getMessage(), browser,
+						pathLocation + "\\" + testcasemethod, true);
+			}
+
+			if (newLedgerCreatedStatus) {
+				try {
+					createGLAccount(threadID, tempList, pathLocation);
+				} catch (Exception e) {
+					ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+							"Exception when creating new GL Account" + e.getMessage(), browser,
+							pathLocation + "\\" + testcasemethod, true);
+				}
+				if (newGLAccountCreationStatus) {
+
+					// Run Financial Report
+					String financialReportsURL = reusableComponents.getPropValues("FinancialReports");
+					browser.get(financialReportsURL);
+					// Browser.get is used here since there are issue in launching financial report
+					// from search app. Once the issue resolved we can comment it and unccomment
+					// selectAppFromSearchAppAndItem(threadID, tempList, testcasemethod, "Financial
+					// Reports",
+					ReusableComponents.wait(5000);
+
+					ReusableComponents.wait(5000);
+					ReusableComponents.clickElement(selectStandartReport_FinancialReport,
+							"Click Select standard reportd");
+					ReusableComponents.wait(5000);
+					ReusableComponents.clickElement(pandlvsBudger_selectStandartReport_FinancialReport,
+							"Click P & L vs. Budget");
+					ReusableComponents.wait(5000);
+
+					ReusableComponents.clickElement(removeBudgetLedger_PandLVsBudget, "Remove Budget value");
+					ReusableComponents.sendKey(budgetLedget_PandLVsBudget, newLedgerName, "Provide Ledger Name");
+					ReusableComponents.wait(2000);
+					String selectLedger = ".//*[normalize-space()='" + newLedgerName + "']";
+
+					List<WebElement> newBudgetList = browser.findElements(By.xpath(selectLedger));
+					System.out.println("************ Number of elements " + newBudgetList.size());
+
+					if (newBudgetList.size() != 0) {
+						ReusableComponents.clickElement(browser.findElement(By.xpath(selectLedger)),
+								"Select Ledger Value");
+
+						ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+								"New Ledger : " + newLedgerName + " selected under budget lendger section", browser,
+								pathLocation + "\\" + testcasemethod, false);
+						ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ", browser,
+								pathLocation + "\\" + testcasemethod, true);
+
+						// Uncheck supress zero amount check box
+						ReusableComponents.clickElement(supressZeroAmountCheckBox,
+								"Click Supress zero amount check box");
+						ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+								"By default, Supress Zero amount check box will be checked. We did click once, so the assumption will be the check box is unchecked",
+								browser, pathLocation + "\\" + testcasemethod, false);
+						ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ", browser,
+								pathLocation + "\\" + testcasemethod, true);
+
+						ReusableComponents.scrollDown(browser, 500);
+						// --> Click on run button and get new record URL
+
+						List<WebElement> recordsList = browser.findElements(
+								By.xpath("(.//tr//*[@class='slds-truncate']//a[contains(text(),'FRR')])[1]"));
+						System.out.println("************ Number of elements " + recordsList.size());
+
+						if (recordsList.size() != 0) {
+							String oldRecordName = firstReport_FinancialReport.getText();
+
+							ReusableComponents.clickElement(runButton_FinancialReport, "Clicked on run button");
+							ReusableComponents.reportPass(threadID, tempList, testcasemethod, "Run button clicked",
+									browser, " ", false);
+
+							ReusableComponents.wait(20000);
+
+							String newRecord = firstReport_FinancialReport.getText();
+							if (!newRecord.contains("FRR")) {
+								ReusableComponents.wait(40000);
+
+								newRecord = firstReport_FinancialReport.getText();
+							}
+
+							if (newRecord.contains("FRR") && !oldRecordName.equalsIgnoreCase(newRecord)) {
+								String hreflink = reusableComponents.getAttribute(firstReport_FinancialReport, "href");
+								financialReportURL = hreflink;
+								ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+										"Created Financial report Name : " + newRecord
+												+ ". Link of created financial report : " + hreflink,
+										browser, pathLocation + "\\" + testcasemethod, false);
+								ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ", browser,
+										pathLocation + "\\" + testcasemethod, true);
+							} else {
+
+								ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+										"There are no new records created, provide valid inputs ", browser,
+										pathLocation + "\\" + testcasemethod, true);
+							}
+						} else {
+
+							ReusableComponents.clickElement(runButton_FinancialReport, "Clicked on run button");
+							ReusableComponents.reportPass(threadID, tempList, testcasemethod, "Run button clicked",
+									browser, pathLocation + "\\" + testcasemethod, false);
+
+							ReusableComponents.wait(20000);
+
+							List<WebElement> newRecordsList = browser.findElements(
+									By.xpath("(.//tr//*[@class='slds-truncate']//a[contains(text(),'FRR')])[1]"));
+							System.out.println("************ Number of elements " + newRecordsList.size());
+
+							if (newRecordsList.size() == 0) {
+								ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+										"There are no new records created , please verify the input values", browser,
+										pathLocation + "\\" + testcasemethod, true);
+							} else {
+
+								String newRecord = firstReport_FinancialReport.getText();
+
+								if (!newRecord.contains("FRR")) {
+									ReusableComponents.wait(40000);
+
+									newRecord = firstReport_FinancialReport.getText();
+								}
+
+								String hreflink = reusableComponents.getAttribute(firstReport_FinancialReport, "href");
+								financialReportURL = hreflink;
+								if (newRecord.contains("FRR")) {
+									ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+											"Created Financial report Name : " + newRecord
+													+ ". Link of created financial report : " + hreflink,
+											browser, pathLocation + "\\" + testcasemethod, false);
+									ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ", browser,
+											hreflink, true);
+								} else {
+									ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+											"There are no new records created , please verify the input values",
+											browser, pathLocation + "\\" + testcasemethod, true);
+								}
+							}
+						}
+
+					} else {
+						ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+								"Newly created ledger is not displayed under P & L vs Budget , Ledger dropdown, Hence can not continue with the test case",
+								browser, pathLocation + "\\" + testcasemethod, true);
+					}
+
+				} else {
+					ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+							"There is a issue when new GL Account test data creation as part of test case "
+									+ testCaseNumber + " hence can not continue with the test case",
+							browser, pathLocation + "\\" + testcasemethod, true);
+				}
+			} else {
+				ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+						"There is a issue when new ledger test data creation as part of test case " + testCaseNumber
+								+ " hence can not continue with the test case",
+						browser, pathLocation + "\\" + testcasemethod, true);
+			}
+
+		} catch (throwNewException e) {
+			e.printStackTrace();
+			ReusableComponents.reportFail(threadID, tempList, testcasemethod, e.getErrorMessage(), browser,
+					pathLocation + "\\" + testcasemethod, true);
+		} catch (Exception e) {
+			e.printStackTrace();
+			ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+					"Exception when trying to login. " + e.getMessage(), browser, pathLocation + "\\" + testcasemethod,
+					true);
+		}
+		return new BankingLedgerPage(browser);
+	}
+
+	/**
 	 * test
 	 * 
 	 * @param threadID
@@ -9557,37 +10339,12 @@ public class BankingLedgerPage extends DriverScript {
 		String path = workingDir + reusableComponents.getPropValues("ChromeResultspath") + "\\" + TESTCASENAME;
 		pathLocation = reusableComponents.pathBuilder(path);
 
-		testCaseNumber = "Testcase2623";
+		testCaseNumber = "Testcase2655";
 		String ledgerValue = reusableComponents.getPropValues(testCaseNumber + "_LedgerValue");
 		currentAccoutingPeriod = reusableComponents.getPropValues(testCaseNumber + "_" + "AccountingPeriodForTestCase");
 		currentAccountingPeriodForTheTestCase = "2021-01";
-
+		newLedgerName = "Ledger_Testcase2623_20211012_131139";
 		try {
-
-			LoginToWebpage(threadID, tempList, pathLocation);
-
-			// Run Financial Report
-			String financialReportsURL = reusableComponents.getPropValues("FinancialReports");
-			browser.get(financialReportsURL);
-			// Browser.get is used here since there are issue in launching financial report
-			// from search app. Once the issue resolved we can comment it and unccomment
-			// selectAppFromSearchAppAndItem(threadID, tempList, testcasemethod, "Financial
-			// Reports",
-			ReusableComponents.wait(5000);
-
-			ReusableComponents.clickElement(selectStandartReport_FinancialReport, "Click Select standard reportd");
-			ReusableComponents.wait(5000);
-			ReusableComponents.clickElement(trialBalance_selectStandartReport_FinancialReport,
-					"Click Select Trial Balance");
-			ReusableComponents.wait(5000);
-
-			// Uncheck supress zero amount check box
-			ReusableComponents.clickElement(supressZeroAmountCheckBox, "Click Supress zero amount check box");
-			ReusableComponents.reportPass(threadID, tempList, testcasemethod,
-					"By default, Supress Zero amount check box will be checked. We did click once, so the assumption will be the check box is unchecked",
-					browser, pathLocation + "\\" + testcasemethod, false);
-			ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ", browser,
-					pathLocation + "\\" + testcasemethod, true);
 
 		} catch (Exception e) {
 

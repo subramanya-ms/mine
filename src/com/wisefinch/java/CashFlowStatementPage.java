@@ -31,7 +31,7 @@ public class CashFlowStatementPage extends DriverScript {
 			newAccountingVariableName, clonedNewGLName;
 	static int previousYearClose;
 	static Boolean testDataNewJournalEntryCreated = false, accountCreatedStatus = false, pageOpened = false,
-			newAccountingVariableCreated = false, newCashReceiptCreated = false, clonedGLAccountCreated = false;
+			newAccountingVariableCreated = false, newCashReceiptCreated = false, clonedGLAccountCreated = false, newGLAccountCreationStatus=false;
 
 	static ReusableComponents reusableComponents = new ReusableComponents();
 
@@ -50,9 +50,28 @@ public class CashFlowStatementPage extends DriverScript {
 			e.printStackTrace();
 		}
 	}
-	//////////////////////////////////////
 
-	// latest
+
+	@FindBy(xpath = ".//*[@class='actionBody']//*[contains(text(),'New GL Account')]")
+	static WebElement newGLAccountPopup;
+	
+	@FindBy(xpath = "//span[@title='Assets']")
+	static WebElement subType1_Value_As_Assets_newGLAccountPopUp;
+
+	@FindBy(xpath = "(.//*[@class='actionBody']//input[@role='combobox'])[1]")
+	static WebElement type_newGLAccountPopUp;
+
+	@FindBy(xpath = "(.//*[@class='actionBody']//input[@role='combobox'])[2]")
+	static WebElement subType1_newGLAccountPopUp;
+	
+	@FindBy(xpath = "((.//*[@class='slds-form'])[3]//input[@role='combobox'])[5]")
+	static WebElement cashFlowInputBox_caseReceipt;
+
+	@FindBy(xpath = ".//button[@title='Edit Cash Flow Category']")
+	static WebElement editCashFlow_caseReceipt;
+
+	@FindBy(xpath = ".//*[@slot='secondaryFields']//lightning-formatted-text[contains(text(),'Posted')]")
+	static WebElement caseReceipt_Status_Posted;
 
 	@FindBy(xpath = "//span[@class='slds-listbox__option-meta slds-listbox__option-meta_entity']")
 	static WebElement selectAccountingPeriod_FinancialReport;
@@ -1788,9 +1807,13 @@ public class CashFlowStatementPage extends DriverScript {
 		boolean cashFlowEnable = cashFlowEnableValue;
 		System.out.println("********** Expected condition cashFlowEnable : " + cashFlowEnable);
 		try {
-
-			LoginToWebpage();
-			ReusableComponents.wait(5000);
+			try {
+				LoginToWebpage();
+				ReusableComponents.wait(5000);
+			} catch (Exception e) {
+				e.printStackTrace();
+				System.out.println("########## Login is not applicable");
+			}
 
 			checkDefaultValueOfCashFlowStatement(threadID, tempList, pathLoc);
 
@@ -2537,7 +2560,9 @@ public class CashFlowStatementPage extends DriverScript {
 
 	/**
 	 * @author Wisefinch Lakshman
-	 * @see Create test data Cash receipt
+	 * @see Create test data Cash receipt. Adviceable to call
+	 *      createAccount(threadID, tempList, pathLocation); method before this. Or
+	 *      else given valid account name as a input
 	 * 
 	 * @param threadID
 	 * @param tempList
@@ -2694,13 +2719,20 @@ public class CashFlowStatementPage extends DriverScript {
 
 										if (cashReceiptNameList.size() != 0) {
 											newCashReceiptCreated = true;
-											ReusableComponents.reportPass(threadID, tempList, testcasemethod,
-													"New cash receipt " + createdCashReceiptName.getText()
-															+ " is created successfully",
-													browser, pathLocation + "\\" + testcasemethod, false);
+											if (ReusableComponents.isDisplayed(caseReceipt_Status_Posted,
+													"Cash receipt posted")) {
+												ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+														"New cash receipt " + createdCashReceiptName.getText()
+																+ " is created successfully and posted",
+														browser, pathLocation + "\\" + testcasemethod, false);
 
-											ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ",
-													browser, pathLocation + "\\" + testcasemethod, true);
+												ReusableComponents.reportSpecific(threadID, tempList, testcasemethod,
+														" ", browser, pathLocation + "\\" + testcasemethod, true);
+											} else {
+												ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+														"Cash Receipt is created , however the status is not Posted",
+														browser, pathLocation + "\\" + testcasemethod, true);
+											}
 										} else {
 											newCashReceiptCreated = false;
 											ReusableComponents.reportFail(threadID, tempList, testcasemethod,
@@ -2756,14 +2788,11 @@ public class CashFlowStatementPage extends DriverScript {
 			ReusableComponents.reportFail(threadID, tempList, testcasemethod, e.getErrorMessage(), browser,
 					pathLocation + "\\" + testcasemethod, true);
 		} catch (Exception e) {
-
+			e.printStackTrace();
 			ReusableComponents.reportFail(threadID, tempList, testcasemethod,
-					"Exception during cash receipt creation" + e.getStackTrace(), browser,
-					pathLocation + "\\" + testcasemethod, true);
+					"Exception during cash receipt creation" + e, browser, pathLocation + "\\" + testcasemethod, true);
 
 		}
-
-		navigateToAccountingHomePage();
 
 		return new CashFlowStatementPage(browser);
 
@@ -4524,6 +4553,212 @@ public class CashFlowStatementPage extends DriverScript {
 						"As part test data creation GL account clone with type cash flow is not performed. Hence can not continue with the test case",
 						browser, pathLocation + "\\" + testcasemethod, true);
 			}
+		} catch (throwNewException e) {
+			e.printStackTrace();
+			ReusableComponents.reportFail(threadID, tempList, testcasemethod, e.getErrorMessage(), browser,
+					pathLocation + "\\" + testcasemethod, true);
+		} catch (Exception e) {
+			e.printStackTrace();
+			ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+					"Following exception occured when executing test case test2730_CashFlowCategoryValueCanNotBeChanged"
+							+ e.getStackTrace(),
+					browser, pathLocation + "\\" + testcasemethod, true);
+		}
+		return new CashFlowStatementPage(browser);
+	}
+
+	/**
+	 * @author Wisefinch Menaka
+	 * @see [CF] Verify that if the CF statement is disabled after being enabled,
+	 *      the CF category is not required for posting.
+	 * 
+	 * @param threadID
+	 * @param tempList
+	 * @param pathLocation
+	 * @throws Exception
+	 */
+	public static CashFlowStatementPage test2661_CashFlowTrueFalseCashReceipt(int threadID, List<String> tempList,
+			String pathLocation) throws Exception {
+		String testcasemethod = new Object() {
+		}.getClass().getEnclosingMethod().getName();
+
+		testCaseNumber = "Testcase2661";
+		currentAccountingPeriodForTheTestCase = reusableComponents
+				.getPropValues(testCaseNumber + "_AccountingPeriodForTestCase");
+
+		try {
+			// LoginToWebpage();
+
+			// check Cash flow statement it should be true
+			developerConsole_QueryRun_CashFlowTrueOrFalse(threadID, tempList, pathLocation, true);
+
+			// check Cash flow statement it should be false
+			developerConsole_QueryRun_CashFlowTrueOrFalse(threadID, tempList, pathLocation, false);
+
+			// Create account
+			createAccount(threadID, tempList, pathLocation);
+
+			// create Cash Receipt
+			createCashReceipt(threadID, tempList, pathLocation);
+
+			ReusableComponents.scrollDownUsingPageDown(browser);
+			ReusableComponents.wait(5000);
+
+			ReusableComponents.clickElement(editCashFlowCategoryButton, "Click on edit cash flow button");
+			ReusableComponents.wait(5000);
+			ReusableComponents.getText(cashFlowInputBox_caseReceipt, "Cash Flow Category");
+
+			String defaultTextCashFlow = ReusableComponents.getText(cashFlowInputBox_caseReceipt,
+					"Cash Flow Category Default value");
+			System.out.println("*********** defaultTextCashFlow : " + defaultTextCashFlow);
+			if (defaultTextCashFlow.equalsIgnoreCase("")) {
+				ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+						"Cash flow category value is empty. There are no default values are selected", browser,
+						pathLocation + "\\" + testcasemethod, false);
+				ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ", browser,
+						pathLocation + "\\" + testcasemethod, true);
+			} else {
+				ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+						"Cash flow category value is not empty. It says " + defaultTextCashFlow, browser,
+						pathLocation + "\\" + testcasemethod, true);
+			}
+
+		} catch (throwNewException e) {
+			e.printStackTrace();
+			ReusableComponents.reportFail(threadID, tempList, testcasemethod, e.getErrorMessage(), browser,
+					pathLocation + "\\" + testcasemethod, true);
+		} catch (Exception e) {
+			e.printStackTrace();
+			ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+					"Following exception occured when executing test case test2730_CashFlowCategoryValueCanNotBeChanged"
+							+ e.getStackTrace(),
+					browser, pathLocation + "\\" + testcasemethod, true);
+		}
+		return new CashFlowStatementPage(browser);
+	}
+	
+	
+	/**
+	 * @author Wisefinch Menaka
+	 * @see This is to create GL account
+	 * 
+	 * @param threadID
+	 * @param tempList
+	 * @param testcasemethod
+	 * @param appNameToSearch
+	 * @param selectAppXpath
+	 * @throws Exception
+	 */
+	public static BankingLedgerPage createGLAccount(int threadID, List<String> tempList, String pathLocation)
+			throws Exception {
+
+		String testcasemethod = new Object() {
+		}.getClass().getEnclosingMethod().getName();
+
+		if (reusableComponents.getPropValues(testCaseNumber + "_GLName") == null) {
+			newGLName = "GLAccount_" + testCaseNumber + "_"
+					+ ReusableComponents.getCurrentDateAndTime("yyyyMMdd_HHmmss");
+		} else {
+			newGLName = reusableComponents.getPropValues(testCaseNumber + "_GLName");
+		}
+		String glAccountTypeValue = reusableComponents.getPropValues(testCaseNumber + "_" + "GLAccountTypeValue");
+		String glAccountSubTypeValue = reusableComponents.getPropValues(testCaseNumber + "_" + "GLAccountSubTypeValue");
+
+		try {
+			selectAppFromSearchAppAndItem(threadID, tempList, pathLocation, "GL Accounts", SelectGLAccount);
+
+			// --> Click on new button
+
+			ReusableComponents.clickElement(New, "New Button");
+			ReusableComponents.wait(5000);
+
+			// --> Provide values for new GL account
+
+			if (newGLAccountPopup.isDisplayed() == true) {
+				ReusableComponents.sendKey(name_NewGLAccount, newGLName, "Provide GL Account Name");
+				/*
+				 * ReusableComponents.reportSpecific(threadID, tempList, testcasemethod,
+				 * "With the assumption Bank/Credit Card Account check box will be always selected"
+				 * , browser, pathLocation + "\\" + testcasemethod, true);
+				 */
+				ReusableComponents.clickElement(type_newGLAccountPopUp, "Click type ");
+				String typeValueXpath = ".//span[@title='" + glAccountTypeValue + "']";
+				WebElement typeValueElement = browser.findElement(By.xpath(typeValueXpath));
+				ReusableComponents.clickUsingJavaScript(browser, typeValueElement, "Select type value");
+
+				ReusableComponents.clickElement(subType1_newGLAccountPopUp, "Click sub type 1");
+				String sybTypeValueXpath = ".//span[@title='" + glAccountSubTypeValue + "']";
+				WebElement subTypeValueElement = browser.findElement(By.xpath(sybTypeValueXpath));
+				ReusableComponents.clickUsingJavaScript(browser, subTypeValueElement, "Select subtype 1 value");
+
+				ReusableComponents.clickElement(saveButton_NewGLAccount, "Click on Save");
+				ReusableComponents.wait(10000);
+
+				// Verify new GL Account created
+				String newGLAccount = ".//*[@slot='primaryField']/lightning-formatted-text[contains(text(),'"
+						+ newGLName + "')]";
+				if (browser.findElement(By.xpath(newGLAccount)).isDisplayed() == true) {
+					newGLAccountCreationStatus = true;
+					ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+							"New GL Account " + newGLName + " is displayed", browser,
+							pathLocation + "\\" + testcasemethod, false);
+					ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ", browser,
+							pathLocation + "\\" + testcasemethod, true);
+				} else {
+					newGLAccountCreationStatus = false;
+					ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+							"New GL Account " + newGLName + " is not displayed", browser,
+							pathLocation + "\\" + testcasemethod, true);
+				}
+			} else {
+				ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+						"New GL Account popup is not displayed", browser, pathLocation + "\\" + testcasemethod, true);
+			}
+		} catch (throwNewException e) {
+			e.printStackTrace();
+			ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+					"Exception During new GL account creation" + e.getErrorMessage(), browser,
+					pathLocation + "\\" + testcasemethod, true);
+		} catch (Exception e) {
+			e.printStackTrace();
+			ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+					"Exception when trying to Create GL account" + e.getStackTrace(), browser,
+					pathLocation + "\\" + testcasemethod, true);
+		}
+
+		return new BankingLedgerPage(browser);
+	}
+
+
+	/**
+	 * @author Wisefinch Menaka
+	 * @see [CF] Verify that a CF category cannot be deleted once there are records
+	 *      associated to it
+	 * 
+	 * @param threadID
+	 * @param tempList
+	 * @param pathLocation
+	 * @throws Exception
+	 */
+	public static CashFlowStatementPage test2662_CashFlowCanNotDeleteWithRecords(int threadID, List<String> tempList,
+			String pathLocation) throws Exception {
+		String testcasemethod = new Object() {
+		}.getClass().getEnclosingMethod().getName();
+
+		testCaseNumber = "Testcase2662";
+		currentAccountingPeriodForTheTestCase = reusableComponents
+				.getPropValues(testCaseNumber + "_AccountingPeriodForTestCase");
+
+		try {
+			LoginToWebpage();
+
+			// check Cash flow statement it should be true
+			developerConsole_QueryRun_CashFlowTrueOrFalse(threadID, tempList,
+			pathLocation, true);
+			
+			// Create GL account with cash flow
+			createGLAccount(threadID, tempList, pathLocation);
+
 		} catch (throwNewException e) {
 			e.printStackTrace();
 			ReusableComponents.reportFail(threadID, tempList, testcasemethod, e.getErrorMessage(), browser,

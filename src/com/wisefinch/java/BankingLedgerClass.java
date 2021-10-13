@@ -80,8 +80,11 @@ public class BankingLedgerClass extends DriverScript {
 
 		String strClassName = new Object() {
 		}.getClass().getName();
+		
 		String testMethod = strClassName + "_" + TESTCASENAME;
+		
 		String workingDir = System.getProperty("user.dir");
+		
 
 		// int threadID = (int) (long) Thread.currentThread().getId();
 		int threadID = 0;
@@ -125,6 +128,7 @@ public class BankingLedgerClass extends DriverScript {
 		System.out.println("******************** PathLoc " + pathLoc);
 		String pathLoction = reusableComponents.pathBuilder(path);
 		System.out.println("******************** PathLoc " + pathLoction);
+		
 
 		resultList = new ArrayList<String>();
 
@@ -163,6 +167,8 @@ public class BankingLedgerClass extends DriverScript {
 			if (testResult.length > 3) {
 				filePath = testResult[3].toLowerCase();
 			}
+
+		
 
 			switch (stepStatus) {
 			case "info":
@@ -987,9 +993,9 @@ public class BankingLedgerClass extends DriverScript {
 
 	@Test
 	@Parameters({ "platform", "browserName", "remoteurl" })
-	public synchronized void test2623_SupressZeroUnCheGLNoTransZero(
-			@Optional("opt platform") String platform, @Optional("opt browser name") String browserName,
-			@Optional("opt remoteurl") String remoteurl) throws Exception {
+	public synchronized void test2623_SupressZeroUnCheGLNoTransZero(@Optional("opt platform") String platform,
+			@Optional("opt browser name") String browserName, @Optional("opt remoteurl") String remoteurl)
+			throws Exception {
 
 		TESTCASENAME = new Object() {
 		}.getClass().getEnclosingMethod().getName();
@@ -1103,9 +1109,9 @@ public class BankingLedgerClass extends DriverScript {
 
 	@Test
 	@Parameters({ "platform", "browserName", "remoteurl" })
-	public synchronized void test2624_SupressGLAccTrans(
-			@Optional("opt platform") String platform, @Optional("opt browser name") String browserName,
-			@Optional("opt remoteurl") String remoteurl) throws Exception {
+	public synchronized void test2624_SupressGLAccTrans(@Optional("opt platform") String platform,
+			@Optional("opt browser name") String browserName, @Optional("opt remoteurl") String remoteurl)
+			throws Exception {
 
 		TESTCASENAME = new Object() {
 		}.getClass().getEnclosingMethod().getName();
@@ -1154,7 +1160,7 @@ public class BankingLedgerClass extends DriverScript {
 			path = workingDir + reusableComponents.getPropValues("ChromeResultspath") + "\\" + TESTCASENAME;
 			break;
 		}
-		
+
 		String pathLocation = reusableComponents.pathBuilder(path);
 		System.out.println("******************** pathLoction " + pathLocation);
 
@@ -1169,8 +1175,8 @@ public class BankingLedgerClass extends DriverScript {
 
 		reusableComponents.props.get("key");
 
-		page.bankingLedgerTest(threadID, tempResultList, pathLocation)
-				.test2624_SupressZeroCheckGLAccount(threadID, tempResultList, pathLocation);
+		page.bankingLedgerTest(threadID, tempResultList, pathLocation).test2624_SupressZeroCheckGLAccount(threadID,
+				tempResultList, pathLocation);
 
 		// page.bankingLedgerTest(threadID, tempResultList,
 		// pathLoction).testHere(threadID, tempResultList,
@@ -1216,8 +1222,7 @@ public class BankingLedgerClass extends DriverScript {
 		}
 
 	}
-	
-	
+
 	@Test
 	@Parameters({ "platform", "browserName", "remoteurl" })
 	public synchronized void test2625_SupressZeroUncheckedGLAccountNoTransactionZero(
@@ -1271,7 +1276,7 @@ public class BankingLedgerClass extends DriverScript {
 			path = workingDir + reusableComponents.getPropValues("ChromeResultspath") + "\\" + TESTCASENAME;
 			break;
 		}
-		
+
 		String pathLocation = reusableComponents.pathBuilder(path);
 		System.out.println("******************** pathLoction " + pathLocation);
 
@@ -1281,8 +1286,8 @@ public class BankingLedgerClass extends DriverScript {
 				pathLocation + "\\" + TESTCASENAME, false);
 
 		ReusableComponents.reportInfo(threadID, tempResultList, testMethod,
-				"[TB] Verify that the Trial Balance report can be run for the current (first open) period.",
-				browser, pathLocation + "\\" + TESTCASENAME, false);
+				"[TB] Verify that the Trial Balance report can be run for the current (first open) period.", browser,
+				pathLocation + "\\" + TESTCASENAME, false);
 
 		reusableComponents.props.get("key");
 
@@ -1334,12 +1339,11 @@ public class BankingLedgerClass extends DriverScript {
 
 	}
 
-	
 	@Test
 	@Parameters({ "platform", "browserName", "remoteurl" })
-	public synchronized void test2626_NoTBWhenPreviousAccountingPeriodOpen(
-			@Optional("opt platform") String platform, @Optional("opt browser name") String browserName,
-			@Optional("opt remoteurl") String remoteurl) throws Exception {
+	public synchronized void test2626_NoTBWhenPreviousAccountingPeriodOpen(@Optional("opt platform") String platform,
+			@Optional("opt browser name") String browserName, @Optional("opt remoteurl") String remoteurl)
+			throws Exception {
 
 		TESTCASENAME = new Object() {
 		}.getClass().getEnclosingMethod().getName();
@@ -1388,7 +1392,7 @@ public class BankingLedgerClass extends DriverScript {
 			path = workingDir + reusableComponents.getPropValues("ChromeResultspath") + "\\" + TESTCASENAME;
 			break;
 		}
-		
+
 		String pathLocation = reusableComponents.pathBuilder(path);
 		System.out.println("******************** pathLoction " + pathLocation);
 
@@ -1451,6 +1455,343 @@ public class BankingLedgerClass extends DriverScript {
 
 	}
 
+	@Test
+	@Parameters({ "platform", "browserName", "remoteurl" })
+	public synchronized void testHere(@Optional("opt platform") String platform,
+			@Optional("opt browser name") String browserName, @Optional("opt remoteurl") String remoteurl)
+			throws Exception {
+
+		TESTCASENAME = new Object() {
+		}.getClass().getEnclosingMethod().getName();
+
+		String strClassName = new Object() {
+		}.getClass().getName();
+		
+		String testMethod = strClassName + "_" + TESTCASENAME;
+		
+		String workingDir = System.getProperty("user.dir");
+		
+
+		// int threadID = (int) (long) Thread.currentThread().getId();
+		int threadID = 0;
+		List<String> tempResultList = new ArrayList<String>();
+
+		String url = reusableComponents.getPropValues("PLURL");
+		browser.manage().deleteAllCookies();
+		browser.get(url);
+
+		browser.manage().window().maximize();
+		/*
+		 * ReusableComponents.reportInfo(threadID, tempResultList, testMethod,
+		 * "Test Case with Thread Id:- " + threadID, browser, pathLoc + "\\" +
+		 * TESTCASENAME, false);
+		 */
+
+		Page page = new Page(browser);
+
+		String path;
+		switch (browserName) {
+
+		case "Firefox":
+			path = workingDir + reusableComponents.getPropValues("FirefoxResultspath") + "\\" + TESTCASENAME;
+			break;
+		case "Chrome":
+			path = workingDir + reusableComponents.getPropValues("ChromeResultspath") + "\\" + TESTCASENAME;
+			break;
+		case "internet explorer":
+			path = workingDir + reusableComponents.getPropValues("IEResultspath") + "\\" + TESTCASENAME;
+			break;
+		case "firefox":
+			path = workingDir + reusableComponents.getPropValues("FirefoxResultspath") + "\\" + TESTCASENAME;
+			break;
+		case "chrome":
+			path = workingDir + reusableComponents.getPropValues("ChromeResultspath") + "\\" + TESTCASENAME;
+			break;
+		default:
+			path = workingDir + reusableComponents.getPropValues("ChromeResultspath") + "\\" + TESTCASENAME;
+			break;
+		}
+		System.out.println("******************** PathLoc " + pathLoc);
+		String pathLoction = reusableComponents.pathBuilder(path);
+		System.out.println("******************** PathLoc " + pathLoction);
+		
+
+		resultList = new ArrayList<String>();
+
+		ReusableComponents.reportInfo(threadID, tempResultList, testMethod, "Test Case Number : 2703", browser,
+				pathLoc + "\\" + TESTCASENAME, false);
+
+		ReusableComponents.reportInfo(threadID, tempResultList, testMethod,
+				"Test case title : [BL] Verify that the Balance Sheet shows correct amounts for all  the Asset GL Accounts on period closing (not year-end)",
+				browser, pathLoc + "\\" + TESTCASENAME, false);
+
+		reusableComponents.props.get("key");
+		page.bankingLedgerTest(threadID, tempResultList, pathLoction).testHere(threadID, tempResultList, pathLoction);
+
+		logger = report.startTest(testMethod);
+		List<String> testList = hmap.get(0);
+
+		for (int i = 0; i < testList.size(); i++) {
+			String eachElement = testList.get(i);
+			System.out.println("Test Case in Extent Reporting with Thread Id step " + (i + 1) + " :- " + eachElement);
+			String[] testResult = eachElement.split("&");
+
+			String stepStatus = testResult[0].toLowerCase();
+
+			String testMethodName = testResult[1].toLowerCase();
+
+			// String testDesc = testResult[2].toLowerCase();
+			String testDesc = testResult[2];
+
+			String filePath = "";
+
+			if (testResult.length > 3) {
+				filePath = testResult[3].toLowerCase();
+			}
+
+			switch (stepStatus) {
+			case "info":
+				logger.log(LogStatus.INFO, testDesc);
+				break;
+			case "pass":
+				logger.log(LogStatus.PASS, testDesc);
+				break;
+			case "unknown": // updated the logger to handle specific type of logger, which was unused
+				logger.log(LogStatus.UNKNOWN, testDesc + logger.addScreenCapture(filePath));
+				break;
+			case "fail":
+				logger.log(LogStatus.FAIL, testDesc + logger.addScreenCapture(filePath));
+				failcounter++;
+				break;
+			}
+
+		}
+
+	}
+
+	@Test
+	@Parameters({ "platform", "browserName", "remoteurl" })
+	public synchronized void test2642_BudgetLedgerReport(@Optional("opt platform") String platform,
+			@Optional("opt browser name") String browserName, @Optional("opt remoteurl") String remoteurl)
+			throws Exception {
+
+		TESTCASENAME = new Object() {
+		}.getClass().getEnclosingMethod().getName();
+
+		String strClassName = new Object() {
+		}.getClass().getName();
+		String testMethod = strClassName + "_" + TESTCASENAME;
+		String workingDir = System.getProperty("user.dir");
+
+		// int threadID = (int) (long) Thread.currentThread().getId();
+		int threadID = 0;
+		List<String> tempResultList = new ArrayList<String>();
+
+		String url = reusableComponents.getPropValues("PLURL");
+		browser.manage().deleteAllCookies();
+		browser.get(url);
+
+		browser.manage().window().maximize();
+		/*
+		 * ReusableComponents.reportInfo(threadID, tempResultList, testMethod,
+		 * "Test Case with Thread Id:- " + threadID, browser, pathLoc + "\\" +
+		 * TESTCASENAME, false);
+		 */
+
+		Page page = new Page(browser);
+
+		String path;
+		switch (browserName) {
+
+		case "Firefox":
+			path = workingDir + reusableComponents.getPropValues("FirefoxResultspath") + "\\" + TESTCASENAME;
+			break;
+		case "Chrome":
+			path = workingDir + reusableComponents.getPropValues("ChromeResultspath") + "\\" + TESTCASENAME;
+			break;
+		case "internet explorer":
+			path = workingDir + reusableComponents.getPropValues("IEResultspath") + "\\" + TESTCASENAME;
+			break;
+		case "firefox":
+			path = workingDir + reusableComponents.getPropValues("FirefoxResultspath") + "\\" + TESTCASENAME;
+			break;
+		case "chrome":
+			path = workingDir + reusableComponents.getPropValues("ChromeResultspath") + "\\" + TESTCASENAME;
+			break;
+		default:
+			path = workingDir + reusableComponents.getPropValues("ChromeResultspath") + "\\" + TESTCASENAME;
+			break;
+		}
+		System.out.println("******************** PathLoc " + pathLoc);
+		String pathLoction = reusableComponents.pathBuilder(path);
+		System.out.println("******************** PathLoc " + pathLoction);
+		System.out.println("@@@@@@@@@@ pathLoction " + pathLoction);
+
+		resultList = new ArrayList<String>();
+
+		ReusableComponents.reportInfo(threadID, tempResultList, testMethod, "Test Case Number : 2642", browser,
+				pathLoc + "\\" + TESTCASENAME, false);
+
+		ReusableComponents.reportInfo(threadID, tempResultList, testMethod,
+				"[P&LvB] If the 'Suppress Zero Amount Rows?' checkbox is checked before running the report only GL accounts that have transactions posted to them are shown.",
+				browser, pathLoc + "\\" + TESTCASENAME, false);
+
+		reusableComponents.props.get("key");
+		page.bankingLedgerTest(threadID, tempResultList, pathLoction).test2642_BudgetLedgerReport(threadID,
+				tempResultList, pathLoction);
+
+		logger = report.startTest(testMethod);
+		List<String> testList = hmap.get(0);
+
+		for (int i = 0; i < testList.size(); i++) {
+			String eachElement = testList.get(i);
+			System.out.println("Test Case in Extent Reporting with Thread Id step " + (i + 1) + " :- " + eachElement);
+			String[] testResult = eachElement.split("&");
+
+			String stepStatus = testResult[0].toLowerCase();
+
+			String testMethodName = testResult[1].toLowerCase();
+
+			// String testDesc = testResult[2].toLowerCase();
+			String testDesc = testResult[2];
+
+			String filePath = "";
+
+			if (testResult.length > 3) {
+				filePath = testResult[3].toLowerCase();
+			}
+
+			switch (stepStatus) {
+			case "info":
+				logger.log(LogStatus.INFO, testDesc);
+				break;
+			case "pass":
+				logger.log(LogStatus.PASS, testDesc);
+				break;
+			case "unknown": // updated the logger to handle specific type of logger, which was unused
+				logger.log(LogStatus.UNKNOWN, testDesc + logger.addScreenCapture(filePath));
+				break;
+			case "fail":
+				logger.log(LogStatus.FAIL, testDesc + logger.addScreenCapture(filePath));
+				failcounter++;
+				break;
+			}
+
+		}
+
+	}
+
+	@Test
+	@Parameters({ "platform", "browserName", "remoteurl" })
+	public synchronized void test2643_BudgetLedgerReport(@Optional("opt platform") String platform,
+			@Optional("opt browser name") String browserName, @Optional("opt remoteurl") String remoteurl)
+			throws Exception {
+
+		TESTCASENAME = new Object() {
+		}.getClass().getEnclosingMethod().getName();
+
+		String strClassName = new Object() {
+		}.getClass().getName();
+		String testMethod = strClassName + "_" + TESTCASENAME;
+		String workingDir = System.getProperty("user.dir");
+
+		// int threadID = (int) (long) Thread.currentThread().getId();
+		int threadID = 0;
+		List<String> tempResultList = new ArrayList<String>();
+
+		String url = reusableComponents.getPropValues("PLURL");
+		browser.manage().deleteAllCookies();
+		browser.get(url);
+
+		browser.manage().window().maximize();
+		/*
+		 * ReusableComponents.reportInfo(threadID, tempResultList, testMethod,
+		 * "Test Case with Thread Id:- " + threadID, browser, pathLoc + "\\" +
+		 * TESTCASENAME, false);
+		 */
+
+		Page page = new Page(browser);
+
+		String path;
+		switch (browserName) {
+
+		case "Firefox":
+			path = workingDir + reusableComponents.getPropValues("FirefoxResultspath") + "\\" + TESTCASENAME;
+			break;
+		case "Chrome":
+			path = workingDir + reusableComponents.getPropValues("ChromeResultspath") + "\\" + TESTCASENAME;
+			break;
+		case "internet explorer":
+			path = workingDir + reusableComponents.getPropValues("IEResultspath") + "\\" + TESTCASENAME;
+			break;
+		case "firefox":
+			path = workingDir + reusableComponents.getPropValues("FirefoxResultspath") + "\\" + TESTCASENAME;
+			break;
+		case "chrome":
+			path = workingDir + reusableComponents.getPropValues("ChromeResultspath") + "\\" + TESTCASENAME;
+			break;
+		default:
+			path = workingDir + reusableComponents.getPropValues("ChromeResultspath") + "\\" + TESTCASENAME;
+			break;
+		}
+		System.out.println("******************** PathLoc " + pathLoc);
+		String pathLoction = reusableComponents.pathBuilder(path);
+		System.out.println("******************** PathLoc " + pathLoction);
+		System.out.println("@@@@@@@@@@ pathLoction " + pathLoction);
+
+		resultList = new ArrayList<String>();
+
+		ReusableComponents.reportInfo(threadID, tempResultList, testMethod, "Test Case Number : 2643", browser,
+				pathLoc + "\\" + TESTCASENAME, false);
+
+		ReusableComponents.reportInfo(threadID, tempResultList, testMethod,
+				"[P&LvB] If the 'Suppress Zero Amount Rows?' checkbox is unchecked before running the report all GL accounts are shown whether or not they have transactions posted to them",
+				browser, pathLoc + "\\" + TESTCASENAME, false);
+
+		reusableComponents.props.get("key");
+		page.bankingLedgerTest(threadID, tempResultList, pathLoction).test2643_BudgetLedgerReport(threadID,
+				tempResultList, pathLoction);
+
+		logger = report.startTest(testMethod);
+		List<String> testList = hmap.get(0);
+
+		for (int i = 0; i < testList.size(); i++) {
+			String eachElement = testList.get(i);
+			System.out.println("Test Case in Extent Reporting with Thread Id step " + (i + 1) + " :- " + eachElement);
+			String[] testResult = eachElement.split("&");
+
+			String stepStatus = testResult[0].toLowerCase();
+
+			String testMethodName = testResult[1].toLowerCase();
+
+			// String testDesc = testResult[2].toLowerCase();
+			String testDesc = testResult[2];
+
+			String filePath = "";
+
+			if (testResult.length > 3) {
+				filePath = testResult[3].toLowerCase();
+			}
+
+			switch (stepStatus) {
+			case "info":
+				logger.log(LogStatus.INFO, testDesc);
+				break;
+			case "pass":
+				logger.log(LogStatus.PASS, testDesc);
+				break;
+			case "unknown": // updated the logger to handle specific type of logger, which was unused
+				logger.log(LogStatus.UNKNOWN, testDesc + logger.addScreenCapture(filePath));
+				break;
+			case "fail":
+				logger.log(LogStatus.FAIL, testDesc + logger.addScreenCapture(filePath));
+				failcounter++;
+				break;
+			}
+
+		}
+
+	}
 
 	@AfterClass
 	public void wrapUp() {
