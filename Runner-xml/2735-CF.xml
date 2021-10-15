@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<suite name="Suite">
+	<test verbose ="2" name = "StandaloneWin10" group-by-instances="true" thread-count="1">	
+		 	<classes>
+		 			  
+		 	  <class name = "com.wisefinch.java.T2735Class" >
+				<methods>
+		
+					<include name = "validate_T2735Page" />	
+
+				</methods>
+  			</class>
+		 			 
+		 	
+		 			 
+	 	 </classes>
+	</test> <!-- Default Test -->
+	
+</suite> <!-- Suite -->

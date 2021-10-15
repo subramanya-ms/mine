@@ -126,7 +126,7 @@ public class Cash_Flow_Reports extends DriverScript {
 					TestNG runner = new TestNG();
 					List<String> suitefiles=new ArrayList<String>();
 					
-					running_now = workingDir+"/"+testcasename.get(j)+"-CF.xml";
+					running_now = workingDir+"/Runner-xml/"+testcasename.get(j)+"-CF.xml";
 					suitefiles.add(running_now);//
 					System.out.println("working directory is "+workingDir);
 					System.out.println("working case is "+running_now);

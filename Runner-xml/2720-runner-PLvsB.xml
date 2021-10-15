@@ -6,7 +6,7 @@
 		 	  <class name = "com.wisefinch.java.SearchAppItemClass" >
 				<methods>
 		
-					<include name = "validateSearchAppItem_2719" />	
+					<include name = "validateSearchAppItem_2720" />	
 
 				</methods>
   			</class>

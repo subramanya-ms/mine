@@ -187,6 +187,7 @@ public class T2614Page extends DriverScript {
 		String testcasemethod = new Object() {}.getClass().getEnclosingMethod().getName();
 		
 		try {
+			ReusableComponents.wait(5000);
 			browser.navigate().to("https://jasper-uat-mc-dev-ed.lightning.force.com/lightning/n/AcctSeed__Accounting_Home1");
 			ReusableComponents.wait(5000);
 			

@@ -479,9 +479,10 @@ public class T2612Page extends DriverScript {
 				xpathtoAccountingVariable = "(//input[@placeholder='Search Accounting Variables...'])[3]";
 				break;	
 			case "GL Account Variable 4":
-				xpathtoAccountingVariable = "(//input[@placeholder='Search Accounting Variables...'])[4]";
-			case "Time Card Variable 1":
 				xpathtoAccountingVariable = "(//input[@placeholder='Search Accounting Variables...'])[5]";
+				break;
+			case "Time Card Variable 1":
+				xpathtoAccountingVariable = "(//input[@placeholder='Search Accounting Variables...'])[4]";
 				break;
 			case "Time Card Variable 2":
 				xpathtoAccountingVariable = "(//input[@placeholder='Search Accounting Variables...'])[6]";

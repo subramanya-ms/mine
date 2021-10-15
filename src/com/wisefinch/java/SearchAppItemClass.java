@@ -63,7 +63,7 @@ public class SearchAppItemClass extends DriverScript {
 
 		options.setExperimentalOption("prefs", prefs);
 
-		System.setProperty("webdriver.chrome.driver", workingDir + "/seleniumjars/chromedriver.exe");
+		System.setProperty("webdriver.chrome.driver", workingDir + "/seleniumjars/chrome/chromedriver.exe");
 
 		browser = new ChromeDriver(options);
 

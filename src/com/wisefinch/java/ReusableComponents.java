@@ -730,13 +730,13 @@ public class ReusableComponents extends DriverScript {
 			WebDriver browser, String screenShotPath, boolean flag) {
 		System.out.println(testMethod + " : " + description + " PASS");
 		resultList.add(testMethod + " : " + description + " -- PASS");
-		System.out.println("----------------> reportPass <----------------");
-		System.out.println("----------------> threadID " + threadID);
-		System.out.println("----------------> tempList " + tempList);
-		System.out.println("----------------> testMethod " + testMethod);
-		System.out.println("----------------> description " + description);
-		System.out.println("----------------> browser " + browser);
-		System.out.println("----------------> screenShotPath " + screenShotPath);
+//		System.out.println("----------------> reportPass <----------------");
+//		System.out.println("----------------> threadID " + threadID);
+//		System.out.println("----------------> tempList " + tempList);
+//		System.out.println("----------------> testMethod " + testMethod);
+//		System.out.println("----------------> description " + description);
+//		System.out.println("----------------> browser " + browser);
+//		System.out.println("----------------> screenShotPath " + screenShotPath);
 
 		if (flag == true) {
 

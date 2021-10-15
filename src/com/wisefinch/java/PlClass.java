@@ -227,7 +227,7 @@ public class PlClass extends DriverScript{
 		
 		TESTCASENAME = new Object(){}.getClass().getEnclosingMethod().getName();
 		
-		TESTCASENAME = "Test-2676";
+		TESTCASENAME = "Test-hashmap";
 		String strClassName = new Object(){}.getClass().getName();
 		
 		strClassName = "Financial Reports PL";
@@ -241,7 +241,7 @@ public class PlClass extends DriverScript{
 			
 		String url = reusableComponents.getPropValues("PLURL");
 		browser.manage().deleteAllCookies();
-		//browser.get(url);
+		browser.get(url);
 		//browser.navigate().to(url);
 
 	ReusableComponents.reportInfo(threadID,tempResultList,testMethod , "Chrome Browser started", browser ,pathLoc+"/"+TESTCASENAME , false );
@@ -288,7 +288,7 @@ public class PlClass extends DriverScript{
 	
 			
 		page.navigateToPlPage(threadID,tempResultList ,pathLoc)
-		//.Salesforce_login(threadID, tempResultList, pathLoc) //this is login page
+		.Salesforce_login(threadID, tempResultList, pathLoc) //this is login page
 		//.validateTestC(threadID, tempResultList, pathLoc)  // excel read and multiple options
 		//.validateTestD(threadID, tempResultList, pathLoc)
 		//.validateTestB(threadID, tempResultList, pathLoc)
@@ -321,6 +321,8 @@ public class PlClass extends DriverScript{
 			if(testResult.length>3){
 				filePath =  testResult[3].toLowerCase();
 			}
+			
+			resultpath = workingDir+"/Results/"+TESTCASENAME+filePath;
 			
 			switch (stepStatus){
 				case "info":

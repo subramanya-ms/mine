@@ -23,10 +23,11 @@ public class DriverScript {
 	static DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy-HH-mm");
 	static Calendar c = Calendar.getInstance();
 	
-	public static String filename = dateFormat.format(c.getTime())+"PnLReport.html";
+	public static String filename = dateFormat.format(c.getTime())+"Report.html";
 	
 	 static String workingDir = System.getProperty("user.dir");
      static String resultpath = workingDir+"/Reports/";
+   //  static String resultpath = null;
      public static ExtentReports report = new ExtentReports(resultpath+filename );
      //public static ExtentReports report = new ExtentReports(resultpath+dateFormat.format(c.getTime())+"webdriverunresult1.html" );
 	
