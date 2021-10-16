@@ -710,6 +710,16 @@ public class Page extends DriverScript {
 	return new T2647Page(browser);
 	}
 
-
+	/***
+	 * Created By : Menaka
+	 *
+	 ***/
+	public synchronized AccountingSeedReusableFunctionalities accountingSeedReusableFunction(int threadID, List<String> tempList, String pathLoc) {
+		String testcasemethod = new Object() {
+		}.getClass().getEnclosingMethod().getName();
+		ReusableComponents.reportInfo(threadID, tempList, testcasemethod, "Validation searchapp item Page", browser,
+				pathLoc + "/" + testcasemethod, false);
+		return new AccountingSeedReusableFunctionalities(browser);
+	}
 
 }
