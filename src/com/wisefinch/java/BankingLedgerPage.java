@@ -10345,6 +10345,24 @@ public class BankingLedgerPage extends DriverScript {
 		currentAccountingPeriodForTheTestCase = "2021-01";
 		newLedgerName = "Ledger_Testcase2623_20211012_131139";
 		try {
+			Page page = new Page(browser);
+			page.accountingSeedReusableFunction(threadID, tempList, pathLocation);
+			AccountingSeedReusableFunctionalities.LoginToWebpage(threadID, tempList, pathLocation, browser);
+			
+			try {
+				AccountingSeedReusableFunctionalities.closeAccountingPeriod(threadID, tempList, pathLocation, browser,
+						"2020-05");
+			} catch (Exception e) {
+				System.out.println("*********** Exception when trying to open 2020-05");
+			}
+
+			try {
+				AccountingSeedReusableFunctionalities.openAccountingPeriod(threadID, tempList, pathLocation, browser,
+						"2022-05");
+			} catch (Exception e) {
+				System.out.println("*********** Exception when trying to open 2020-05");
+			}		
+
 
 		} catch (Exception e) {
 

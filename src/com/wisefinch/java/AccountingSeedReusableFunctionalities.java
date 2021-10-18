@@ -42,7 +42,7 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 	static boolean accountCreatedStatus = false, testDataNewBillingCreated = false, testDataNewDisbursement = false,
 			newPayableStatus = false, newLedgerCreatedStatus = false, newGLAccountCreationStatus = false,
 			accountingPeriodStatusChangedToClosed = false, closedAllTheAccountingPeriodOfTheYear = false,
-			accountingPeriodStatusChangedToOpen = false;
+			accountingPeriodStatusChangedToOpen = false, openedAllTheAccountingPeriodOfTheYear = false;
 
 	protected AccountingSeedReusableFunctionalities(WebDriver browser) {
 		this.browser = browser;
@@ -612,7 +612,7 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 	 * @throws Exception
 	 */
 	public static AccountingSeedReusableFunctionalities LoginToWebpage(int threadID, List<String> tempList,
-			String pathLocation) throws Exception {
+			String pathLocation, WebDriver browser) throws Exception {
 
 		String testcasemethod = new Object() {
 		}.getClass().getEnclosingMethod().getName();
@@ -701,6 +701,68 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 	}
 
 	/**
+	 * Author Menaka
+	 * 
+	 * @see Click on search icon present in Jasper webpage, in search input box
+	 *      provide appNameToSearch to search and click the webelemet with the help
+	 *      of selectAppXpath
+	 * 
+	 * @param threadID
+	 * @param tempList
+	 * @param testcasemethod
+	 * @param appNameToSearch --> App name to pass inside search app and items
+	 *                        section input box
+	 * @param selectAppXpath  --> xpath to click after providing value to search app
+	 *                        input box
+	 * @throws Exception
+	 */
+	public static AccountingSeedReusableFunctionalities selectAppFromSearchAppAndItemNoScreenShot(int threadID,
+			List<String> tempList, String pathLocation, WebDriver browser, String appNameToSearch,
+			WebElement selectAppXpath) throws Exception {
+		String testcasemethod = new Object() {
+		}.getClass().getEnclosingMethod().getName();
+
+		navigateToAccountingHomePage(browser);
+
+		try {
+			ReusableComponents.clickElement(SearchAppAndItemIcon, "Search App and Item Icon");
+			ReusableComponents.wait(8000);
+			ReusableComponents.sendKey(SearchAppAndItemInputbox, appNameToSearch, "Search app and Item inputbox");
+			ReusableComponents.clickElement(selectAppXpath, "Select value from App and Item dropdown");
+			ReusableComponents.wait(8000);
+
+			String pageCheckXpath = ".//*[@aria-label='Breadcrumbs']//span[contains(text(),'" + appNameToSearch + "')]";
+			System.out.println("*********** pageCheckXpath : " + pageCheckXpath);
+
+			List<WebElement> pageCheckElement = browser.findElements(By.xpath(pageCheckXpath));
+			System.out.println("*********** pageCheckElement size : " + pageCheckElement.size());
+
+			if (pageCheckElement.size() != 0) {
+				/*
+				 * ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+				 * appNameToSearch + " page opened successfully", browser, pathLocation + "\\" +
+				 * testcasemethod, false); ReusableComponents.reportSpecific(threadID, tempList,
+				 * testcasemethod, " ", browser, pathLocation + "\\" + testcasemethod, true);
+				 */
+			} else {
+				throw new throwNewException(appNameToSearch, "Page is not opened");
+			}
+
+		} catch (throwNewException e) {
+			e.printStackTrace();
+			ReusableComponents.reportFail(threadID, tempList, testcasemethod, e.getErrorMessage(), browser,
+					pathLocation + "\\" + testcasemethod, true);
+		} catch (Exception e) {
+			e.printStackTrace();
+			ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+					"Exception when trying to select app from select search app section" + e.getStackTrace(), browser,
+					pathLocation + "\\" + testcasemethod, true);
+		}
+		return new AccountingSeedReusableFunctionalities(browser);
+
+	}
+
+	/**
 	 * @author Wisefinch Menaka
 	 * @see Just navigate to home page. This only work after successfull login to
 	 *      the page. Else will keep navigate to login page.
@@ -708,6 +770,23 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 	 */
 	public static void navigateToAccountingHomePage(WebDriver browser) throws IOException {
 		String url = reusableComponents.getPropValues("salesforceurl");
+		browser.get(url);
+		ReusableComponents.wait(5000);
+		try {
+			browser.switchTo().alert().accept();
+		} catch (Exception e1) {
+			System.out.println("There are no alert displayed");
+		}
+	}
+
+	/**
+	 * @author Wisefinch Menaka
+	 * @see Just navigate to Accounting periods page. This only work after
+	 *      successfull login to the page. Else will keep navigate to login page.
+	 * @throws IOException
+	 */
+	public static void navigateToAccountingPeriodsPage(WebDriver browser) throws IOException {
+		String url = reusableComponents.getPropValues("AccountingPage");
 		browser.get(url);
 		ReusableComponents.wait(5000);
 		try {
@@ -731,7 +810,7 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 	 * @throws Exception
 	 */
 	public static boolean checkAccountPeriodStatus(int threadID, List<String> tempList, String pathLocation,
-			String accountingPeriod, String expectedStatus) throws Exception {
+			WebDriver browser, String accountingPeriod, String expectedStatus) throws Exception {
 		String testcasemethod = new Object() {
 		}.getClass().getEnclosingMethod().getName();
 
@@ -741,7 +820,7 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 			navigateToAccountingHomePage(browser);
 
 			// --> Move to accounting periods page
-			selectAppFromSearchAppAndItem(threadID, tempList, pathLocation, browser, "Accounting Periods",
+			selectAppFromSearchAppAndItemNoScreenShot(threadID, tempList, pathLocation, browser, "Accounting Periods",
 					SelectAccountingPeriods);
 
 			// --> Perform search action
@@ -3364,8 +3443,8 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 	 * @return
 	 * @throws Exception
 	 */
-	public synchronized AccountingSeedReusableFunctionalities openAccountingPeriod(int threadID, List<String> tempList,
-			String pathLocation, String accountPeriodToOpen) throws Exception {
+	public synchronized AccountingSeedReusableFunctionalities openAccountingPeriodLak(int threadID,
+			List<String> tempList, String pathLocation, String accountPeriodToOpen) throws Exception {
 
 		String testcasemethod = new Object() {
 		}.getClass().getEnclosingMethod().getName();
@@ -4012,21 +4091,22 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 		}.getClass().getEnclosingMethod().getName();
 
 		try {
+
+			// navigateToAccountingPeriodsPage(browser);
+
 			// --> Navigate to home page
 			navigateToAccountingHomePage(browser);
 
 			// --> Move to accounting periods page
-			selectAppFromSearchAppAndItem(threadID, tempList, pathLocation, browser, "Accounting Periods",
+			selectAppFromSearchAppAndItemNoScreenShot(threadID, tempList, pathLocation, browser, "Accounting Periods",
 					SelectAccountingPeriods);
 
 			// --> Perform search action
 			ReusableComponents.sendKey(searchTextBox_AccountPeriod, accountingPeriod, "Year close");
 			ReusableComponents.sendkey_InputKey(searchTextBox_AccountPeriod, Keys.ENTER, "Pass Enter");
 			ReusableComponents.wait(2000);
-			ReusableComponents.clickElement(listViewe_AccoutingPeriod, "Click Sort");
+			ReusableComponents.clickElement(AccoutingPeriod_icon, "Click icon");
 			ReusableComponents.wait(2000);
-			ReusableComponents.clickElement(listViewe_AccoutingPeriod, "Click Sort");
-			ReusableComponents.wait(3000);
 
 			// --> Verify the status
 			String xpathToOpenAccountingPeriod = ".//*[@scope='row']//a[contains(text(),'" + accountingPeriod + "')]";
@@ -4095,6 +4175,7 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 								System.out.println("*********** refreshCount " + refreshCount);
 								break;
 							}
+							System.out.println("*********** refreshCount " + refreshCount);
 							refreshCount = refreshCount + 1;
 						}
 
@@ -4123,10 +4204,12 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 			}
 
 		} catch (throwNewException e) {
+			accountingPeriodStatusChangedToClosed = false;
 			e.printStackTrace();
 			ReusableComponents.reportFail(threadID, tempList, testcasemethod, e.getErrorMessage(), browser,
 					pathLocation + "\\" + testcasemethod, true);
 		} catch (Exception e) {
+			accountingPeriodStatusChangedToClosed = false;
 			e.printStackTrace();
 			ReusableComponents.reportFail(threadID, tempList, testcasemethod,
 					"Exception when trying to open a period closeOneAccountingPeriod" + e.getStackTrace(), browser,
@@ -4147,17 +4230,19 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 	 *                         2020-01]
 	 */
 	private static AccountingSeedReusableFunctionalities open_a_AccountingPeriod(int threadID, List<String> tempList,
-			String pathLocation, String accountingPeriod) {
+			String pathLocation, WebDriver browser, String accountingPeriod) {
 		// TODO Auto-generated method stub
 		String testcasemethod = new Object() {
 		}.getClass().getEnclosingMethod().getName();
 
 		try {
+			// navigateToAccountingPeriodsPage(browser);
+
 			// --> Navigate to home page
 			navigateToAccountingHomePage(browser);
 
 			// --> Move to accounting periods page
-			selectAppFromSearchAppAndItem(threadID, tempList, pathLocation, browser, "Accounting Periods",
+			selectAppFromSearchAppAndItemNoScreenShot(threadID, tempList, pathLocation, browser, "Accounting Periods",
 					SelectAccountingPeriods);
 
 			// --> Perform search action
@@ -4166,8 +4251,6 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 			ReusableComponents.wait(2000);
 			ReusableComponents.clickElement(AccoutingPeriod_icon, "Click icon");
 			ReusableComponents.wait(2000);
-			ReusableComponents.clickElement(AccoutingPeriod_icon, "Click icon");
-			ReusableComponents.wait(3000);
 
 			// --> looking for accounting period
 			String xpathToOpenAccountingPeriod = ".//*[@scope='row']//a[contains(text(),'" + accountingPeriod + "')]";
@@ -4235,6 +4318,7 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 								System.out.println("*********** refreshCount " + refreshCount);
 								break;
 							}
+							System.out.println("*********** refreshCount " + refreshCount);
 							refreshCount = refreshCount + 1;
 						}
 
@@ -4244,6 +4328,9 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 							accountingPeriodStatusChangedToOpen = false;
 						}
 
+						System.out.println("*********** accountingPeriodStatusChangedToOpen "
+								+ accountingPeriodStatusChangedToOpen);
+
 					} else {
 						ReusableComponents.reportFail(threadID, tempList, testcasemethod,
 								"Edit Accounting period " + accountingPeriod + " pop up is not displayed", browser,
@@ -4251,22 +4338,25 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 					}
 
 				} else {
-
+					accountingPeriodStatusChangedToOpen = false;
 					ReusableComponents.reportFail(threadID, tempList, testcasemethod,
 							"Accounting period " + accountingPeriod + " is not opened", browser,
 							pathLocation + "\\" + testcasemethod, true);
 				}
 			} else {
+				accountingPeriodStatusChangedToOpen = false;
 				ReusableComponents.reportFail(threadID, tempList, testcasemethod,
 						"No such Accounting period present " + accountingPeriod, browser,
 						pathLocation + "\\" + testcasemethod, true);
 			}
 
 		} catch (throwNewException e) {
+			accountingPeriodStatusChangedToOpen = false;
 			e.printStackTrace();
 			ReusableComponents.reportFail(threadID, tempList, testcasemethod, e.getErrorMessage(), browser,
 					pathLocation + "\\" + testcasemethod, true);
 		} catch (Exception e) {
+			accountingPeriodStatusChangedToOpen = false;
 			e.printStackTrace();
 			ReusableComponents.reportFail(threadID, tempList, testcasemethod,
 					"Exception when trying to open a period closeOneAccountingPeriod" + e.getStackTrace(), browser,
@@ -4382,14 +4472,14 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 
 		try {
 
+			// navigateToAccountingPeriodsPage(browser);
+
+			// --> Navigate to home page
 			navigateToAccountingHomePage(browser);
 
-			selectAppFromSearchAppAndItem(threadID, tempList, pathLoc, browser, "Accounting Periods",
+			// --> Move to accounting periods page
+			selectAppFromSearchAppAndItemNoScreenShot(threadID, tempList, pathLoc, browser, "Accounting Periods",
 					SelectAccountingPeriods);
-			ReusableComponents.clickElement(listview, "Click List View");
-			ReusableComponents.wait(3500);
-			ReusableComponents.clickElement(all_list, "Click All List View");
-			ReusableComponents.wait(3500);
 
 			// --> Perform search action
 			ReusableComponents.sendKey(searchTextBox_AccountPeriod1, year, "Year close");
@@ -4397,14 +4487,14 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 			ReusableComponents.wait(2000);
 			ReusableComponents.clickElement(AccoutingPeriod_icon, "Click icon");
 			ReusableComponents.wait(2000);
-			ReusableComponents.clickElement(AccoutingPeriod_icon, "Click icon");
-			ReusableComponents.wait(3000);
 
-			ReusableComponents.reportPass(threadID, tempList, testcasemethod,
-					year + " all accounting period status before performing close", browser,
-					pathLoc + "\\" + testcasemethod, false);
-			ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ", browser,
-					pathLoc + "\\" + testcasemethod, true);
+			/*
+			 * ReusableComponents.reportPass(threadID, tempList, testcasemethod, year +
+			 * " all accounting period status before performing close", browser, pathLoc +
+			 * "\\" + testcasemethod, false); ReusableComponents.reportSpecific(threadID,
+			 * tempList, testcasemethod, " ", browser, pathLoc + "\\" + testcasemethod,
+			 * true);
+			 */
 
 			HashMap<String, String> yearAccountingPeriodAndStatus = new HashMap<>();
 
@@ -4458,12 +4548,12 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 				System.out.println("*********** accountingPeriodToCheck : " + accountingPeriodToCheck);
 				try {
 					if (yearAccountingPeriodAndStatus.containsKey(accountingPeriodToCheck)) {
-
+						System.out.println("*********** close_a_YearAccountingPeriods - contains key Check **********");
 						System.out.println("*********** accountingPeriodToCheck " + accountingPeriodToCheck);
 						String accountingPeriodStatus = yearAccountingPeriodAndStatus.get(accountingPeriodToCheck);
 						System.out.println("*********** accountingPeriodStatus " + accountingPeriodStatus);
 
-						if (accountingPeriodStatus.equalsIgnoreCase("Open")) {
+						if (accountingPeriodStatus.equalsIgnoreCase("open")) {
 
 							close_a_AccountingPeriod(threadID, tempList, pathLoc, browser, accountingPeriodToCheck);
 
@@ -4481,9 +4571,12 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 						}
 
 					} else {
-						ReusableComponents.reportInfo(threadID, tempList, testcasemethod,
-								accountingPeriodToCheck + " is not available for the year " + year, browser,
-								pathLoc + "\\" + testcasemethod, false);
+						System.out.println(accountingPeriodToCheck + " is not available for the year " + year);
+						/*
+						 * ReusableComponents.reportInfo(threadID, tempList, testcasemethod,
+						 * accountingPeriodToCheck + " is not available for the year " + year, browser,
+						 * pathLoc + "\\" + testcasemethod, false);
+						 */
 					}
 				} catch (Exception e) {
 					closedAllTheAccountingPeriodOfTheYear = false;
@@ -4494,37 +4587,44 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 				closedAllTheAccountingPeriodOfTheYear = true;
 			}
 
-			navigateToAccountingHomePage(browser);
+			// navigateToAccountingPeriodsPage(browser);
 
-			// Cross checking accounting period status after performing close
-			selectAppFromSearchAppAndItem(threadID, tempList, pathLoc, browser, "Accounting Periods",
-					SelectAccountingPeriods);
-			ReusableComponents.clickElement(listview, "Click List View");
-			ReusableComponents.wait(3500);
-			ReusableComponents.clickElement(all_list, "Click All List View");
-			ReusableComponents.wait(3500);
+			/*
+			 * navigateToAccountingHomePage(browser);
+			 * 
+			 * // Cross checking accounting period status after performing close
+			 * selectAppFromSearchAppAndItem(threadID, tempList, pathLoc, browser,
+			 * "Accounting Periods", SelectAccountingPeriods);
+			 * ReusableComponents.clickElement(listview, "Click List View");
+			 * ReusableComponents.wait(3500); ReusableComponents.clickElement(all_list,
+			 * "Click All List View"); ReusableComponents.wait(3500);
+			 */
 
 			// --> Perform search action
-			ReusableComponents.sendKey(searchTextBox_AccountPeriod1, year, "Year close");
-			ReusableComponents.sendkey_InputKey(searchTextBox_AccountPeriod, Keys.ENTER, "Pass Enter");
-			ReusableComponents.wait(2000);
-			ReusableComponents.clickElement(AccoutingPeriod_icon, "Click icon");
-			ReusableComponents.wait(2000);
-			ReusableComponents.clickElement(AccoutingPeriod_icon, "Click icon");
-			ReusableComponents.wait(3000);
-
-			ReusableComponents.reportPass(threadID, tempList, testcasemethod,
-					year + " all accounting period status after performing close", browser,
-					pathLoc + "\\" + testcasemethod, false);
-			ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ", browser,
-					pathLoc + "\\" + testcasemethod, true);
+			/*
+			 * ReusableComponents.sendKey(searchTextBox_AccountPeriod1, year, "Year close");
+			 * ReusableComponents.sendkey_InputKey(searchTextBox_AccountPeriod, Keys.ENTER,
+			 * "Pass Enter"); ReusableComponents.wait(2000);
+			 * ReusableComponents.clickElement(AccoutingPeriod_icon, "Click icon");
+			 * ReusableComponents.wait(2000);
+			 * ReusableComponents.clickElement(AccoutingPeriod_icon, "Click icon");
+			 * ReusableComponents.wait(3000);
+			 * 
+			 * ReusableComponents.reportPass(threadID, tempList, testcasemethod, year +
+			 * " all accounting period status after performing close", browser, pathLoc +
+			 * "\\" + testcasemethod, false); ReusableComponents.reportSpecific(threadID,
+			 * tempList, testcasemethod, " ", browser, pathLoc + "\\" + testcasemethod,
+			 * true);
+			 */
 
 		} catch (throwNewException e) {
+			closedAllTheAccountingPeriodOfTheYear = false;
 			e.printStackTrace();
 			ReusableComponents.reportFail(threadID, tempList, testcasemethod, e.getErrorMessage(), browser,
 					pathLoc + "\\" + testcasemethod, true);
 
 		} catch (Exception e) {
+			closedAllTheAccountingPeriodOfTheYear = false;
 			e.printStackTrace();
 			ReusableComponents.reportFail(threadID, tempList, testcasemethod,
 					"Exception when executing close_a_YearAccountingPeriods " + e.getStackTrace(), browser,
@@ -4565,147 +4665,628 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 			// check previous accounting year status is closed
 			String previousAccountingPeriod;
 
-			// Identify previous year
-			String previousYearToClose = Integer.toString(accountingPeriodYear - 1);
+			String currentYear = ReusableComponents.getCurrentDateAndTime("YYYY");
+			if (accountingPeriodYear <= Integer.parseInt(currentYear)) {
 
-			// Close all the accounting period present in the previous year
-			close_a_YearAccountingPeriods(threadID, tempList, pathLoc, browser, previousYearToClose);
+				// Identify previous year - 2
+				String previousYearToClose = Integer.toString(accountingPeriodYear - 2);
 
-			if (closedAllTheAccountingPeriodOfTheYear) {
+				// Close all the accounting period present in the previous year
+				close_a_YearAccountingPeriods(threadID, tempList, pathLoc, browser, previousYearToClose);
 
-				navigateToAccountingHomePage(browser);
+				// Identify previous year - 1
+				previousYearToClose = Integer.toString(accountingPeriodYear - 1);
 
-				selectAppFromSearchAppAndItem(threadID, tempList, pathLoc, browser, "Accounting Periods",
-						SelectAccountingPeriods);
-				ReusableComponents.clickElement(listview, "Click List View");
-				ReusableComponents.wait(3500);
-				ReusableComponents.clickElement(all_list, "Click All List View");
-				ReusableComponents.wait(3500);
+				// Close all the accounting period present in the previous year
+				close_a_YearAccountingPeriods(threadID, tempList, pathLoc, browser, previousYearToClose);
 
-				// --> Perform search action for year to make sure about how many accounting
-				// years to be closed before closing actual accounting year
-				ReusableComponents.sendKey(searchTextBox_AccountPeriod1, Integer.toString(accountingPeriodYear),
-						"Year close");
-				ReusableComponents.sendkey_InputKey(searchTextBox_AccountPeriod, Keys.ENTER, "Pass Enter");
-				ReusableComponents.wait(2000);
-				ReusableComponents.clickElement(AccoutingPeriod_icon, "Click icon");
-				ReusableComponents.wait(2000);
-				ReusableComponents.clickElement(AccoutingPeriod_icon, "Click icon");
-				ReusableComponents.wait(3000);
+				if (closedAllTheAccountingPeriodOfTheYear) {
 
-				ReusableComponents.reportPass(threadID, tempList, testcasemethod,
-						accountingPeriodYear + " all accounting period status before performing close", browser,
-						pathLoc + "\\" + testcasemethod, false);
-				ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ", browser,
-						pathLoc + "\\" + testcasemethod, true);
+					// navigateToAccountingPeriodsPage(browser);
 
-				HashMap<String, String> yearAccountingPeriodAndStatus = new HashMap<>();
+					// --> Navigate to home page
+					navigateToAccountingHomePage(browser);
 
-				String xpathOfAccountingPeriodStatus = "(.//tbody//tr//*[@class='slds-truncate'])[i]";
+					// --> Move to accounting periods page
+					selectAppFromSearchAppAndItemNoScreenShot(threadID, tempList, pathLoc, browser,
+							"Accounting Periods", SelectAccountingPeriods);
 
-				// Identify all the accounting period present under a year
-				String xpathOfAccountingPeriod = ".//*[@scope='row']//a";
+					// --> Perform search action for year to make sure about how many accounting
+					// years to be closed before closing actual accounting year
 
-				List<WebElement> numberOfAccountingPeriods = browser.findElements(By.xpath(xpathOfAccountingPeriod));
-				int noOfAccountingPeriods = numberOfAccountingPeriods.size();
-				System.out.println("********no of accounting periods " + noOfAccountingPeriods);
+					ReusableComponents.sendKey(searchTextBox_AccountPeriod1, Integer.toString(accountingPeriodYear),
+							"Year close");
+					ReusableComponents.sendkey_InputKey(searchTextBox_AccountPeriod, Keys.ENTER, "Pass Enter");
+					ReusableComponents.wait(2000);
+					ReusableComponents.clickElement(AccoutingPeriod_icon, "Click icon");
+					ReusableComponents.wait(2000);
 
-				// Add accounting period value and status to yearAccountingPeriodAndStatus
-				// hashmap
-				for (int i = 1; i <= noOfAccountingPeriods; i++) {
+					/*
+					 * ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+					 * accountingPeriodYear +
+					 * " all accounting period status before performing close", browser, pathLoc +
+					 * "\\" + testcasemethod, false); ReusableComponents.reportSpecific(threadID,
+					 * tempList, testcasemethod, " ", browser, pathLoc + "\\" + testcasemethod,
+					 * true);
+					 */
 
-					String accountingPeriodname = browser.findElement(By.xpath("(.//*[@scope='row']//a)[" + i + "]"))
-							.getText();
-					System.out.println("************accountingPeriod name is " + accountingPeriodname);
+					HashMap<String, String> yearAccountingPeriodAndStatus = new HashMap<>();
 
-					String accountingPerodStatus = browser
-							.findElement(By.xpath("(.//*[@scope='row']//a[contains(text(),'" + accountingPeriodname
-									+ "')]/following::td)[3]"))
-							.getText();
-					System.out.println("**********accountinPeriod status is " + accountingPerodStatus);
+					String xpathOfAccountingPeriodStatus = "(.//tbody//tr//*[@class='slds-truncate'])[i]";
 
-					yearAccountingPeriodAndStatus.put(accountingPeriodname, accountingPerodStatus);
+					// Identify all the accounting period present under a year
+					String xpathOfAccountingPeriod = ".//*[@scope='row']//a";
 
-				}
+					List<WebElement> numberOfAccountingPeriods = browser
+							.findElements(By.xpath(xpathOfAccountingPeriod));
+					int noOfAccountingPeriods = numberOfAccountingPeriods.size();
+					System.out.println("********no of accounting periods " + noOfAccountingPeriods);
 
-				// Just printing it for debugging purpose
-				Iterator<String> itr = yearAccountingPeriodAndStatus.keySet().iterator();
+					// Add accounting period value and status to yearAccountingPeriodAndStatus
+					// hashmap
+					for (int i = 1; i <= noOfAccountingPeriods; i++) {
 
-				while (itr.hasNext()) {
+						String accountingPeriodname = browser
+								.findElement(By.xpath("(.//*[@scope='row']//a)[" + i + "]")).getText();
+						System.out.println("************accountingPeriod name is " + accountingPeriodname);
 
-					System.out.println(itr.next());
+						String accountingPerodStatus = browser
+								.findElement(By.xpath("(.//*[@scope='row']//a[contains(text(),'" + accountingPeriodname
+										+ "')]/following::td)[3]"))
+								.getText();
+						System.out.println("**********accountinPeriod status is " + accountingPerodStatus);
 
-				}
+						yearAccountingPeriodAndStatus.put(accountingPeriodname, accountingPerodStatus);
 
-				// Close all the accounting period till we reach the actual accounting period
-				// value
-				for (int j = 1; j <= accountingPeriodMonth; j++) {
-					String month = null;
-					if (j < 10) {
-						month = "0" + Integer.toString(j);
-					} else {
-						month = Integer.toString(j);
 					}
 
-					String accountingPeriodToCheck = accountingPeriodYear + "-" + month;
-					try {
-						if (yearAccountingPeriodAndStatus.containsKey(accountingPeriodToCheck)) {
+					// Just printing it for debugging purpose
+					Iterator<String> itr = yearAccountingPeriodAndStatus.keySet().iterator();
 
-							System.out.println("*********** accountingPeriodToCheck " + accountingPeriodToCheck);
-							String accountingPeriodStatus = yearAccountingPeriodAndStatus.get(accountingPeriodToCheck);
-							System.out.println("*********** accountingPeriodStatus " + accountingPeriodStatus);
+					while (itr.hasNext()) {
 
-							if (accountingPeriodStatus.equalsIgnoreCase("Open")) {
-								close_a_AccountingPeriod(threadID, tempList, pathLoc, browser, accountingPeriodToCheck);
-								if (!accountingPeriodStatusChangedToClosed) {
-									ReusableComponents.reportFail(threadID, tempList, testcasemethod,
-											"Accounting period " + accountingPeriodToCheck
-													+ " is not changed to have closed, Hence we can not proceed further to close next accouting period ",
-											browser, pathLoc + "\\" + testcasemethod, true);
-								}
-							}
+						System.out.println(itr.next());
 
+					}
+
+					// Close all the accounting period till we reach the actual accounting period
+					// value
+					for (int j = 1; j <= accountingPeriodMonth; j++) {
+						String month = null;
+						if (j < 10) {
+							month = "0" + Integer.toString(j);
 						} else {
-							ReusableComponents.reportInfo(threadID, tempList, testcasemethod,
-									accountingPeriodToCheck + " is not available for the year " + accountingPeriodYear,
-									browser, pathLoc + "\\" + testcasemethod, false);
+							month = Integer.toString(j);
 						}
-					} catch (Exception e) {
-						ReusableComponents.reportFail(threadID, tempList, testcasemethod,
-								"Exception when trying to identify the accounting period to close " + e.getStackTrace(),
-								browser, pathLoc + "\\" + testcasemethod, true);
+
+						String accountingPeriodToCheck = accountingPeriodYear + "-" + month;
+						System.out.println("*********** accountingPeriodToCheck : " + accountingPeriodToCheck);
+						try {
+							if (yearAccountingPeriodAndStatus.containsKey(accountingPeriodToCheck)) {
+								System.out
+										.println("*********** closeAccountingPeriod - contains key check ********** ");
+								System.out.println("*********** accountingPeriodToCheck " + accountingPeriodToCheck);
+								String accountingPeriodStatus = yearAccountingPeriodAndStatus
+										.get(accountingPeriodToCheck);
+								System.out.println("*********** accountingPeriodStatus " + accountingPeriodStatus);
+
+								if (accountingPeriodStatus.equalsIgnoreCase("open")) {
+									close_a_AccountingPeriod(threadID, tempList, pathLoc, browser,
+											accountingPeriodToCheck);
+									System.out.println("*********** accountingPeriodStatusChangedToClosed : "
+											+ accountingPeriodStatusChangedToClosed);
+									if (!accountingPeriodStatusChangedToClosed) {
+										ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+												"Accounting period " + accountingPeriodToCheck
+														+ " is not changed to have closed, Hence we can not proceed further to close next accouting period ",
+												browser, pathLoc + "\\" + testcasemethod, true);
+										break;
+									}
+
+									if (accountingPeriod.equalsIgnoreCase(accountingPeriodToCheck)) {
+										ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+												accountingPeriod + " status changed to have closed", browser,
+												pathLoc + "\\" + testcasemethod, false);
+										ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ",
+												browser, pathLoc + "\\" + testcasemethod, true);
+									}
+								}
+
+							} else {
+								System.out.println(
+										accountingPeriodToCheck + " is not available for the year " + currentYear);
+								/*
+								 * ReusableComponents.reportInfo(threadID, tempList, testcasemethod,
+								 * accountingPeriodToCheck + " is not available for the year " +
+								 * accountingPeriodYear, browser, pathLoc + "\\" + testcasemethod, false);
+								 */
+							}
+						} catch (Exception e) {
+							ReusableComponents
+									.reportFail(threadID, tempList, testcasemethod,
+											"Exception when trying to identify the accounting period to close "
+													+ e.getStackTrace(),
+											browser, pathLoc + "\\" + testcasemethod, true);
+						}
+
+					}
+
+					// navigateToAccountingPeriodsPage(browser);
+
+					/*
+					 * navigateToAccountingHomePage(browser);
+					 * 
+					 * selectAppFromSearchAppAndItem(threadID, tempList, pathLoc, browser,
+					 * "Accounting Periods", SelectAccountingPeriods);
+					 * ReusableComponents.clickElement(listview, "Click List View");
+					 * ReusableComponents.wait(3500); ReusableComponents.clickElement(all_list,
+					 * "Click All List View"); ReusableComponents.wait(3500);
+					 */
+
+					// --> Perform search action
+					/*
+					 * ReusableComponents.sendKey(searchTextBox_AccountPeriod,
+					 * Integer.toString(accountingPeriodYear), "Year close");
+					 * ReusableComponents.sendkey_InputKey(searchTextBox_AccountPeriod, Keys.ENTER,
+					 * "Pass Enter"); ReusableComponents.wait(2000);
+					 * ReusableComponents.clickElement(AccoutingPeriod_icon, "Click icon");
+					 * ReusableComponents.wait(2000);
+					 * ReusableComponents.clickElement(AccoutingPeriod_icon, "Click icon");
+					 * ReusableComponents.wait(3000);
+					 * 
+					 * ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+					 * accountingPeriodYear +
+					 * " all accounting period status after performing close", browser, pathLoc +
+					 * "\\" + testcasemethod, false); ReusableComponents.reportSpecific(threadID,
+					 * tempList, testcasemethod, " ", browser, pathLoc + "\\" + testcasemethod,
+					 * true);
+					 */
+				} else {
+					ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+							"There are some issue when " + previousYearToClose
+									+ " year period closing. Hence can not continue with the test case.",
+							browser, pathLoc + "\\" + testcasemethod, true);
+				}
+			} else {
+				ReusableComponents.reportFail(
+						threadID, tempList, testcasemethod, "Accounting period can not be greater than current year "
+								+ currentYear + ". Input here is " + accountingPeriodYear,
+						browser, pathLoc + "\\" + testcasemethod, false);
+
+			}
+
+		} catch (throwNewException e) {
+			e.printStackTrace();
+			ReusableComponents.reportFail(threadID, tempList, testcasemethod, e.getErrorMessage(), browser,
+					pathLoc + "\\" + testcasemethod, true);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+					"Exception when executing close_a_YearAccountingPeriods " + e.getStackTrace(), browser,
+					pathLoc + "\\" + testcasemethod, true);
+		}
+
+		return new AccountingSeedReusableFunctionalities(browser);
+
+	}
+
+	/**
+	 * @author Wisefinch Menaka
+	 * @see Call this to open a year accounting period
+	 * 
+	 * @param threadID
+	 * @param tempList
+	 * @param pathLoc
+	 * @param browser
+	 * @param year     - Provide proper value for year parameter. Example 2020
+	 * @return
+	 * @throws Exception
+	 */
+	public synchronized static AccountingSeedReusableFunctionalities open_a_YearAccountingPeriods(int threadID,
+			List<String> tempList, String pathLoc, WebDriver browser, String year) throws Exception {
+
+		String testcasemethod = new Object() {
+		}.getClass().getEnclosingMethod().getName();
+
+		try {
+
+			// navigateToAccountingPeriodsPage(browser);
+
+			// --> Navigate to home page
+			navigateToAccountingHomePage(browser);
+
+			// --> Move to accounting periods page
+			selectAppFromSearchAppAndItemNoScreenShot(threadID, tempList, pathLoc, browser, "Accounting Periods",
+					SelectAccountingPeriods);
+
+			// --> Perform search action
+			ReusableComponents.sendKey(searchTextBox_AccountPeriod1, year, "Year open");
+			ReusableComponents.sendkey_InputKey(searchTextBox_AccountPeriod, Keys.ENTER, "Pass Enter");
+			ReusableComponents.wait(2000);
+			ReusableComponents.clickElement(AccoutingPeriod_icon, "Click icon");
+			ReusableComponents.wait(2000);
+
+			/*
+			 * ReusableComponents.reportPass(threadID, tempList, testcasemethod, year +
+			 * " all accounting period status before performing open", browser, pathLoc +
+			 * "\\" + testcasemethod, false); ReusableComponents.reportSpecific(threadID,
+			 * tempList, testcasemethod, " ", browser, pathLoc + "\\" + testcasemethod,
+			 * true);
+			 */
+
+			HashMap<String, String> yearAccountingPeriodAndStatus = new HashMap<>();
+
+			String xpathOfAccountingPeriodStatus = "(.//tbody//tr//*[@class='slds-truncate'])[i]";
+
+			// Identify all number of accounting period for the year
+
+			String xpathOfAccountingPeriod = ".//*[@scope='row']//a";
+
+			List<WebElement> numberOfAccountingPeriods = browser.findElements(By.xpath(xpathOfAccountingPeriod));
+			int noOfAccountingPeriods = numberOfAccountingPeriods.size();
+			System.out.println("********no of accounting periods " + noOfAccountingPeriods);
+
+			// Add accounting period and it's status to the hash map
+			for (int i = 1; i <= noOfAccountingPeriods; i++) {
+
+				String accountingPeriodname = browser.findElement(By.xpath("(.//*[@scope='row']//a)[" + i + "]"))
+						.getText();
+				System.out.println("************accountingPeriod name is " + accountingPeriodname);
+
+				String accountingPerodStatus = browser.findElement(By.xpath(
+						"(.//*[@scope='row']//a[contains(text(),'" + accountingPeriodname + "')]/following::td)[3]"))
+						.getText();
+				System.out.println("**********accountinPeriod status is " + accountingPerodStatus);
+
+				yearAccountingPeriodAndStatus.put(accountingPeriodname, accountingPerodStatus);
+
+			}
+
+			// Just printing here for cross check
+			System.out.println("*********** Just printing here");
+			Iterator<String> itr = yearAccountingPeriodAndStatus.keySet().iterator();
+
+			while (itr.hasNext()) {
+
+				System.out.println(itr.next());
+
+			}
+
+			// Verify each accounting period status, if any of the accounting period status
+			// is closed - open the same.
+			for (int j = 12; j >= 1; j--) {
+				String month = null;
+
+				if (j < 10) {
+					month = "0" + Integer.toString(j);
+				} else {
+					month = Integer.toString(j);
+				}
+
+				String accountingPeriodToCheck = year + "-" + month;
+				System.out.println("*********** accountingPeriodToCheck : " + accountingPeriodToCheck);
+				try {
+					if (yearAccountingPeriodAndStatus.containsKey(accountingPeriodToCheck)) {
+						System.out.println(
+								"*********** open_a_YearAccountingPeriods - containsKey check true **********");
+						System.out.println("*********** accountingPeriodToCheck " + accountingPeriodToCheck);
+						String accountingPeriodStatus = yearAccountingPeriodAndStatus.get(accountingPeriodToCheck);
+						System.out.println("*********** accountingPeriodStatus " + accountingPeriodStatus);
+
+						if (accountingPeriodStatus.equalsIgnoreCase("Closed")) {
+
+							open_a_AccountingPeriod(threadID, tempList, pathLoc, browser, accountingPeriodToCheck);
+
+							// Check accounting period status is changed to have open or not. If the
+							// status is not changed we do exit since we can not open other accounting
+							// period without opening it.
+							if (!accountingPeriodStatusChangedToOpen) {
+								ReusableComponents.reportFail(threadID, tempList, testcasemethod, "Accounting period "
+										+ accountingPeriodToCheck
+										+ " is not changed to have Open, Hence we can not proceed further to open next accouting period ",
+										browser, pathLoc + "\\" + testcasemethod, true);
+								openedAllTheAccountingPeriodOfTheYear = false;
+								break;
+							}
+						}
+
+					} else {
+						System.out.println(accountingPeriodToCheck + " is not available for the year " + year);
+						/*
+						 * ReusableComponents.reportInfo(threadID, tempList, testcasemethod,
+						 * accountingPeriodToCheck + " is not available for the year " + year, browser,
+						 * pathLoc + "\\" + testcasemethod, false);
+						 */
+					}
+				} catch (Exception e) {
+					openedAllTheAccountingPeriodOfTheYear = false;
+					ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+							"Exception when trying to identify the accounting period to open " + e.getStackTrace(),
+							browser, pathLoc + "\\" + testcasemethod, true);
+				}
+				openedAllTheAccountingPeriodOfTheYear = true;
+			}
+
+			System.out.println(
+					"*********** openedAllTheAccountingPeriodOfTheYear status at the end of open_a_YearAccountingPeriods : "
+							+ openedAllTheAccountingPeriodOfTheYear);
+
+			// navigateToAccountingPeriodsPage(browser);
+
+			/*
+			 * navigateToAccountingHomePage(browser);
+			 * 
+			 * // Cross checking accounting period status after performing close
+			 * selectAppFromSearchAppAndItem(threadID, tempList, pathLoc, browser,
+			 * "Accounting Periods", SelectAccountingPeriods);
+			 * ReusableComponents.clickElement(listview, "Click List View");
+			 * ReusableComponents.wait(3500); ReusableComponents.clickElement(all_list,
+			 * "Click All List View"); ReusableComponents.wait(3500);
+			 */
+
+			// --> Perform search action
+			/*
+			 * ReusableComponents.sendKey(searchTextBox_AccountPeriod1, year, "Year close");
+			 * ReusableComponents.sendkey_InputKey(searchTextBox_AccountPeriod, Keys.ENTER,
+			 * "Pass Enter"); ReusableComponents.wait(2000);
+			 * ReusableComponents.clickElement(AccoutingPeriod_icon, "Click icon");
+			 * ReusableComponents.wait(2000);
+			 * ReusableComponents.clickElement(AccoutingPeriod_icon, "Click icon");
+			 * ReusableComponents.wait(3000);
+			 * 
+			 * ReusableComponents.reportPass(threadID, tempList, testcasemethod, year +
+			 * " all accounting period status after performing open", browser, pathLoc +
+			 * "\\" + testcasemethod, false); ReusableComponents.reportSpecific(threadID,
+			 * tempList, testcasemethod, " ", browser, pathLoc + "\\" + testcasemethod,
+			 * true);
+			 */
+
+		} catch (throwNewException e) {
+			openedAllTheAccountingPeriodOfTheYear = false;
+			e.printStackTrace();
+			ReusableComponents.reportFail(threadID, tempList, testcasemethod, e.getErrorMessage(), browser,
+					pathLoc + "\\" + testcasemethod, true);
+
+		} catch (Exception e) {
+			openedAllTheAccountingPeriodOfTheYear = false;
+			e.printStackTrace();
+			ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+					"Exception when executing close_a_YearAccountingPeriods " + e.getStackTrace(), browser,
+					pathLoc + "\\" + testcasemethod, true);
+		}
+
+		return new AccountingSeedReusableFunctionalities(browser);
+
+	}
+
+	/**
+	 * @author Wisefinch Menaka
+	 * @see Do all necessory action to open a accounting period, Like, open next
+	 *      accounting period if any present.
+	 * 
+	 * @param threadID
+	 * @param tempList
+	 * @param pathLoc
+	 * @param browser
+	 * @param accountingPeriod - Provide valid accounting period here . Ex 2021-01
+	 * @return
+	 * @throws Exception
+	 */
+	public synchronized static AccountingSeedReusableFunctionalities openAccountingPeriod(int threadID,
+			List<String> tempList, String pathLoc, WebDriver browser, String accountingPeriod) throws Exception {
+
+		String testcasemethod = new Object() {
+		}.getClass().getEnclosingMethod().getName();
+
+		try {
+
+			// Identifying year and month value from accounting period
+			String strArray[] = accountingPeriod.split("-");
+			String yearValue = strArray[0];
+			String monthValue = strArray[1];
+			int accountingPeriodYear = Integer.parseInt(strArray[0]);
+			int accountingPeriodMonth = Integer.parseInt(strArray[1]);
+			// check previous accounting year status is closed
+			String previousAccountingPeriod;
+
+			String currentYear = ReusableComponents.getCurrentDateAndTime("YYYY");
+			System.out.println("*********** currentYear : " + currentYear);
+			System.out.println("*********** yearValue : " + yearValue);
+
+			if (accountingPeriodYear <= Integer.parseInt(currentYear)) {
+				if (!currentYear.equalsIgnoreCase(yearValue)) {
+
+					int yearDifference = Integer.parseInt(currentYear) - Integer.parseInt(yearValue);
+					System.out.println("*********** yearDifference " + yearDifference);
+
+					int nextYearToOpenValue = Integer.parseInt(currentYear);
+					System.out.println("*********** nextYearToOpenValue " + nextYearToOpenValue);
+					for (int i = 1; i <= yearDifference; i++) {
+
+						open_a_YearAccountingPeriods(threadID, tempList, pathLoc, browser,
+								Integer.toString(nextYearToOpenValue));
+						if (!openedAllTheAccountingPeriodOfTheYear) {
+							break;
+						}
+						nextYearToOpenValue = nextYearToOpenValue - 1;
+						System.out.println("*********** inside loop nextYearToOpenValue " + nextYearToOpenValue);
 					}
 
 				}
 
-				navigateToAccountingHomePage(browser);
+				System.out
+						.println("********** openedAllTheAccountingPeriodOfTheYear value after performing year open : "
+								+ openedAllTheAccountingPeriodOfTheYear);
+				if (openedAllTheAccountingPeriodOfTheYear) {
 
-				selectAppFromSearchAppAndItem(threadID, tempList, pathLoc, browser, "Accounting Periods",
-						SelectAccountingPeriods);
-				ReusableComponents.clickElement(listview, "Click List View");
-				ReusableComponents.wait(3500);
-				ReusableComponents.clickElement(all_list, "Click All List View");
-				ReusableComponents.wait(3500);
+					// navigateToAccountingPeriodsPage(browser);
 
-				// --> Perform search action
-				ReusableComponents.sendKey(searchTextBox_AccountPeriod, Integer.toString(accountingPeriodYear),
-						"Year close");
-				ReusableComponents.sendkey_InputKey(searchTextBox_AccountPeriod, Keys.ENTER, "Pass Enter");
-				ReusableComponents.wait(2000);
-				ReusableComponents.clickElement(AccoutingPeriod_icon, "Click icon");
-				ReusableComponents.wait(2000);
-				ReusableComponents.clickElement(AccoutingPeriod_icon, "Click icon");
-				ReusableComponents.wait(3000);
+					// --> Navigate to home page
+					navigateToAccountingHomePage(browser);
 
-				ReusableComponents.reportPass(threadID, tempList, testcasemethod,
-						accountingPeriodYear + " all accounting period status after performing close", browser,
-						pathLoc + "\\" + testcasemethod, false);
-				ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ", browser,
-						pathLoc + "\\" + testcasemethod, true);
+					// --> Move to accounting periods page
+					selectAppFromSearchAppAndItemNoScreenShot(threadID, tempList, pathLoc, browser,
+							"Accounting Periods", SelectAccountingPeriods);
+
+					// --> Perform search action for year to make sure about how many accounting
+					// years to be closed before closing actual accounting year
+					ReusableComponents.sendKey(searchTextBox_AccountPeriod1, yearValue, "Year close");
+					ReusableComponents.sendkey_InputKey(searchTextBox_AccountPeriod, Keys.ENTER, "Pass Enter");
+					ReusableComponents.wait(2000);
+					ReusableComponents.clickElement(AccoutingPeriod_icon, "Click icon");
+					ReusableComponents.wait(2000);
+
+					/*
+					 * ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+					 * accountingPeriodYear +
+					 * " all accounting period status before performing close", browser, pathLoc +
+					 * "\\" + testcasemethod, false); ReusableComponents.reportSpecific(threadID,
+					 * tempList, testcasemethod, " ", browser, pathLoc + "\\" + testcasemethod,
+					 * true);
+					 */
+
+					HashMap<String, String> yearAccountingPeriodAndStatus = new HashMap<>();
+
+					String xpathOfAccountingPeriodStatus = "(.//tbody//tr//*[@class='slds-truncate'])[i]";
+
+					// Identify all the accounting period present under a year
+					String xpathOfAccountingPeriod = ".//*[@scope='row']//a";
+
+					List<WebElement> numberOfAccountingPeriods = browser
+							.findElements(By.xpath(xpathOfAccountingPeriod));
+					int noOfAccountingPeriods = numberOfAccountingPeriods.size();
+					System.out.println("********no of accounting periods " + noOfAccountingPeriods);
+
+					// Add accounting period value and status to yearAccountingPeriodAndStatus
+					// hashmap
+					for (int i = 1; i <= noOfAccountingPeriods; i++) {
+
+						String accountingPeriodname = browser
+								.findElement(By.xpath("(.//*[@scope='row']//a)[" + i + "]")).getText();
+						System.out.println("************accountingPeriod name is " + accountingPeriodname);
+
+						String accountingPerodStatus = browser
+								.findElement(By.xpath("(.//*[@scope='row']//a[contains(text(),'" + accountingPeriodname
+										+ "')]/following::td)[3]"))
+								.getText();
+						System.out.println("**********accountinPeriod status is " + accountingPerodStatus);
+
+						yearAccountingPeriodAndStatus.put(accountingPeriodname, accountingPerodStatus);
+
+					}
+
+					// Just printing it for debugging purpose
+					Iterator<String> itr = yearAccountingPeriodAndStatus.keySet().iterator();
+
+					while (itr.hasNext()) {
+
+						System.out.println(itr.next());
+
+					}
+
+					// open all the accounting period till we reach the actual accounting period
+					// value
+					for (int j = 12; j >= accountingPeriodMonth; j--) {
+						String month = null;
+						if (j < 10) {
+							month = "0" + Integer.toString(j);
+						} else {
+							month = Integer.toString(j);
+						}
+
+						String accountingPeriodToCheck = accountingPeriodYear + "-" + month;
+						System.out.println("*********** openAccountingPeriod - accountingPeriodToCheck "
+								+ accountingPeriodToCheck);
+						try {
+							if (yearAccountingPeriodAndStatus.containsKey(accountingPeriodToCheck)) {
+								System.out.println("*********** openAccountingPeriod - Contains Key True ");
+								System.out.println("*********** accountingPeriodToCheck " + accountingPeriodToCheck);
+								String accountingPeriodStatus = yearAccountingPeriodAndStatus
+										.get(accountingPeriodToCheck);
+								System.out.println("*********** accountingPeriodStatus " + accountingPeriodStatus);
+
+								if (accountingPeriodStatus.equalsIgnoreCase("Closed")) {
+									open_a_AccountingPeriod(threadID, tempList, pathLoc, browser,
+											accountingPeriodToCheck);
+									System.out.println("********** accountingPeriodStatusChangedToOpen : "
+											+ accountingPeriodStatusChangedToOpen);
+									if (!accountingPeriodStatusChangedToOpen) {
+										ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+												"Accounting period " + accountingPeriodToCheck
+														+ " is not changed to have open, Hence we can not proceed further to open next accouting period ",
+												browser, pathLoc + "\\" + testcasemethod, true);
+										break;
+									}
+
+									if (accountingPeriod.equalsIgnoreCase(accountingPeriodToCheck)) {
+										ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+												accountingPeriod + " status changed to have open", browser,
+												pathLoc + "\\" + testcasemethod, false);
+										ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ",
+												browser, pathLoc + "\\" + testcasemethod, true);
+									}
+								}
+
+							} else {
+								System.out.println(accountingPeriodToCheck + " is not available for the year "
+										+ accountingPeriodYear);
+								/*
+								 * ReusableComponents.reportInfo(threadID, tempList, testcasemethod,
+								 * accountingPeriodToCheck + " is not available for the year " +
+								 * accountingPeriodYear, browser, pathLoc + "\\" + testcasemethod, false);
+								 */
+							}
+						} catch (Exception e) {
+							ReusableComponents
+									.reportFail(threadID, tempList, testcasemethod,
+											"Exception when trying to identify the accounting period to open "
+													+ e.getStackTrace(),
+											browser, pathLoc + "\\" + testcasemethod, true);
+						}
+
+					}
+
+					// navigateToAccountingPeriodsPage(browser);
+
+					/*
+					 * navigateToAccountingHomePage(browser);
+					 * 
+					 * selectAppFromSearchAppAndItem(threadID, tempList, pathLoc, browser,
+					 * "Accounting Periods", SelectAccountingPeriods);
+					 * ReusableComponents.clickElement(listview, "Click List View");
+					 * ReusableComponents.wait(3500); ReusableComponents.clickElement(all_list,
+					 * "Click All List View"); ReusableComponents.wait(3500);
+					 */
+
+					// --> Perform search action
+					/*
+					 * ReusableComponents.sendKey(searchTextBox_AccountPeriod,
+					 * Integer.toString(accountingPeriodYear), "Year close");
+					 * ReusableComponents.sendkey_InputKey(searchTextBox_AccountPeriod, Keys.ENTER,
+					 * "Pass Enter"); ReusableComponents.wait(2000);
+					 * ReusableComponents.clickElement(AccoutingPeriod_icon, "Click icon");
+					 * ReusableComponents.wait(2000);
+					 * ReusableComponents.clickElement(AccoutingPeriod_icon, "Click icon");
+					 * ReusableComponents.wait(3000);
+					 * 
+					 * ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+					 * accountingPeriodYear +
+					 * " all accounting period status after performing close", browser, pathLoc +
+					 * "\\" + testcasemethod, false); ReusableComponents.reportSpecific(threadID,
+					 * tempList, testcasemethod, " ", browser, pathLoc + "\\" + testcasemethod,
+					 * true);
+					 */
+				} else {
+					ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+							"There are some issue when " + accountingPeriodYear
+									+ " year period open. Hence can not continue with the test case.",
+							browser, pathLoc + "\\" + testcasemethod, true);
+				}
 			} else {
-				ReusableComponents.reportPass(threadID, tempList, testcasemethod,
-						"There are some issue when " + previousYearToClose
-								+ " year period closing. Hence can not continue with the test case.",
+				ReusableComponents.reportFail(
+						threadID, tempList, testcasemethod, "Accounting period can not be greater then current year "
+								+ currentYear + ". Input here is " + accountingPeriodYear,
 						browser, pathLoc + "\\" + testcasemethod, false);
 			}
 

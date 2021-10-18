@@ -653,10 +653,9 @@ public class Page extends DriverScript {
 				pathLoc + "\\" + testcasemethod, false);
 		return new T2735Page(browser);
 	}
-	
+
 	/***
-	 * Test case Method Name : navigateToT2599Page
-	 * Page Functionality : Validate
+	 * Test case Method Name : navigateToT2599Page Page Functionality : Validate
 	 * T2735 Page Created By : Anitha
 	 * 
 	 ***/
@@ -667,54 +666,65 @@ public class Page extends DriverScript {
 				pathLoc + "\\" + testcasemethod, false);
 		return new T2599Page(browser);
 	}
-	
-	/*** Test case Method Name : navigateToT2615Page
-	* Functionality : Validate T2615 Page
-	* Created By : Lakshman
-	*
-	***/
-	public synchronized T2615Page navigateToT2615Page(int threadID , List<String> tempList , String pathLoc ) {
-	String testcasemethod = new Object(){}.getClass().getEnclosingMethod().getName();
-	ReusableComponents.reportInfo(threadID,tempList, testcasemethod , "Validation T2615 Page" , browser ,pathLoc+"\\"+testcasemethod , false );
-	return new T2615Page(browser);
+
+	/***
+	 * Test case Method Name : navigateToT2615Page Functionality : Validate T2615
+	 * Page Created By : Lakshman
+	 *
+	 ***/
+	public synchronized T2615Page navigateToT2615Page(int threadID, List<String> tempList, String pathLoc) {
+		String testcasemethod = new Object() {
+		}.getClass().getEnclosingMethod().getName();
+		ReusableComponents.reportInfo(threadID, tempList, testcasemethod, "Validation T2615 Page", browser,
+				pathLoc + "\\" + testcasemethod, false);
+		return new T2615Page(browser);
 	}
 
-	/*** Test case Method Name : navigateToT2645Page
-	* Functionality : Validate T2645 Page
-	* Created By : Lakshman
-	*
-	***/
-	public synchronized T2645Page navigateToT2645Page(int threadID , List<String> tempList , String pathLoc ) {
-	String testcasemethod = new Object(){}.getClass().getEnclosingMethod().getName();
-	ReusableComponents.reportInfo(threadID,tempList, testcasemethod , "Validation T2645 Page" , browser ,pathLoc+"\\"+testcasemethod , false );
-	return new T2645Page(browser);
+	/***
+	 * Test case Method Name : navigateToT2645Page Functionality : Validate T2645
+	 * Page Created By : Lakshman
+	 *
+	 ***/
+	public synchronized T2645Page navigateToT2645Page(int threadID, List<String> tempList, String pathLoc) {
+		String testcasemethod = new Object() {
+		}.getClass().getEnclosingMethod().getName();
+		ReusableComponents.reportInfo(threadID, tempList, testcasemethod, "Validation T2645 Page", browser,
+				pathLoc + "\\" + testcasemethod, false);
+		return new T2645Page(browser);
 	}
-	/*** Test case Method Name : navigateToT2646Page
-	* Functionality : Validate T2646 Page
-	* Created By : Lakshman
-	*
-	***/
-	public synchronized T2646Page navigateToT2646Page(int threadID , List<String> tempList , String pathLoc ) {
-	String testcasemethod = new Object(){}.getClass().getEnclosingMethod().getName();
-	ReusableComponents.reportInfo(threadID,tempList, testcasemethod , "Validation T2646 Page" , browser ,pathLoc+"\\"+testcasemethod , false );
-	return new T2646Page(browser);
+
+	/***
+	 * Test case Method Name : navigateToT2646Page Functionality : Validate T2646
+	 * Page Created By : Lakshman
+	 *
+	 ***/
+	public synchronized T2646Page navigateToT2646Page(int threadID, List<String> tempList, String pathLoc) {
+		String testcasemethod = new Object() {
+		}.getClass().getEnclosingMethod().getName();
+		ReusableComponents.reportInfo(threadID, tempList, testcasemethod, "Validation T2646 Page", browser,
+				pathLoc + "\\" + testcasemethod, false);
+		return new T2646Page(browser);
 	}
-	/*** Test case Method Name : navigateToT2647Page
-	* Functionality : Validate T2647 Page
-	* Created By : Lakshman
-	*
-	***/
-	public synchronized T2647Page navigateToT2647Page(int threadID , List<String> tempList , String pathLoc ) {
-	String testcasemethod = new Object(){}.getClass().getEnclosingMethod().getName();
-	ReusableComponents.reportInfo(threadID,tempList, testcasemethod , "Validation T2647 Page" , browser ,pathLoc+"\\"+testcasemethod , false );
-	return new T2647Page(browser);
+
+	/***
+	 * Test case Method Name : navigateToT2647Page Functionality : Validate T2647
+	 * Page Created By : Lakshman
+	 *
+	 ***/
+	public synchronized T2647Page navigateToT2647Page(int threadID, List<String> tempList, String pathLoc) {
+		String testcasemethod = new Object() {
+		}.getClass().getEnclosingMethod().getName();
+		ReusableComponents.reportInfo(threadID, tempList, testcasemethod, "Validation T2647 Page", browser,
+				pathLoc + "\\" + testcasemethod, false);
+		return new T2647Page(browser);
 	}
 
 	/***
 	 * Created By : Menaka
 	 *
 	 ***/
-	public synchronized AccountingSeedReusableFunctionalities accountingSeedReusableFunction(int threadID, List<String> tempList, String pathLoc) {
+	public synchronized AccountingSeedReusableFunctionalities accountingSeedReusableFunction(int threadID,
+			List<String> tempList, String pathLoc) {
 		String testcasemethod = new Object() {
 		}.getClass().getEnclosingMethod().getName();
 		ReusableComponents.reportInfo(threadID, tempList, testcasemethod, "Validation searchapp item Page", browser,
