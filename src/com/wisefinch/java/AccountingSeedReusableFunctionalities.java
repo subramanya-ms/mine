@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.By.ByXPath;
@@ -37,12 +38,13 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 			newLedgerName;
 	int previousYearClose, Nextyear;
 
-	static String newAccountname, testDataNewBillingName = null, testDataNewPayableName = null;
+	static String newAccountname, testDataNewBillingName = null, testDataNewPayableName = null, clonedNewGLName;
 	static String CDB_Name;
 	static boolean accountCreatedStatus = false, testDataNewBillingCreated = false, testDataNewDisbursement = false,
 			newPayableStatus = false, newLedgerCreatedStatus = false, newGLAccountCreationStatus = false,
 			accountingPeriodStatusChangedToClosed = false, closedAllTheAccountingPeriodOfTheYear = false,
-			accountingPeriodStatusChangedToOpen = false, openedAllTheAccountingPeriodOfTheYear = false;
+			accountingPeriodStatusChangedToOpen = false, openedAllTheAccountingPeriodOfTheYear = false,
+			newCashReceiptCreated = false;
 
 	protected AccountingSeedReusableFunctionalities(WebDriver browser) {
 		this.browser = browser;
@@ -61,6 +63,32 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 	}
 
 	// Webelement declaration
+	@FindBy(xpath = "//div/h3[contains(.,'Cash Flow Statement Settings')]")
+	static WebElement CFS_Setting;
+
+	@FindBy(xpath = ".//*[contains(@id,'ext-comp-')]//*[contains(@id,'inputRow')]")
+	static WebElement checkbox_SetTrueORFalse_DeveloperConsole;
+
+	@FindBy(xpath = ".//*[@role='presentation']//*[contains(text(),'Save Rows')]")
+	static WebElement saveRowButton_DeveloperConsole;
+
+	@FindBy(xpath = "//img[@title='Accounting Settings']")
+	static WebElement Accounting_Settings;
+
+	@FindBy(xpath = ".//*[@slot='primaryField']/lightning-formatted-text[contains(text(),'CR-')]")
+	static WebElement createdCashReceiptName;
+
+	@FindBy(xpath = "((.//*[@class='actionBody']//*[@class='slds-form'])[3]//input[@role='combobox'])[5]")
+	static WebElement cashFlowCategory_CashReceipt;
+
+	@FindBy(xpath = ".//*[@class='actionBody']//*[contains(text(),'New Cash Receipt')]")
+	static WebElement newCashReceipt_CreationPopUpcheck;
+
+	@FindBy(xpath = ".//*[@class='panel-content scrollable']//*[@class='slds-truncate']/*[contains(text(),'Cash Receipts')]")
+	static WebElement selectCashReceipts;
+
+	@FindBy(xpath = ".//*[@class='panel-content scrollable']//*[@class='slds-truncate']/*[contains(text(),'Accounting Variables')]")
+	static WebElement SelectAccountingVariables;
 
 	@FindBy(xpath = "(.//*[@slot='secondaryFields']//lightning-formatted-text)[3]")
 	static WebElement accountingPeriodStatusCheck_AfterEditingIt;
@@ -138,16 +166,16 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 	static WebElement checkStatus;
 
 	@FindBy(xpath = "//img[@title='Accounts']")
-	WebElement Accounts;
+	static WebElement Accounts;
 
 	@FindBy(xpath = "//force-record-layout-base-input//div[@class='slds-form-element__control slds-grow']/input[@name='Name']")
-	WebElement Account_Name;
+	static WebElement Account_Name;
 
 	@FindBy(xpath = "//force-record-layout-item[1]//lightning-combobox[1]//lightning-base-combobox[1]/div[1]/div[1]/input[1]")
-	WebElement Account_type;
+	static WebElement Account_type;
 
 	@FindBy(xpath = "//span[@class='slds-checkbox slds-checkbox_standalone']/input[@name='AcctSeed__Accounting_Active__c']")
-	WebElement Accounting_Active;
+	static WebElement Accounting_Active;
 
 	@FindBy(xpath = ".//*[@data-aura-class='uiOutputText']")
 	static WebElement listViewe_AccoutingPeriod;
@@ -201,19 +229,19 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 	WebElement Customer_CashReceipt;
 
 	@FindBy(xpath = "//div[@class='slds-form']//force-record-layout-row[3]//force-record-layout-item//lightning-combobox//input[@class='slds-input slds-combobox__input']")
-	WebElement Type;
+	static WebElement Type;
 
 	@FindBy(xpath = "//input[@name='AcctSeed__Amount__c']")
-	WebElement Amount;
+	static WebElement Amount;
 
 	@FindBy(xpath = "//input[@name='AcctSeed__Payment_Reference__c']")
-	WebElement Reference;
+	static WebElement Reference;
 
 	@FindBy(xpath = "//div[@class='pbHeader']//tbody//input[@value='Post']")
 	WebElement Post_final_CashReceipt;
 
 	@FindBy(xpath = "//input[contains(@placeholder,'Search Accounts...')]")
-	WebElement Customer_CR;
+	static WebElement Customer_CR;
 
 	// Cash receipt end
 
@@ -5289,7 +5317,696 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 		}
 
 		return new AccountingSeedReusableFunctionalities(browser);
+	}
+
+	/**
+	 * @author Wisefinch Menaka
+	 * @see This method will return previous accounting period value
+	 * @param accountingPeriod - Valid Accounting period value should be given -
+	 *                         [example 2021-01]
+	 * @param browser
+	 * @return
+	 * @throws throwNewException
+	 */
+	public static String identifyPreviousAccountingPeriod(String accountingPeriod) throws throwNewException {
+		String previousAccountingPeriod = null;
+		try {
+			System.out.println("********** Accounting period test data for this test case : " + accountingPeriod);
+			String strArray[] = accountingPeriod.split("-");
+			String yearValue = strArray[0];
+			String monthValue = strArray[1];
+			int year = Integer.parseInt(strArray[0]);
+			int month = Integer.parseInt(strArray[1]);
+
+			// Identifying the previous accounting period to
+			if (monthValue.equalsIgnoreCase("01")) {
+				System.out.println("----------> First month");
+
+				year = year - 1;
+				yearValue = Integer.toString(year);
+				System.out.println("----------> Year Value changed to : " + yearValue);
+
+				previousAccountingPeriod = yearValue.concat("-12");
+				System.out.println("----------> previousAccountingPeriod identified as : " + previousAccountingPeriod);
+
+			} else {
+				if (month == 11 || month == 12 || month == 10) {
+					previousAccountingPeriod = yearValue + "-" + Integer.toString(month);
+					System.out
+							.println("----------> previousAccountingPeriod identified as :" + previousAccountingPeriod);
+				} else {
+					month = month - 1;
+					previousAccountingPeriod = yearValue + "-0" + Integer.toString(month);
+					System.out
+							.println("----------> previousAccountingPeriod identified as :" + previousAccountingPeriod);
+				}
+
+			}
+		} catch (Exception e) {
+			System.out.println("----------> Exception when trying to identify the previous accounting period " + e);
+			previousAccountingPeriod = null;
+		}
+
+		return previousAccountingPeriod;
+	}
+
+	/**
+	 * @author Wisefinch Menaka
+	 * @see Create cash receipt with GL account selection.Adviceable to call
+	 *      createAccount(threadID, tempList, pathLocation,browser); method before
+	 *      this / given valid account name as a input
+	 * 
+	 * @param threadID
+	 * @param tempList
+	 * @param pathLocation
+	 * @return
+	 * @throws IOException
+	 * @throws AWTException
+	 * @throws throwNewException
+	 */
+	public static synchronized AccountingSeedReusableFunctionalities createCashReceiptWithCFCategory(int threadID,
+			List<String> tempList, String pathLocation, WebDriver browser)
+			throws IOException, AWTException, throwNewException {
+
+		String testcasemethod = new Object() {
+		}.getClass().getEnclosingMethod().getName();
+
+		try {
+
+			navigateToAccountingHomePage(browser);
+
+			String account_namefull;
+
+			if (runTimeTestData.get(runTimeTestData.get(testCaseNumber) + "_newAccountname") == null) {
+				account_namefull = reusableComponents.getPropValues(testCaseNumber + "_accname");
+			} else {
+				account_namefull = runTimeTestData.get(runTimeTestData.get(testCaseNumber) + "_newAccountname");
+			}
+			String cramount = reusableComponents.getPropValues(testCaseNumber + "_amount");
+			String crref = ReusableComponents.getCurrentDateAndTime("yyyyMMdd_HHmmss") + "_Reference";
+			String receipt_type = reusableComponents.getPropValues(testCaseNumber + "_receipttype");
+			String accounting_Period = runTimeTestData
+					.get(runTimeTestData.get(testCaseNumber) + "_currentAccountingPeriodForTheTestCase");
+
+			selectAppFromSearchAppAndItem(threadID, tempList, pathLocation, browser, "Cash Receipts",
+					selectCashReceipts);
+			ReusableComponents.wait(5000);
+
+			ReusableComponents.clickElement(New, "Click on new button");
+			ReusableComponents.wait(5000);
+
+			if (ReusableComponents.isDisplayed(newCashReceipt_CreationPopUpcheck,
+					"Verify New Cash Receipt popup Is Displayed")) {
+
+				ReusableComponents.selectAccountingPeriod(accountingPeriod_Billing, accounting_Period, browser);
+
+				ReusableComponents.sendKey(Customer_CR, account_namefull, "Account name provided");
+				ReusableComponents.wait(8500);
+				WebElement Customer_click = browser.findElement(
+						By.xpath("//lightning-base-combobox-formatted-text[@title='" + account_namefull + "']"));
+				ReusableComponents.clickElement(Customer_click, "Customer Details Selected");
+
+				ReusableComponents.clickElement(Type, "Customer on type");
+				ReusableComponents.wait(2000);
+				String Receipt_type = "//lightning-base-combobox-item/span[@class='slds-media__body']/span[contains(text(),'"
+						+ receipt_type + "')]";
+				List<WebElement> elementList = browser.findElements(By.xpath(Receipt_type));
+				System.out.println("*********** elementList : " + elementList.size());
+				if (elementList.size() == 0) {
+					ReusableComponents.clickElement(Type, "Click type");
+					ReusableComponents.wait(2000);
+				}
+				WebElement selecttype = browser.findElement(By.xpath(Receipt_type));
+				ReusableComponents.clickElement(selecttype, "Select customer type");
+
+				ReusableComponents.sendKey(Amount, cramount, "Provide amount value");
+
+				ReusableComponents.reportPass(threadID, tempList, testcasemethod, "New cash receipt details provided",
+						browser, pathLocation + "\\" + testcasemethod, false);
+				ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ", browser,
+						pathLocation + "\\" + testcasemethod, true);
+
+				ReusableComponents.scrollInToElementJavaScript(browser, Reference);
+				ReusableComponents.wait(2000);
+				ReusableComponents.sendKey(Reference, crref, "Provide Reference value");
+
+				ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+						"New cash receipt Reference details provided", browser, pathLocation + "\\" + testcasemethod,
+						false);
+				ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ", browser,
+						pathLocation + "\\" + testcasemethod, true);
+
+				ReusableComponents.reportSpecific(threadID, tempList, testcasemethod,
+						"GL account name : " + clonedNewGLName, browser, pathLocation + "\\" + testcasemethod, true);
+				ReusableComponents.scrollInToElementJavaScript(browser, cashFlowCategory_CashReceipt);
+				ReusableComponents.wait(2000);
+				ReusableComponents.sendKey(cashFlowCategory_CashReceipt, newGLName, "Provide GL Name");
+				ReusableComponents.wait(8000);
+				String glType = ".//*[@class='actionBody']//lightning-base-combobox-formatted-text[@title='" + newGLName
+						+ "']";
+				WebElement clickGLAccountType = browser.findElement(By.xpath(glType));
+				ReusableComponents.clickElement(clickGLAccountType, "Select GL Accout Type");
+				ReusableComponents.reportPass(threadID, tempList, testcasemethod, "Cloned GL Account Selected", browser,
+						pathLocation + "\\" + testcasemethod, false);
+				ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ", browser,
+						pathLocation + "\\" + testcasemethod, true);
+
+				ReusableComponents.clickElement(Save, "Click on save button");
+				ReusableComponents.wait(10000);
+				newCashReceiptCreated = false;
+				String xpathToCheckNewCashReceipt = ".//*[@slot='primaryField']/lightning-formatted-text[contains(text(),'CR-')]";
+				System.out.println("********** xpathToCheckNewCashReceipt : " + xpathToCheckNewCashReceipt);
+
+				List<WebElement> cashReceiptNameList = browser.findElements(By.xpath(xpathToCheckNewCashReceipt));
+				System.out.println("*********** cashReceiptNameList size : " + cashReceiptNameList.size());
+
+				if (cashReceiptNameList.size() != 0) {
+					newCashReceiptCreated = true;
+					runTimeTestData.put(runTimeTestData.get(testCaseNumber) + "_newCashReceiptCreated", "true");
+					ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+							"New cash receipt " + createdCashReceiptName.getText() + " is created successfully",
+							browser, pathLocation + "\\" + testcasemethod, false);
+
+					ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ", browser,
+							pathLocation + "\\" + testcasemethod, true);
+				} else {
+					newCashReceiptCreated = false;
+					runTimeTestData.put(runTimeTestData.get(testCaseNumber) + "_newCashReceiptCreated", "false");
+					ReusableComponents.reportFail(threadID, tempList, testcasemethod, "New new cash receipt created",
+							browser, pathLocation + "\\" + testcasemethod, true);
+				}
+
+			} else {
+				ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+						"New Cash Receipt pop up is not displayed", browser, pathLocation + "\\" + testcasemethod,
+						true);
+			}
+
+		} catch (throwNewException e) {
+			e.printStackTrace();
+			ReusableComponents.reportFail(threadID, tempList, testcasemethod, e.getErrorMessage(), browser,
+					pathLocation + "\\" + testcasemethod, true);
+		} catch (Exception e) {
+
+			ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+					"Exception during cash receipt creation with gl account" + e.getStackTrace(), browser,
+					pathLocation + "\\" + testcasemethod, true);
+
+		}
+
+		return new AccountingSeedReusableFunctionalities(browser);
 
 	}
 
+	/***
+	 * Test case Method Name : Account_creation Functionality : validate T2688 Page
+	 * Created By : Lakshman
+	 * 
+	 * @throws IOException
+	 * @throws AWTException
+	 * @throws throwNewException
+	 * 
+	 ***/
+	public synchronized static AccountingSeedReusableFunctionalities createAccount(int threadID, List<String> tempList,
+			String pathLocation, WebDriver browser) throws IOException, AWTException, throwNewException {
+
+		String testcasemethod = new Object() {
+		}.getClass().getEnclosingMethod().getName();
+
+		try {
+			Set<String> itr = (Set<String>) runTimeTestData.keySet();
+
+			for (String s : itr) {
+				System.out.println("*********** Key : " + s);
+				System.out.println("**********value : " + runTimeTestData.get(s));
+			}
+
+			navigateToAccountingHomePage(browser);
+
+			newAccountname = "Accounts_" + runTimeTestData.get(testCaseNumber) + "_"
+					+ ReusableComponents.getCurrentDateAndTime("YYMMDDhhmmss");
+
+			String acc_type;
+			if (reusableComponents
+					.getPropValues(runTimeTestData.get(testCaseNumber) + "_accountType_ForAccounts") != null) {
+				acc_type = reusableComponents
+						.getPropValues(runTimeTestData.get(testCaseNumber) + "_accountType_ForAccounts");
+			} else {
+				acc_type = "Customer and Vendor";
+			}
+
+			ReusableComponents.wait(3200);
+			browser.findElement(By.cssSelector("body")).sendKeys(Keys.PAGE_DOWN);
+			ReusableComponents.wait(3200);
+			browser.findElement(By.cssSelector("body")).sendKeys(Keys.PAGE_DOWN);
+			ReusableComponents.wait(3200);
+
+			List<WebElement> f = browser.findElements(By.tagName("frame"));
+			int i = f.size();
+			System.out.println(i + "is the frame count");
+
+			browser.switchTo().frame(0);
+
+			ReusableComponents.wait(8200);
+
+			if (ReusableComponents.isElementPresent(Accounts)) {
+
+				/*
+				 * ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+				 * "Accounts is present", browser, pathLocation + "\\" + testcasemethod, false);
+				 */
+				ReusableComponents.wait(5200);
+				Accounts.click();
+				ReusableComponents.wait(5200);/*
+												 * ReusableComponents.reportSpecific(threadID, tempList, testcasemethod,
+												 * "screen grab of Accounts page", browser, pathLocation + "\\" +
+												 * testcasemethod, true);
+												 */
+
+				if (ReusableComponents.isElementPresent(New)) {
+
+					/*
+					 * ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+					 * "Account New button is present", browser, pathLocation + "\\" +
+					 * testcasemethod, false);
+					 */
+					ReusableComponents.wait(5200);
+					New.click();
+					ReusableComponents.wait(5200);
+
+					if (ReusableComponents.isElementPresent(Account_Name)) {
+
+						/*
+						 * ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+						 * "Account Name field is present", browser, pathLocation + "\\" +
+						 * testcasemethod, false);
+						 */
+						ReusableComponents.wait(5200);
+						Account_Name.sendKeys(newAccountname);
+						ReusableComponents.wait(5200);
+
+						WebElement element = browser
+								.findElement(By.xpath("//span[contains(text(),'Accounting Information')]"));
+						((JavascriptExecutor) browser).executeScript("arguments[0].scrollIntoView(true);", element);
+
+						if (ReusableComponents.isElementPresent(Account_type)) {
+
+							ReusableComponents.wait(5200);
+							Account_type.click();
+
+							/*
+							 * ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+							 * "Account Type selectbox is present", browser, pathLocation + "\\" +
+							 * testcasemethod, false);
+							 */
+							ReusableComponents.wait(5200);
+							String Acc_type = ".//span[@title='" + acc_type + "']";
+							System.out.println(Acc_type);
+							List<WebElement> listOfAvailableType = browser.findElements(By.xpath(Acc_type));
+
+							if (listOfAvailableType.size() == 0) {
+								Account_type.click();
+							}
+
+							WebElement selecttype = browser.findElement(By.xpath(Acc_type));
+							ReusableComponents.wait(5500);
+							// selecttype.click();
+							new WebDriverWait(browser, 20).until(ExpectedConditions.elementToBeClickable(selecttype))
+									.click();
+							ReusableComponents.wait(5500);
+
+							if (ReusableComponents.isElementPresent(Accounting_Active)) {
+
+								ReusableComponents.wait(5200);
+								Accounting_Active.click();
+								ReusableComponents.wait(5200);
+								/*
+								 * ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+								 * "Account Active checkbox is present", browser, pathLocation + "\\" +
+								 * testcasemethod, false);
+								 */
+
+								ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+										"Details filled to create accounts", browser,
+										pathLocation + "\\" + testcasemethod, false);
+
+								ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ", browser,
+										pathLocation + "\\" + testcasemethod, true);
+
+								if (ReusableComponents.isElementPresent(Save)) {
+
+									ReusableComponents.wait(5200);
+									Save.click();
+									ReusableComponents.wait(5200);
+									/*
+									 * ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+									 * "Save button is present", browser, pathLocation + "\\" + testcasemethod,
+									 * false);
+									 */
+									ReusableComponents.wait(5200);
+								} else {
+									ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+											"Save button not present", browser, pathLocation + "\\" + testcasemethod,
+											true);
+								}
+
+							} else {
+								ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+										"Account Active checkbox not present", browser,
+										pathLocation + "\\" + testcasemethod, true);
+							}
+
+						} else {
+							ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+									"Account Type selectbox not present", browser, pathLocation + "\\" + testcasemethod,
+									true);
+						}
+
+					} else {
+						ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+								"Account Name field  not present", browser, pathLocation + "\\" + testcasemethod, true);
+					}
+
+				} else {
+					ReusableComponents.reportFail(threadID, tempList, testcasemethod, "Account New button not present",
+							browser, pathLocation + "\\" + testcasemethod, true);
+				}
+
+			} else {
+				ReusableComponents.reportFail(threadID, tempList, testcasemethod, "Account tab not present", browser,
+						pathLocation + "\\" + testcasemethod, true);
+			}
+			String xpathToCheckNewAccount = ".//*[@data-aura-class=\"uiOutputText\" and contains(text(),'"
+					+ newAccountname + "')]";
+			System.out.println("*********** xpathToCheckNewAccount : " + xpathToCheckNewAccount);
+
+			List<WebElement> accountName = browser.findElements(By.xpath(xpathToCheckNewAccount));
+			System.out.println("*********** accountName size : " + accountName.size());
+
+			accountCreatedStatus = false;
+			if (accountName.size() != 0) {
+				accountCreatedStatus = true;
+				runTimeTestData.put(runTimeTestData.get(testCaseNumber) + "_newAccountname", newAccountname);
+				runTimeTestData.put(runTimeTestData.get(testCaseNumber) + "_accountCreatedStatus", "true");
+				ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+						"New account " + newAccountname + " created successfully", browser,
+						pathLocation + "\\" + testcasemethod, false);
+
+				ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ", browser,
+						pathLocation + "\\" + testcasemethod, true);
+			} else {
+				accountCreatedStatus = false;
+				runTimeTestData.put(runTimeTestData.get(testCaseNumber) + "_accountCreatedStatus", "false");
+				ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+						"New account " + newAccountname + " is not created", browser,
+						pathLocation + "\\" + testcasemethod, true);
+			}
+
+			browser.switchTo().defaultContent();
+		} catch (throwNewException e) {
+			e.printStackTrace();
+			ReusableComponents.reportFail(threadID, tempList, testcasemethod, e.getErrorMessage(), browser,
+					pathLocation + "\\" + testcasemethod, true);
+		} catch (Exception e) {
+			e.printStackTrace();
+			ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+					"Exception in create account" + e.getMessage(), browser, pathLocation + "\\" + testcasemethod,
+					true);
+
+		}
+
+		return new AccountingSeedReusableFunctionalities(browser);
+
+	}
+
+	/**
+	 * @author Wisefinch Menaka
+	 * @see We can use this method to set Cash Flow statement value to have "True"
+	 *      or "False". We do not have access in UI to directly update it. So we are
+	 *      doing the same from deveoloper console
+	 * 
+	 * @param threadID
+	 * @param tempList
+	 * @param pathLoc
+	 * @param cashFlowEnableValue : Set it to have "True" or "False"
+	 * @return
+	 * @throws Exception
+	 * @throws throwNewException
+	 */
+	public static synchronized CashFlowStatementPage developerConsole_QueryRun_CashFlowTrueOrFalse(int threadID,
+			List<String> tempList, String pathLoc, WebDriver browser, boolean cashFlowEnableValue)
+			throws Exception, throwNewException {
+		System.out.println("********** test_Journal_Entries");
+		String testcasemethod = new Object() {
+		}.getClass().getEnclosingMethod().getName();
+
+		String path = workingDir + reusableComponents.getPropValues("ChromeResultspath") + "\\" + TESTCASENAME;
+		pathLoc = reusableComponents.pathBuilder(path);
+
+		boolean cashFlowEnable = cashFlowEnableValue;
+		System.out.println("********** Expected condition cashFlowEnable : " + cashFlowEnable);
+		try {
+			try {
+				LoginToWebpage(threadID, tempList, pathLoc, browser);
+				ReusableComponents.wait(5000);
+			} catch (Exception e) {
+				e.printStackTrace();
+				System.out.println("########## Login is not applicable");
+			}
+
+			checkDefaultValueOfCashFlowStatement(threadID, tempList, pathLoc, browser);
+
+			navigateToAccountingHomePage(browser);
+			ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+					"Cash flow value : set it to have " + cashFlowEnable, browser, pathLoc + "\\" + testcasemethod,
+					false);
+			ReusableComponents.wait(5000);
+			ReusableComponents.clickElement(setupJasperHome, "Setup button");
+			ReusableComponents.wait(2000);
+			ReusableComponents.clickElement(developerConsole, "Developer Console button");
+
+			// --> Get window handle
+			String parentWindow = browser.getWindowHandle();
+			System.out.println("********** Parent window name " + parentWindow);
+
+			// --> Save parent window handle
+			Set<String> setOfWindows = browser.getWindowHandles();
+			System.out.println("********** size : " + setOfWindows.size());
+
+			// Now iterate using Iterator
+			Iterator<String> windowIterator = setOfWindows.iterator();
+
+			if (setOfWindows.size() > 1) {
+				while (windowIterator.hasNext()) {
+					String child_window = windowIterator.next();
+					child_window = windowIterator.next();
+					if (!parentWindow.equals(child_window)) {
+						browser.switchTo().window(child_window);
+						browser.manage().window().maximize();
+						System.out.println(
+								"********** Second window title " + browser.switchTo().window(child_window).getTitle());
+						ReusableComponents.wait(5000);
+						ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+								"Successfully navigated to developer console", browser, pathLoc + "\\" + testcasemethod,
+								false);
+						ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, "", browser,
+								pathLoc + "\\" + testcasemethod, true);
+					}
+				}
+			} else {
+				ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+						"Developer console window is not opened", browser, pathLoc + "\\" + testcasemethod, false);
+			}
+
+			runQuery();
+
+			List<WebElement> valueSetToTrue = browser
+					.findElements(By.xpath(".//*[@class='x-grid-cell-inner ' and contains(text(),'true')]"));
+			System.out.println("********** valueSetToTrue " + valueSetToTrue.size());
+			List<WebElement> valueSetToFalse = browser
+					.findElements(By.xpath(".//*[@class=\"x-grid-cell-inner \" and contains(text(),'false')]"));
+			System.out.println("********** valueSetToFalse " + valueSetToFalse.size());
+
+			if (cashFlowEnable == true) {
+
+				if (valueSetToTrue.size() > 0) {
+					ReusableComponents.reportPass(threadID, tempList, testcasemethod, "Cash Flow Enable Set To True",
+							browser, pathLoc + "\\" + testcasemethod, false);
+					ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, "", browser,
+							pathLoc + "\\" + testcasemethod, true);
+				} else {
+					WebElement falseResultRow = browser
+							.findElement(By.xpath(".//*[@class='x-grid-cell-inner ' and contains(text(),'false')]"));
+					ReusableComponents.doubleClickElement(browser, falseResultRow, "Double click the result");
+					ReusableComponents.clickElement(checkbox_SetTrueORFalse_DeveloperConsole, "Click on check box");
+					ReusableComponents.clickElement(saveRowButton_DeveloperConsole, "Click on save row button");
+					ReusableComponents.clickElement(saveRowButton_DeveloperConsole, "Click on save row button");
+
+					runQuery();
+
+					valueSetToTrue = browser
+							.findElements(By.xpath(".//*[@class='x-grid-cell-inner ' and contains(text(),'true')]"));
+					System.out.println("********** valueSetToTrue " + valueSetToTrue.size());
+					int size = valueSetToTrue.size();
+					if (size > 0) {
+						ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+								"Cash Flow Enable Set To True", browser, pathLoc + "\\" + testcasemethod, false);
+						ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, "", browser,
+								pathLoc + "\\" + testcasemethod, true);
+					} else {
+
+						ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+								"Cash Flow Enable is not Set To True", browser, pathLoc + "\\" + testcasemethod, false);
+						ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, "", browser,
+								pathLoc + "\\" + testcasemethod, true);
+
+					}
+				}
+			}
+
+			if (cashFlowEnable == false) {
+
+				if (valueSetToFalse.size() > 0) {
+					ReusableComponents.reportPass(threadID, tempList, testcasemethod, "Cash Flow Enable Set To False",
+							browser, pathLoc + "\\" + testcasemethod, false);
+					ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, "", browser,
+							pathLoc + "\\" + testcasemethod, true);
+				} else {
+					WebElement trueResultRow = browser
+							.findElement(By.xpath(".//*[@class='x-grid-cell-inner ' and contains(text(),'true')]"));
+					ReusableComponents.doubleClickElement(browser, trueResultRow, "Double click the result");
+					ReusableComponents.clickElement(checkbox_SetTrueORFalse_DeveloperConsole, "Click on check box");
+					ReusableComponents.clickElement(saveRowButton_DeveloperConsole, "Click on save row button");
+					ReusableComponents.clickElement(saveRowButton_DeveloperConsole, "Click on save row button");
+
+					runQuery();
+
+					valueSetToFalse = browser
+							.findElements(By.xpath(".//*[@class='x-grid-cell-inner ' and contains(text(),'false')]"));
+					System.out.println("********** valueSetToFalse " + valueSetToFalse.size());
+					int size = valueSetToFalse.size();
+					if (size > 0) {
+						ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+								"Cash Flow Enable Set To False", browser, pathLoc + "\\" + testcasemethod, false);
+						ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, "", browser,
+								pathLoc + "\\" + testcasemethod, true);
+					} else {
+
+						ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+								"Cash Flow Enable is not Set To False", browser, pathLoc + "\\" + testcasemethod,
+								false);
+						ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, "", browser,
+								pathLoc + "\\" + testcasemethod, true);
+
+					}
+				}
+			}
+
+			browser.close();
+			browser.switchTo().window(parentWindow);
+
+			checkDefaultValueOfCashFlowStatement(threadID, tempList, pathLoc, browser);
+
+			ReusableComponents.wait(5000);
+
+		} catch (throwNewException e) {
+			e.printStackTrace();
+			ReusableComponents.reportFail(threadID, tempList, testcasemethod, e.getErrorMessage(), browser,
+					pathLoc + "\\" + testcasemethod, true);
+		} catch (NoSuchElementException e) {
+			e.printStackTrace();
+			ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+					" Object is not present" + e.getStackTrace(), browser, pathLoc + "\\" + testcasemethod, true);
+		}
+		return new CashFlowStatementPage(browser);
+	}
+
+	/*
+	 * From Accounting Home, click on Accounts (under Master Data Setup) and
+	 * create/edit one so it has: Accounting Type = Customer & Vendor and Accounting
+	 * Active checked Author : Lakshman
+	 */
+	public static void checkDefaultValueOfCashFlowStatement(int threadID, List<String> tempList, String pathLocation,
+			WebDriver browser) throws Exception {
+		String testcasemethod = new Object() {
+		}.getClass().getEnclosingMethod().getName();
+
+		System.out.println("********** checkDefaultValueOfCustomerVendorandAccounting");
+
+		navigateToAccountingHomePage(browser);
+
+		try {
+			ReusableComponents.wait(3200);
+
+			browser.findElement(By.cssSelector("body")).sendKeys(Keys.PAGE_DOWN);
+			ReusableComponents.wait(3200);
+			browser.findElement(By.cssSelector("body")).sendKeys(Keys.PAGE_DOWN);
+			ReusableComponents.wait(3200);
+
+			List<WebElement> f = browser.findElements(By.tagName("frame"));
+			int i = f.size();
+			System.out.println(i + "is the frame count");
+
+			browser.switchTo().frame(0);
+
+			if (ReusableComponents.isElementPresent(Accounting_Settings)) {
+
+				ReusableComponents.wait(5200);
+				Accounting_Settings.click();
+				ReusableComponents.wait(5200);
+				ReusableComponents.reportPass(threadID, tempList, testcasemethod, "Accounting Settings tab is present",
+						browser, pathLocation + "\\" + testcasemethod, false);
+
+				browser.switchTo().frame(0);
+
+				WebElement element = browser
+						.findElement(By.xpath("//div/h3[contains(.,'Cash Flow Statement Settings')]"));
+				((JavascriptExecutor) browser).executeScript("arguments[0].scrollIntoView(true);", element);
+				ReusableComponents.wait(3200);
+
+				if (ReusableComponents.isElementPresent(CFS_Setting)) {
+
+					ReusableComponents.wait(5200);
+					ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+							"Cash Flow Statement Settings tab is present", browser,
+							pathLocation + "\\" + testcasemethod, false);
+					ReusableComponents.wait(5200);
+					ReusableComponents.reportSpecific(threadID, tempList, testcasemethod,
+							"screen grab of Cash Flow Statement Settings section, this is a non editable section",
+							browser, pathLocation + "\\" + testcasemethod, true);
+
+				} else {
+					ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+							"Cash Flow Statement Settings tab not present", browser,
+							pathLocation + "\\" + testcasemethod, true);
+				}
+				browser.switchTo().defaultContent();
+			} else {
+				ReusableComponents.reportFail(threadID, tempList, testcasemethod, "Accounting Settings tab not present",
+						browser, pathLocation + "\\" + testcasemethod, true);
+			}
+
+			browser.switchTo().defaultContent();
+		} catch (Exception e) {
+			ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+					"Unable to select app from select search app section" + e.getStackTrace(), browser,
+					pathLocation + "\\" + testcasemethod, true);
+		}
+	}
+
+	/**
+	 * @author Wisefinch Menaka
+	 * @see Pass query to developer console and run. This method can be used only
+	 *      when the developer console page is open
+	 * 
+	 * @throws IOException
+	 * @throws throwNewException
+	 */
+	public static void runQuery() throws IOException, throwNewException {
+		String developerExecuteQuery = reusableComponents.getPropValues("developerQuery_CashFlow_CheckOrUnCheck");
+		ReusableComponents.sendKey(queryEditor_DeveloperConsole, developerExecuteQuery,
+				"Pass Query todeveloper console");
+		ReusableComponents.clickElement(executeButton_DeveloperConsole, "Execute Button");
+		ReusableComponents.wait(10000);
+	}
 }

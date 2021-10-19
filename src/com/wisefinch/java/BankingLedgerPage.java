@@ -1288,7 +1288,7 @@ public class BankingLedgerPage extends DriverScript {
 				 * "Billing line New button is present", browser, pathLocation + "\\" +
 				 * testcasemethod, false);
 				 */
-				ReusableComponents.wait(5500);
+				ReusableComponents.wait(8500);
 
 				if (ReusableComponents.isElementPresent(Date)) {
 
@@ -2165,7 +2165,7 @@ public class BankingLedgerPage extends DriverScript {
 									 */
 									ReusableComponents.wait(3200);
 									CD_vendor.sendKeys(account_namefull);
-									ReusableComponents.wait(5200);
+									ReusableComponents.wait(8200);
 									WebElement CD_Vendor = browser
 											.findElement(By.xpath("//lightning-base-combobox-formatted-text[@title='"
 													+ account_namefull + "']"));
