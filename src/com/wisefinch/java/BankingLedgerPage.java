@@ -794,7 +794,13 @@ public class BankingLedgerPage extends DriverScript {
 			String status_p = reusableComponents.getPropValues(testCaseNumber + "_postingstatus");
 			String pref = ReusableComponents.getCurrentDateAndTime("yyyyMMdd_HHmmss") + "_ReferanceValue";
 			String period = currentAccountingPeriodForTheTestCase;
-			String account_name = newAccountname;
+
+			String account_name;
+			if (newAccountname == null) {
+				account_name = reusableComponents.getPropValues(testCaseNumber + "_accname");
+			} else {
+				account_name = newAccountname;
+			}
 
 			ReusableComponents.wait(3200);
 			navigateToAccountingHomePage();
@@ -805,12 +811,18 @@ public class BankingLedgerPage extends DriverScript {
 			ReusableComponents.clickElement(New, "Click New Button");
 			ReusableComponents.wait(5000);
 			ReusableComponents.scrollInToElementJavaScript(browser, Payee_Reference);
+			ReusableComponents.wait(2000);
 			ReusableComponents.sendKey(Payee_Reference, pref, "Payee Reference");
+			ReusableComponents.scrollInToElementJavaScript(browser, Vendor);
+			ReusableComponents.wait(2000);
 			ReusableComponents.sendKey(Vendor, account_name, "Pass value to vendor");
 			ReusableComponents.wait(5500);
 			WebElement Vendor_click = browser
 					.findElement(By.xpath("//lightning-base-combobox-formatted-text[@title='" + account_name + "']"));
 			ReusableComponents.clickElement(Vendor_click, "Select vendor type");
+
+			ReusableComponents.scrollInToElementJavaScript(browser, Period_input);
+			ReusableComponents.wait(2000);
 			ReusableComponents.selectAccountingPeriod(Period_input, period, browser);
 
 			ReusableComponents.reportPass(threadID, tempList, testcasemethod,
@@ -881,7 +893,7 @@ public class BankingLedgerPage extends DriverScript {
 			ReusableComponents.scrollDownUsingPageDown(browser);
 			ReusableComponents.scrollDownUsingPageDown(browser);
 
-			ReusableComponents.wait(5500);
+			ReusableComponents.wait(8500);
 
 			if (ReusableComponents.isElementPresent(New_PLine)) {
 
@@ -1341,6 +1353,7 @@ public class BankingLedgerPage extends DriverScript {
 									ReusableComponents.wait(10000);
 
 									browser.switchTo().frame(0);
+									ReusableComponents.wait(10000);
 
 									if (ReusableComponents.isElementPresent(Post_final_Billing)) {
 
@@ -1886,7 +1899,7 @@ public class BankingLedgerPage extends DriverScript {
 				if (browser.findElement(By.xpath(clonedGLAccount)).isDisplayed() == true) {
 					ReusableComponents.reportPass(threadID, tempList, testcasemethod,
 							"New GL Account " + newGLName + " is displayed", browser,
-							pathLocation + "\\" + testcasemethod, true);
+							pathLocation + "\\" + testcasemethod, false);
 					ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ", browser,
 							pathLocation + "\\" + testcasemethod, true);
 				} else {
@@ -2153,7 +2166,6 @@ public class BankingLedgerPage extends DriverScript {
 									ReusableComponents.wait(3200);
 									CD_vendor.sendKeys(account_namefull);
 									ReusableComponents.wait(5200);
-
 									WebElement CD_Vendor = browser
 											.findElement(By.xpath("//lightning-base-combobox-formatted-text[@title='"
 													+ account_namefull + "']"));
@@ -2242,8 +2254,8 @@ public class BankingLedgerPage extends DriverScript {
 												ReusableComponents.wait(3200);
 												Post.click();
 												ReusableComponents.wait(10000);
-
 												browser.switchTo().frame(0);
+												ReusableComponents.wait(10000);
 
 												if (ReusableComponents.isElementPresent(Post_final)) {
 
@@ -6220,6 +6232,8 @@ public class BankingLedgerPage extends DriverScript {
 			List<String> tempList, String pathLocation) throws Exception {
 		String testcasemethod = new Object() {
 		}.getClass().getEnclosingMethod().getName();
+		Page page = new Page(browser);
+		page.accountingSeedReusableFunction(threadID, tempList, pathLocation);
 
 		String path = workingDir + reusableComponents.getPropValues("ChromeResultspath") + "\\" + TESTCASENAME;
 		pathLocation = reusableComponents.pathBuilder(path);
@@ -6231,7 +6245,7 @@ public class BankingLedgerPage extends DriverScript {
 
 		try {
 			// --> Login to the webpage
-			LoginToWebpage(threadID, tempList, pathLocation);
+			AccountingSeedReusableFunctionalities.LoginToWebpage(threadID, tempList, pathLocation, browser);
 
 			// --> assign test case number to get data from config properties
 			System.out.println("*********** testCaseNumber " + testCaseNumber);
@@ -6271,8 +6285,12 @@ public class BankingLedgerPage extends DriverScript {
 				ReusableComponents.reportInfo(threadID, tempList, testcasemethod,
 						"Open accounting period " + openAccountingPeriodForTestDataCreation, browser,
 						pathLocation + "\\" + testcasemethod, false);
+				// Open accounting period
 				try {
-					openAccountingPeriod(threadID, tempList, pathLocation, openAccountingPeriodForTestDataCreation);
+					AccountingSeedReusableFunctionalities.openAccountingPeriod(threadID, tempList, pathLocation,
+							browser, openAccountingPeriodForTestDataCreation);
+					// openAccountingPeriod(threadID, tempList, pathLocation,
+					// openAccountingPeriodForTestDataCreation);
 				} catch (Exception e) {
 					e.printStackTrace();
 					ReusableComponents.reportFail(threadID, tempList, testcasemethod,
@@ -6283,8 +6301,14 @@ public class BankingLedgerPage extends DriverScript {
 				// --> Check accounting period status
 				String expectedAccountingPeriodStatus = "Open";
 				Boolean actualAccountingPeriodStatus = false;
-				actualAccountingPeriodStatus = checkAccountPeriodStatus(threadID, tempList, pathLocation,
-						openAccountingPeriodForTestDataCreation, expectedAccountingPeriodStatus);
+				actualAccountingPeriodStatus = AccountingSeedReusableFunctionalities.checkAccountPeriodStatus(threadID,
+						tempList, pathLocation, browser, openAccountingPeriodForTestDataCreation,
+						expectedAccountingPeriodStatus);
+				/*
+				 * actualAccountingPeriodStatus = checkAccountPeriodStatus(threadID, tempList,
+				 * pathLocation, openAccountingPeriodForTestDataCreation,
+				 * expectedAccountingPeriodStatus);
+				 */
 
 				if (actualAccountingPeriodStatus) {
 					System.out.println(
@@ -6335,15 +6359,6 @@ public class BankingLedgerPage extends DriverScript {
 										browser, pathLocation + "\\" + testcasemethod, true);
 							}
 
-							try {
-								createPayables(threadID, tempList, pathLocation);
-							} catch (Exception e) {
-								e.printStackTrace();
-								ReusableComponents.reportFail(threadID, tempList, testcasemethod,
-										"There is a exception while creating payables test data" + e.getMessage(),
-										browser, pathLocation + "\\" + testcasemethod, true);
-							}
-
 							// --> If both the test data's are created continue with the test case else drop
 							// the test
 
@@ -6351,6 +6366,7 @@ public class BankingLedgerPage extends DriverScript {
 								System.out.println("********** Test data created with the accounting year "
 										+ currentAccountingPeriodForTheTestCase);
 
+								// Open next accounting period
 								openAccountingPeriodForTestDataCreation = yearValue.concat("-11");
 								System.out.println("*********** value of closePreviousAccountingPeriod : "
 										+ openAccountingPeriodForTestDataCreation);
@@ -6360,8 +6376,12 @@ public class BankingLedgerPage extends DriverScript {
 										pathLocation + "\\" + testcasemethod, false);
 
 								try {
-									openAccountingPeriod(threadID, tempList, pathLocation,
-											openAccountingPeriodForTestDataCreation);
+									AccountingSeedReusableFunctionalities.openAccountingPeriod(threadID, tempList,
+											pathLocation, browser, openAccountingPeriodForTestDataCreation);
+									/*
+									 * openAccountingPeriod(threadID, tempList, pathLocation,
+									 * openAccountingPeriodForTestDataCreation);
+									 */
 								} catch (Exception e) {
 									e.printStackTrace();
 									ReusableComponents.reportFail(threadID, tempList, testcasemethod,
@@ -6373,9 +6393,15 @@ public class BankingLedgerPage extends DriverScript {
 								// --> Check accounting period status
 								expectedAccountingPeriodStatus = "Open";
 								actualAccountingPeriodStatus = false;
-								actualAccountingPeriodStatus = checkAccountPeriodStatus(threadID, tempList,
-										pathLocation, openAccountingPeriodForTestDataCreation,
-										expectedAccountingPeriodStatus);
+								actualAccountingPeriodStatus = AccountingSeedReusableFunctionalities
+										.checkAccountPeriodStatus(threadID, tempList, pathLocation, browser,
+												openAccountingPeriodForTestDataCreation,
+												expectedAccountingPeriodStatus);
+								/*
+								 * actualAccountingPeriodStatus = checkAccountPeriodStatus(threadID, tempList,
+								 * pathLocation, openAccountingPeriodForTestDataCreation,
+								 * expectedAccountingPeriodStatus);
+								 */
 
 								if (actualAccountingPeriodStatus) {
 									System.out.println(
@@ -6406,7 +6432,8 @@ public class BankingLedgerPage extends DriverScript {
 														+ currentAccountingPeriodForTheTestCase
 														+ " new cash disbursement created, Good to go with test case");
 
-										openAccountingPeriodForTestDataCreation = yearValue.concat("-11");
+										// Open next accounting period
+										openAccountingPeriodForTestDataCreation = yearValue.concat("-12");
 										System.out.println("*********** value of closePreviousAccountingPeriod : "
 												+ openAccountingPeriodForTestDataCreation);
 
@@ -6415,8 +6442,13 @@ public class BankingLedgerPage extends DriverScript {
 												browser, pathLocation + "\\" + testcasemethod, false);
 
 										try {
-											openAccountingPeriod(threadID, tempList, pathLocation,
+											AccountingSeedReusableFunctionalities.openAccountingPeriod(threadID,
+													tempList, pathLocation, browser,
 													openAccountingPeriodForTestDataCreation);
+											/*
+											 * openAccountingPeriod(threadID, tempList, pathLocation,
+											 * openAccountingPeriodForTestDataCreation);
+											 */
 										} catch (Exception e) {
 											e.printStackTrace();
 											ReusableComponents.reportFail(threadID, tempList, testcasemethod,
@@ -6428,9 +6460,15 @@ public class BankingLedgerPage extends DriverScript {
 										// --> Check accounting period status
 										expectedAccountingPeriodStatus = "Open";
 										actualAccountingPeriodStatus = false;
-										actualAccountingPeriodStatus = checkAccountPeriodStatus(threadID, tempList,
-												pathLocation, openAccountingPeriodForTestDataCreation,
-												expectedAccountingPeriodStatus);
+										actualAccountingPeriodStatus = AccountingSeedReusableFunctionalities
+												.checkAccountPeriodStatus(threadID, tempList, pathLocation, browser,
+														openAccountingPeriodForTestDataCreation,
+														expectedAccountingPeriodStatus);
+										/*
+										 * actualAccountingPeriodStatus = checkAccountPeriodStatus(threadID, tempList,
+										 * pathLocation, openAccountingPeriodForTestDataCreation,
+										 * expectedAccountingPeriodStatus);
+										 */
 
 										if (actualAccountingPeriodStatus) {
 											System.out.println(
@@ -6464,15 +6502,28 @@ public class BankingLedgerPage extends DriverScript {
 											String previousAccountingPeriod = yearValue.concat("-10");
 											System.out.println("********** previousAccountingPeriod to close : "
 													+ previousAccountingPeriod);
-											closeAccountingPeriod(threadID, tempList, pathLocation,
-													previousAccountingPeriod);
+
+											AccountingSeedReusableFunctionalities.closeAccountingPeriod(threadID,
+													tempList, pathLocation, browser, previousAccountingPeriod);
+
+											/*
+											 * closeAccountingPeriod(threadID, tempList, pathLocation,
+											 * previousAccountingPeriod);
+											 */
 
 											// --> Check accounting period status for year-10. It should be closed
 											expectedAccountingPeriodStatus = "Closed";
 											actualAccountingPeriodStatus = false;
-											actualAccountingPeriodStatus = checkAccountPeriodStatus(threadID, tempList,
-													pathLocation, previousAccountingPeriod,
-													expectedAccountingPeriodStatus);
+
+											actualAccountingPeriodStatus = AccountingSeedReusableFunctionalities
+													.checkAccountPeriodStatus(threadID, tempList, pathLocation, browser,
+															previousAccountingPeriod, expectedAccountingPeriodStatus);
+
+											/*
+											 * actualAccountingPeriodStatus = checkAccountPeriodStatus(threadID,
+											 * tempList, pathLocation, previousAccountingPeriod,
+											 * expectedAccountingPeriodStatus);
+											 */
 
 											if (actualAccountingPeriodStatus) {
 												System.out.println(
@@ -6487,16 +6538,28 @@ public class BankingLedgerPage extends DriverScript {
 												previousAccountingPeriod = yearValue.concat("-11");
 												System.out.println("********** previousAccountingPeriod to close : "
 														+ previousAccountingPeriod);
-												closeAccountingPeriod(threadID, tempList, pathLocation,
-														previousAccountingPeriod);
+
+												AccountingSeedReusableFunctionalities.closeAccountingPeriod(threadID,
+														tempList, pathLocation, browser, previousAccountingPeriod);
+
+												/*
+												 * closeAccountingPeriod(threadID, tempList, pathLocation,
+												 * previousAccountingPeriod);
+												 */
 
 												// --> Check accounting period status for year-11. It should be
 												// closed
 												expectedAccountingPeriodStatus = "Closed";
 												actualAccountingPeriodStatus = false;
-												actualAccountingPeriodStatus = checkAccountPeriodStatus(threadID,
-														tempList, pathLocation, previousAccountingPeriod,
-														expectedAccountingPeriodStatus);
+												actualAccountingPeriodStatus = AccountingSeedReusableFunctionalities
+														.checkAccountPeriodStatus(threadID, tempList, pathLocation,
+																browser, previousAccountingPeriod,
+																expectedAccountingPeriodStatus);
+												/*
+												 * actualAccountingPeriodStatus = checkAccountPeriodStatus(threadID,
+												 * tempList, pathLocation, previousAccountingPeriod,
+												 * expectedAccountingPeriodStatus);
+												 */
 
 												if (actualAccountingPeriodStatus) {
 													System.out.println(
@@ -6511,16 +6574,27 @@ public class BankingLedgerPage extends DriverScript {
 													previousAccountingPeriod = yearValue.concat("-12");
 													System.out.println("********** previousAccountingPeriod to close : "
 															+ previousAccountingPeriod);
-													closeAccountingPeriod(threadID, tempList, pathLocation,
+													AccountingSeedReusableFunctionalities.closeAccountingPeriod(
+															threadID, tempList, pathLocation, browser,
 															previousAccountingPeriod);
+													/*
+													 * closeAccountingPeriod(threadID, tempList, pathLocation,
+													 * previousAccountingPeriod);
+													 */
 
 													// --> Check accounting period status for year-12. It should be
 													// closed
 													expectedAccountingPeriodStatus = "Closed";
 													actualAccountingPeriodStatus = false;
-													actualAccountingPeriodStatus = checkAccountPeriodStatus(threadID,
-															tempList, pathLocation, previousAccountingPeriod,
-															expectedAccountingPeriodStatus);
+													actualAccountingPeriodStatus = AccountingSeedReusableFunctionalities
+															.checkAccountPeriodStatus(threadID, tempList, pathLocation,
+																	browser, previousAccountingPeriod,
+																	expectedAccountingPeriodStatus);
+													/*
+													 * actualAccountingPeriodStatus = checkAccountPeriodStatus(threadID,
+													 * tempList, pathLocation, previousAccountingPeriod,
+													 * expectedAccountingPeriodStatus);
+													 */
 
 													if (actualAccountingPeriodStatus) {
 														System.out.println(
@@ -6539,10 +6613,17 @@ public class BankingLedgerPage extends DriverScript {
 														// open
 														expectedAccountingPeriodStatus = "Open";
 														actualAccountingPeriodStatus = false;
-														actualAccountingPeriodStatus = checkAccountPeriodStatus(
-																threadID, tempList, pathLocation,
-																currentAccountingPeriodForTheTestCase,
-																expectedAccountingPeriodStatus);
+														actualAccountingPeriodStatus = AccountingSeedReusableFunctionalities
+																.checkAccountPeriodStatus(threadID, tempList,
+																		pathLocation, browser,
+																		currentAccountingPeriodForTheTestCase,
+																		expectedAccountingPeriodStatus);
+														/*
+														 * actualAccountingPeriodStatus = checkAccountPeriodStatus(
+														 * threadID, tempList, pathLocation,
+														 * currentAccountingPeriodForTheTestCase,
+														 * expectedAccountingPeriodStatus);
+														 */
 
 														if (actualAccountingPeriodStatus) {
 															System.out.println(
@@ -6553,8 +6634,10 @@ public class BankingLedgerPage extends DriverScript {
 
 															/// Lauch NSFR
 															// --> Select reports from search app
-															selectAppFromSearchAppAndItem(threadID, tempList,
-																	pathLocation, "Reports", selectReports);
+															AccountingSeedReusableFunctionalities
+																	.selectAppFromSearchAppAndItem(threadID, tempList,
+																			pathLocation, browser, "Reports",
+																			selectReports);
 
 															// --> Launch new NSF report
 															openNewNativeSalesForceBalanceSheet(threadID, tempList,
@@ -6964,8 +7047,12 @@ public class BankingLedgerPage extends DriverScript {
 				ReusableComponents.reportInfo(threadID, tempList, testcasemethod,
 						"Open accounting period " + openAccountingPeriodForTestDataCreation, browser,
 						pathLocation + "\\" + testcasemethod, false);
+				// Open Accounting Period
 				try {
-					openAccountingPeriod(threadID, tempList, pathLocation, openAccountingPeriodForTestDataCreation);
+					AccountingSeedReusableFunctionalities.openAccountingPeriod(threadID, tempList, pathLocation,
+							browser, openAccountingPeriodForTestDataCreation);
+					// openAccountingPeriod(threadID, tempList, pathLocation,
+					// openAccountingPeriodForTestDataCreation);
 				} catch (Exception e) {
 					e.printStackTrace();
 					ReusableComponents.reportFail(threadID, tempList, testcasemethod,
@@ -6976,8 +7063,14 @@ public class BankingLedgerPage extends DriverScript {
 				// --> Check accounting period status
 				String expectedAccountingPeriodStatus = "Open";
 				Boolean actualAccountingPeriodStatus = false;
-				actualAccountingPeriodStatus = checkAccountPeriodStatus(threadID, tempList, pathLocation,
-						openAccountingPeriodForTestDataCreation, expectedAccountingPeriodStatus);
+				actualAccountingPeriodStatus = AccountingSeedReusableFunctionalities.checkAccountPeriodStatus(threadID,
+						tempList, pathLocation, browser, openAccountingPeriodForTestDataCreation,
+						expectedAccountingPeriodStatus);
+				/*
+				 * actualAccountingPeriodStatus = checkAccountPeriodStatus(threadID, tempList,
+				 * pathLocation, openAccountingPeriodForTestDataCreation,
+				 * expectedAccountingPeriodStatus);
+				 */
 
 				if (actualAccountingPeriodStatus) {
 					System.out.println(
@@ -7028,15 +7121,6 @@ public class BankingLedgerPage extends DriverScript {
 										browser, pathLocation + "\\" + testcasemethod, true);
 							}
 
-							try {
-								createPayables(threadID, tempList, pathLocation);
-							} catch (Exception e) {
-								e.printStackTrace();
-								ReusableComponents.reportFail(threadID, tempList, testcasemethod,
-										"There is a exception while creating payables test data" + e.getMessage(),
-										browser, pathLocation + "\\" + testcasemethod, true);
-							}
-
 							// --> If both the test data's are created continue with the test case else drop
 							// the test
 
@@ -7052,9 +7136,14 @@ public class BankingLedgerPage extends DriverScript {
 										"Open accounting period " + openAccountingPeriodForTestDataCreation, browser,
 										pathLocation + "\\" + testcasemethod, false);
 
+								// Open Accounting period
 								try {
-									openAccountingPeriod(threadID, tempList, pathLocation,
-											openAccountingPeriodForTestDataCreation);
+									AccountingSeedReusableFunctionalities.openAccountingPeriod(threadID, tempList,
+											pathLocation, browser, openAccountingPeriodForTestDataCreation);
+									/*
+									 * openAccountingPeriod(threadID, tempList, pathLocation,
+									 * openAccountingPeriodForTestDataCreation);
+									 */
 								} catch (Exception e) {
 									e.printStackTrace();
 									ReusableComponents.reportFail(threadID, tempList, testcasemethod,
@@ -7066,9 +7155,15 @@ public class BankingLedgerPage extends DriverScript {
 								// --> Check accounting period status
 								expectedAccountingPeriodStatus = "Open";
 								actualAccountingPeriodStatus = false;
-								actualAccountingPeriodStatus = checkAccountPeriodStatus(threadID, tempList,
-										pathLocation, openAccountingPeriodForTestDataCreation,
-										expectedAccountingPeriodStatus);
+								actualAccountingPeriodStatus = AccountingSeedReusableFunctionalities
+										.checkAccountPeriodStatus(threadID, tempList, pathLocation, browser,
+												openAccountingPeriodForTestDataCreation,
+												expectedAccountingPeriodStatus);
+								/*
+								 * actualAccountingPeriodStatus = checkAccountPeriodStatus(threadID, tempList,
+								 * pathLocation, openAccountingPeriodForTestDataCreation,
+								 * expectedAccountingPeriodStatus);
+								 */
 
 								if (actualAccountingPeriodStatus) {
 									System.out.println(
@@ -7099,7 +7194,7 @@ public class BankingLedgerPage extends DriverScript {
 														+ currentAccountingPeriodForTheTestCase
 														+ " new cash disbursement created, Good to go with test case");
 
-										openAccountingPeriodForTestDataCreation = yearValue.concat("-11");
+										openAccountingPeriodForTestDataCreation = yearValue.concat("-12");
 										System.out.println("*********** value of closePreviousAccountingPeriod : "
 												+ openAccountingPeriodForTestDataCreation);
 
@@ -7107,9 +7202,15 @@ public class BankingLedgerPage extends DriverScript {
 												"Open accounting period " + openAccountingPeriodForTestDataCreation,
 												browser, pathLocation + "\\" + testcasemethod, false);
 
+										// Open next accounting period
 										try {
-											openAccountingPeriod(threadID, tempList, pathLocation,
+											AccountingSeedReusableFunctionalities.openAccountingPeriod(threadID,
+													tempList, pathLocation, browser,
 													openAccountingPeriodForTestDataCreation);
+											/*
+											 * openAccountingPeriod(threadID, tempList, pathLocation,
+											 * openAccountingPeriodForTestDataCreation);
+											 */
 										} catch (Exception e) {
 											e.printStackTrace();
 											ReusableComponents.reportFail(threadID, tempList, testcasemethod,
@@ -7121,9 +7222,15 @@ public class BankingLedgerPage extends DriverScript {
 										// --> Check accounting period status
 										expectedAccountingPeriodStatus = "Open";
 										actualAccountingPeriodStatus = false;
-										actualAccountingPeriodStatus = checkAccountPeriodStatus(threadID, tempList,
-												pathLocation, openAccountingPeriodForTestDataCreation,
+										AccountingSeedReusableFunctionalities.checkAccountPeriodStatus(threadID,
+												tempList, pathLocation, browser,
+												openAccountingPeriodForTestDataCreation,
 												expectedAccountingPeriodStatus);
+										/*
+										 * actualAccountingPeriodStatus = checkAccountPeriodStatus(threadID, tempList,
+										 * pathLocation, openAccountingPeriodForTestDataCreation,
+										 * expectedAccountingPeriodStatus);
+										 */
 
 										if (actualAccountingPeriodStatus) {
 											System.out.println(
@@ -7157,15 +7264,15 @@ public class BankingLedgerPage extends DriverScript {
 											String previousAccountingPeriod = yearValue.concat("-10");
 											System.out.println("********** previousAccountingPeriod to close : "
 													+ previousAccountingPeriod);
-											closeAccountingPeriod(threadID, tempList, pathLocation,
-													previousAccountingPeriod);
+											AccountingSeedReusableFunctionalities.closeAccountingPeriod(threadID,
+													tempList, pathLocation, browser, previousAccountingPeriod);
 
 											// --> Check accounting period status for year-10. It should be closed
 											expectedAccountingPeriodStatus = "Closed";
 											actualAccountingPeriodStatus = false;
-											actualAccountingPeriodStatus = checkAccountPeriodStatus(threadID, tempList,
-													pathLocation, previousAccountingPeriod,
-													expectedAccountingPeriodStatus);
+											actualAccountingPeriodStatus = AccountingSeedReusableFunctionalities
+													.checkAccountPeriodStatus(threadID, tempList, pathLocation, browser,
+															previousAccountingPeriod, expectedAccountingPeriodStatus);
 
 											if (actualAccountingPeriodStatus) {
 												System.out.println(
@@ -7180,16 +7287,17 @@ public class BankingLedgerPage extends DriverScript {
 												previousAccountingPeriod = yearValue.concat("-11");
 												System.out.println("********** previousAccountingPeriod to close : "
 														+ previousAccountingPeriod);
-												closeAccountingPeriod(threadID, tempList, pathLocation,
-														previousAccountingPeriod);
+												AccountingSeedReusableFunctionalities.closeAccountingPeriod(threadID,
+														tempList, pathLocation, browser, previousAccountingPeriod);
 
 												// --> Check accounting period status for year-11. It should be
 												// closed
 												expectedAccountingPeriodStatus = "Closed";
 												actualAccountingPeriodStatus = false;
-												actualAccountingPeriodStatus = checkAccountPeriodStatus(threadID,
-														tempList, pathLocation, previousAccountingPeriod,
-														expectedAccountingPeriodStatus);
+												actualAccountingPeriodStatus = AccountingSeedReusableFunctionalities
+														.checkAccountPeriodStatus(threadID, tempList, pathLocation,
+																browser, previousAccountingPeriod,
+																expectedAccountingPeriodStatus);
 
 												if (actualAccountingPeriodStatus) {
 													System.out.println(
@@ -7204,16 +7312,18 @@ public class BankingLedgerPage extends DriverScript {
 													previousAccountingPeriod = yearValue.concat("-12");
 													System.out.println("********** previousAccountingPeriod to close : "
 															+ previousAccountingPeriod);
-													closeAccountingPeriod(threadID, tempList, pathLocation,
+													AccountingSeedReusableFunctionalities.closeAccountingPeriod(
+															threadID, tempList, pathLocation, browser,
 															previousAccountingPeriod);
 
 													// --> Check accounting period status for year-12. It should be
 													// closed
 													expectedAccountingPeriodStatus = "Closed";
 													actualAccountingPeriodStatus = false;
-													actualAccountingPeriodStatus = checkAccountPeriodStatus(threadID,
-															tempList, pathLocation, previousAccountingPeriod,
-															expectedAccountingPeriodStatus);
+													actualAccountingPeriodStatus = AccountingSeedReusableFunctionalities
+															.checkAccountPeriodStatus(threadID, tempList, pathLocation,
+																	browser, previousAccountingPeriod,
+																	expectedAccountingPeriodStatus);
 
 													if (actualAccountingPeriodStatus) {
 														System.out.println(
@@ -7232,10 +7342,11 @@ public class BankingLedgerPage extends DriverScript {
 														// open
 														expectedAccountingPeriodStatus = "Open";
 														actualAccountingPeriodStatus = false;
-														actualAccountingPeriodStatus = checkAccountPeriodStatus(
-																threadID, tempList, pathLocation,
-																currentAccountingPeriodForTheTestCase,
-																expectedAccountingPeriodStatus);
+														actualAccountingPeriodStatus = AccountingSeedReusableFunctionalities
+																.checkAccountPeriodStatus(threadID, tempList,
+																		pathLocation, browser,
+																		currentAccountingPeriodForTheTestCase,
+																		expectedAccountingPeriodStatus);
 
 														if (actualAccountingPeriodStatus) {
 															System.out.println(
@@ -7657,8 +7768,10 @@ public class BankingLedgerPage extends DriverScript {
 				ReusableComponents.reportInfo(threadID, tempList, testcasemethod,
 						"Open accounting period " + openAccountingPeriodForTestDataCreation, browser,
 						pathLocation + "\\" + testcasemethod, false);
+				// Open accounting period
 				try {
-					openAccountingPeriod(threadID, tempList, pathLocation, openAccountingPeriodForTestDataCreation);
+					AccountingSeedReusableFunctionalities.openAccountingPeriod(threadID, tempList, pathLocation,
+							browser, openAccountingPeriodForTestDataCreation);
 				} catch (Exception e) {
 					e.printStackTrace();
 					ReusableComponents.reportFail(threadID, tempList, testcasemethod,
@@ -7669,8 +7782,9 @@ public class BankingLedgerPage extends DriverScript {
 				// --> Check accounting period status
 				String expectedAccountingPeriodStatus = "Open";
 				Boolean actualAccountingPeriodStatus = false;
-				actualAccountingPeriodStatus = checkAccountPeriodStatus(threadID, tempList, pathLocation,
-						openAccountingPeriodForTestDataCreation, expectedAccountingPeriodStatus);
+				actualAccountingPeriodStatus = AccountingSeedReusableFunctionalities.checkAccountPeriodStatus(threadID,
+						tempList, pathLocation, browser, openAccountingPeriodForTestDataCreation,
+						expectedAccountingPeriodStatus);
 
 				if (actualAccountingPeriodStatus) {
 					System.out.println(
@@ -7735,10 +7849,10 @@ public class BankingLedgerPage extends DriverScript {
 								ReusableComponents.reportInfo(threadID, tempList, testcasemethod,
 										"Open accounting period " + openAccountingPeriodForTestDataCreation, browser,
 										pathLocation + "\\" + testcasemethod, false);
-
+								// Open next accounting period
 								try {
-									openAccountingPeriod(threadID, tempList, pathLocation,
-											openAccountingPeriodForTestDataCreation);
+									AccountingSeedReusableFunctionalities.openAccountingPeriod(threadID, tempList,
+											pathLocation, browser, openAccountingPeriodForTestDataCreation);
 								} catch (Exception e) {
 									e.printStackTrace();
 									ReusableComponents.reportFail(threadID, tempList, testcasemethod,
@@ -7750,9 +7864,10 @@ public class BankingLedgerPage extends DriverScript {
 								// --> Check accounting period status
 								expectedAccountingPeriodStatus = "Open";
 								actualAccountingPeriodStatus = false;
-								actualAccountingPeriodStatus = checkAccountPeriodStatus(threadID, tempList,
-										pathLocation, openAccountingPeriodForTestDataCreation,
-										expectedAccountingPeriodStatus);
+								actualAccountingPeriodStatus = AccountingSeedReusableFunctionalities
+										.checkAccountPeriodStatus(threadID, tempList, pathLocation, browser,
+												openAccountingPeriodForTestDataCreation,
+												expectedAccountingPeriodStatus);
 
 								if (actualAccountingPeriodStatus) {
 									System.out.println(
@@ -7783,7 +7898,7 @@ public class BankingLedgerPage extends DriverScript {
 														+ currentAccountingPeriodForTheTestCase
 														+ " new cash disbursement created, Good to go with test case");
 
-										openAccountingPeriodForTestDataCreation = yearValue.concat("-11");
+										openAccountingPeriodForTestDataCreation = yearValue.concat("-12");
 										System.out.println("*********** value of closePreviousAccountingPeriod : "
 												+ openAccountingPeriodForTestDataCreation);
 
@@ -7792,7 +7907,8 @@ public class BankingLedgerPage extends DriverScript {
 												browser, pathLocation + "\\" + testcasemethod, false);
 
 										try {
-											openAccountingPeriod(threadID, tempList, pathLocation,
+											AccountingSeedReusableFunctionalities.openAccountingPeriod(threadID,
+													tempList, pathLocation, browser,
 													openAccountingPeriodForTestDataCreation);
 										} catch (Exception e) {
 											e.printStackTrace();
@@ -7805,9 +7921,10 @@ public class BankingLedgerPage extends DriverScript {
 										// --> Check accounting period status
 										expectedAccountingPeriodStatus = "Open";
 										actualAccountingPeriodStatus = false;
-										actualAccountingPeriodStatus = checkAccountPeriodStatus(threadID, tempList,
-												pathLocation, openAccountingPeriodForTestDataCreation,
-												expectedAccountingPeriodStatus);
+										actualAccountingPeriodStatus = AccountingSeedReusableFunctionalities
+												.checkAccountPeriodStatus(threadID, tempList, pathLocation, browser,
+														openAccountingPeriodForTestDataCreation,
+														expectedAccountingPeriodStatus);
 
 										if (actualAccountingPeriodStatus) {
 											System.out.println(
@@ -7841,15 +7958,15 @@ public class BankingLedgerPage extends DriverScript {
 											String previousAccountingPeriod = yearValue.concat("-10");
 											System.out.println("********** previousAccountingPeriod to close : "
 													+ previousAccountingPeriod);
-											closeAccountingPeriod(threadID, tempList, pathLocation,
-													previousAccountingPeriod);
+											AccountingSeedReusableFunctionalities.closeAccountingPeriod(threadID,
+													tempList, pathLocation, browser, previousAccountingPeriod);
 
 											// --> Check accounting period status for year-10. It should be closed
 											expectedAccountingPeriodStatus = "Closed";
 											actualAccountingPeriodStatus = false;
-											actualAccountingPeriodStatus = checkAccountPeriodStatus(threadID, tempList,
-													pathLocation, previousAccountingPeriod,
-													expectedAccountingPeriodStatus);
+											actualAccountingPeriodStatus = AccountingSeedReusableFunctionalities
+													.checkAccountPeriodStatus(threadID, tempList, pathLocation, browser,
+															previousAccountingPeriod, expectedAccountingPeriodStatus);
 
 											if (actualAccountingPeriodStatus) {
 												System.out.println(
@@ -7864,16 +7981,17 @@ public class BankingLedgerPage extends DriverScript {
 												previousAccountingPeriod = yearValue.concat("-11");
 												System.out.println("********** previousAccountingPeriod to close : "
 														+ previousAccountingPeriod);
-												closeAccountingPeriod(threadID, tempList, pathLocation,
-														previousAccountingPeriod);
+												AccountingSeedReusableFunctionalities.closeAccountingPeriod(threadID,
+														tempList, pathLocation, browser, previousAccountingPeriod);
 
 												// --> Check accounting period status for year-11. It should be
 												// closed
 												expectedAccountingPeriodStatus = "Closed";
 												actualAccountingPeriodStatus = false;
-												actualAccountingPeriodStatus = checkAccountPeriodStatus(threadID,
-														tempList, pathLocation, previousAccountingPeriod,
-														expectedAccountingPeriodStatus);
+												actualAccountingPeriodStatus = AccountingSeedReusableFunctionalities
+														.checkAccountPeriodStatus(threadID, tempList, pathLocation,
+																browser, previousAccountingPeriod,
+																expectedAccountingPeriodStatus);
 
 												if (actualAccountingPeriodStatus) {
 													System.out.println(
@@ -7888,16 +8006,18 @@ public class BankingLedgerPage extends DriverScript {
 													previousAccountingPeriod = yearValue.concat("-12");
 													System.out.println("********** previousAccountingPeriod to close : "
 															+ previousAccountingPeriod);
-													closeAccountingPeriod(threadID, tempList, pathLocation,
+													AccountingSeedReusableFunctionalities.closeAccountingPeriod(
+															threadID, tempList, pathLocation, browser,
 															previousAccountingPeriod);
 
 													// --> Check accounting period status for year-12. It should be
 													// closed
 													expectedAccountingPeriodStatus = "Closed";
 													actualAccountingPeriodStatus = false;
-													actualAccountingPeriodStatus = checkAccountPeriodStatus(threadID,
-															tempList, pathLocation, previousAccountingPeriod,
-															expectedAccountingPeriodStatus);
+													actualAccountingPeriodStatus = AccountingSeedReusableFunctionalities
+															.checkAccountPeriodStatus(threadID, tempList, pathLocation,
+																	browser, previousAccountingPeriod,
+																	expectedAccountingPeriodStatus);
 
 													if (actualAccountingPeriodStatus) {
 														System.out.println(
@@ -7916,10 +8036,11 @@ public class BankingLedgerPage extends DriverScript {
 														// open
 														expectedAccountingPeriodStatus = "Open";
 														actualAccountingPeriodStatus = false;
-														actualAccountingPeriodStatus = checkAccountPeriodStatus(
-																threadID, tempList, pathLocation,
-																currentAccountingPeriodForTheTestCase,
-																expectedAccountingPeriodStatus);
+														actualAccountingPeriodStatus = AccountingSeedReusableFunctionalities
+																.checkAccountPeriodStatus(threadID, tempList,
+																		pathLocation, browser,
+																		currentAccountingPeriodForTheTestCase,
+																		expectedAccountingPeriodStatus);
 
 														if (actualAccountingPeriodStatus) {
 															System.out.println(
@@ -10339,30 +10460,24 @@ public class BankingLedgerPage extends DriverScript {
 		String path = workingDir + reusableComponents.getPropValues("ChromeResultspath") + "\\" + TESTCASENAME;
 		pathLocation = reusableComponents.pathBuilder(path);
 
-		testCaseNumber = "Testcase2655";
+		testCaseNumber = "Testcase2691";
 		String ledgerValue = reusableComponents.getPropValues(testCaseNumber + "_LedgerValue");
 		currentAccoutingPeriod = reusableComponents.getPropValues(testCaseNumber + "_" + "AccountingPeriodForTestCase");
-		currentAccountingPeriodForTheTestCase = "2021-01";
+		currentAccountingPeriodForTheTestCase = "2020-10";
 		newLedgerName = "Ledger_Testcase2623_20211012_131139";
 		try {
 			Page page = new Page(browser);
 			page.accountingSeedReusableFunction(threadID, tempList, pathLocation);
 			AccountingSeedReusableFunctionalities.LoginToWebpage(threadID, tempList, pathLocation, browser);
-			
+
 			try {
-				AccountingSeedReusableFunctionalities.closeAccountingPeriod(threadID, tempList, pathLocation, browser,
-						"2020-05");
+				CashDisbursement(threadID, tempList, pathLocation);
+
 			} catch (Exception e) {
-				System.out.println("*********** Exception when trying to open 2020-05");
+				ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+						"Exception when trying to create new cash disbursement" + e.getStackTrace(), browser,
+						pathLocation + "\\" + testcasemethod, true);
 			}
-
-			try {
-				AccountingSeedReusableFunctionalities.openAccountingPeriod(threadID, tempList, pathLocation, browser,
-						"2022-05");
-			} catch (Exception e) {
-				System.out.println("*********** Exception when trying to open 2020-05");
-			}		
-
 
 		} catch (Exception e) {
 

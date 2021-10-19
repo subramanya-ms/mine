@@ -39,5 +39,6 @@ public class DriverScript {
 	
 	public static HashMap<Integer, List<String>> hmap = new HashMap<Integer, List<String>>();
 	public static HashMap<String, String> xpather = new HashMap<String, String>();
+	public static HashMap<Integer, List<String>> runTimeTestData = new HashMap<Integer, List<String>>();
 	
 }

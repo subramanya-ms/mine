@@ -827,10 +827,8 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 			ReusableComponents.sendKey(searchTextBox_AccountPeriod, accountingPeriod, "Year close");
 			ReusableComponents.sendkey_InputKey(searchTextBox_AccountPeriod, Keys.ENTER, "Pass Enter");
 			ReusableComponents.wait(2000);
-			ReusableComponents.clickElement(listViewe_AccoutingPeriod, "Click Sort");
+			ReusableComponents.clickElement(AccoutingPeriod_icon, "Click icon");
 			ReusableComponents.wait(2000);
-			ReusableComponents.clickElement(listViewe_AccoutingPeriod, "Click Sort");
-			ReusableComponents.wait(3000);
 
 			// --> Verify the status
 			String xpathToCheckStatus = "((.//*[@scope='row']//a[contains(text(),'" + accountingPeriod
@@ -2510,10 +2508,8 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 			ReusableComponents.sendKey(searchTextBox_AccountPeriod, acc_period, "Year close");
 			ReusableComponents.sendkey_InputKey(searchTextBox_AccountPeriod, Keys.ENTER, "Pass Enter");
 			ReusableComponents.wait(2000);
-			ReusableComponents.clickElement(listViewe_AccoutingPeriod, "Click Sort");
+			ReusableComponents.clickElement(AccoutingPeriod_icon, "Click icon");
 			ReusableComponents.wait(2000);
-			ReusableComponents.clickElement(listViewe_AccoutingPeriod, "Click Sort");
-			ReusableComponents.wait(3000);
 			ReusableComponents.reportSpecific(threadID, tempList, testcasemethod,
 					"Before (Close accounting period): Screen grab of Accounting period year with the filtered values of ",
 					browser, pathLocation + "\\" + testcasemethod, true);
@@ -2686,10 +2682,8 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 			ReusableComponents.sendKey(searchTextBox_AccountPeriod, acc_period, "Year close");
 			ReusableComponents.sendkey_InputKey(searchTextBox_AccountPeriod, Keys.ENTER, "Pass Enter");
 			ReusableComponents.wait(2000);
-			ReusableComponents.clickElement(listViewe_AccoutingPeriod, "Click Sort");
+			ReusableComponents.clickElement(AccoutingPeriod_icon, "Click icon");
 			ReusableComponents.wait(2000);
-			ReusableComponents.clickElement(listViewe_AccoutingPeriod, "Click Sort");
-			ReusableComponents.wait(3000);
 			ReusableComponents.reportSpecific(threadID, tempList, testcasemethod,
 					"After (Close accounting period) : Screen grab of Accounting period year with the filtered values of ",
 					browser, pathLocation + "\\" + testcasemethod, true);
@@ -2746,10 +2740,8 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 					"Previous year accounting periods");
 			ReusableComponents.sendkey_InputKey(searchTextBox_AccountPeriod, Keys.ENTER, "Pass Enter");
 			ReusableComponents.wait(2000);
-			ReusableComponents.clickElement(listViewe_AccoutingPeriod, "Click Sort");
+			ReusableComponents.clickElement(AccoutingPeriod_icon, "Click icon");
 			ReusableComponents.wait(2000);
-			ReusableComponents.clickElement(listViewe_AccoutingPeriod, "Click Sort");
-			ReusableComponents.wait(3000);
 			ReusableComponents.reportSpecific(threadID, tempList, testcasemethod,
 					"Before (Previous year close ) : screen grab of Accounting period year " + previousYearClose,
 					browser, pathLocation + "\\" + testcasemethod, true);
@@ -2924,10 +2916,8 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 					"Previous year accounting periods");
 			ReusableComponents.sendkey_InputKey(searchTextBox_AccountPeriod, Keys.ENTER, "Pass Enter");
 			ReusableComponents.wait(2000);
-			ReusableComponents.clickElement(listViewe_AccoutingPeriod, "Click Sort");
+			ReusableComponents.clickElement(AccoutingPeriod_icon, "Click icon");
 			ReusableComponents.wait(2000);
-			ReusableComponents.clickElement(listViewe_AccoutingPeriod, "Click Sort");
-			ReusableComponents.wait(3000);
 			ReusableComponents.reportSpecific(threadID, tempList, testcasemethod,
 					"After (Previous year close ) : Screen grab of Accounting period year " + previousYearClose
 							+ " after performing close",
@@ -3476,10 +3466,8 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 			ReusableComponents.sendKey(searchTextBox_AccountPeriod, acc_period, "Nextyear Year open");
 			ReusableComponents.sendkey_InputKey(searchTextBox_AccountPeriod, Keys.ENTER, "Pass Enter");
 			ReusableComponents.wait(2000);
-			ReusableComponents.clickElement(listViewe_AccoutingPeriod, "Click Sort");
+			ReusableComponents.clickElement(AccoutingPeriod_icon, "Click icon");
 			ReusableComponents.wait(2000);
-			ReusableComponents.clickElement(listViewe_AccoutingPeriod, "Click Sort");
-			ReusableComponents.wait(3000);
 			ReusableComponents.reportSpecific(threadID, tempList, testcasemethod,
 					"Before (Current period open) : Screen grab of next Accounting period year", browser,
 					pathLocation + "\\" + testcasemethod, true);
@@ -3653,10 +3641,8 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 			ReusableComponents.sendKey(searchTextBox_AccountPeriod, acc_period, "Nextyear Year open");
 			ReusableComponents.sendkey_InputKey(searchTextBox_AccountPeriod, Keys.ENTER, "Pass Enter");
 			ReusableComponents.wait(2000);
-			ReusableComponents.clickElement(listViewe_AccoutingPeriod, "Click Sort");
+			ReusableComponents.clickElement(AccoutingPeriod_icon, "Click icon");
 			ReusableComponents.wait(2000);
-			ReusableComponents.clickElement(listViewe_AccoutingPeriod, "Click Sort");
-			ReusableComponents.wait(3000);
 			ReusableComponents.reportSpecific(threadID, tempList, testcasemethod,
 					"After (Current period open) : Screen grab of next Accounting period year", browser,
 					pathLocation + "\\" + testcasemethod, true);
@@ -3715,10 +3701,8 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 			ReusableComponents.sendKey(searchTextBox_AccountPeriod, Integer.toString(Nextyear), "Nextyear Year open");
 			ReusableComponents.sendkey_InputKey(searchTextBox_AccountPeriod, Keys.ENTER, "Pass Enter");
 			ReusableComponents.wait(2000);
-			ReusableComponents.clickElement(listViewe_AccoutingPeriod, "Click Sort");
+			ReusableComponents.clickElement(AccoutingPeriod_icon, "Click icon");
 			ReusableComponents.wait(2000);
-			ReusableComponents.clickElement(listViewe_AccoutingPeriod, "Click Sort");
-			ReusableComponents.wait(3000);
 			ReusableComponents.reportSpecific(threadID, tempList, testcasemethod,
 					"Before (Next Year Open) : Screen grab of next Accounting period year", browser,
 					pathLocation + "\\" + testcasemethod, true);
@@ -3891,7 +3875,9 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 			ReusableComponents.wait(5500);
 			ReusableComponents.sendKey(searchTextBox_AccountPeriod, Integer.toString(Nextyear), "Nextyear Year open");
 			ReusableComponents.sendkey_InputKey(searchTextBox_AccountPeriod, Keys.ENTER, "Pass Enter");
-			ReusableComponents.wait(3000);
+			ReusableComponents.wait(2000);
+			ReusableComponents.clickElement(AccoutingPeriod_icon, "Click icon");
+			ReusableComponents.wait(2000);
 			ReusableComponents.reportSpecific(threadID, tempList, testcasemethod,
 					"After (Next Year Open) : Screen grab of next Accounting period year", browser,
 					pathLocation + "\\" + testcasemethod, true);
