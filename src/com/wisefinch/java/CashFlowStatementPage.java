@@ -31,7 +31,8 @@ public class CashFlowStatementPage extends DriverScript {
 			newAccountingVariableName, clonedNewGLName;
 	static int previousYearClose;
 	static Boolean testDataNewJournalEntryCreated = false, accountCreatedStatus = false, pageOpened = false,
-			newAccountingVariableCreated = false, newCashReceiptCreated = false, clonedGLAccountCreated = false, newGLAccountCreationStatus=false;
+			newAccountingVariableCreated = false, newCashReceiptCreated = false, clonedGLAccountCreated = false,
+			newGLAccountCreationStatus = false;
 
 	static ReusableComponents reusableComponents = new ReusableComponents();
 
@@ -51,10 +52,9 @@ public class CashFlowStatementPage extends DriverScript {
 		}
 	}
 
-
 	@FindBy(xpath = ".//*[@class='actionBody']//*[contains(text(),'New GL Account')]")
 	static WebElement newGLAccountPopup;
-	
+
 	@FindBy(xpath = "//span[@title='Assets']")
 	static WebElement subType1_Value_As_Assets_newGLAccountPopUp;
 
@@ -63,7 +63,7 @@ public class CashFlowStatementPage extends DriverScript {
 
 	@FindBy(xpath = "(.//*[@class='actionBody']//input[@role='combobox'])[2]")
 	static WebElement subType1_newGLAccountPopUp;
-	
+
 	@FindBy(xpath = "((.//*[@class='slds-form'])[3]//input[@role='combobox'])[5]")
 	static WebElement cashFlowInputBox_caseReceipt;
 
@@ -4179,7 +4179,7 @@ public class CashFlowStatementPage extends DriverScript {
 			// Changing currentAccountingPeriodForTheTestCase value here to create test data
 			// cash receipt. Later I will
 			// change it to have user input
-			previousAccountingPeriod = ReusableComponents
+			previousAccountingPeriod = AccountingSeedReusableFunctionalities
 					.identifyPreviousAccountingPeriod(currentAccountingPeriodForTheTestCase);
 			currentAccountingPeriodForTheTestCase = previousAccountingPeriod;
 
@@ -4391,7 +4391,7 @@ public class CashFlowStatementPage extends DriverScript {
 			// Changing currentAccountingPeriodForTheTestCase value here to create test data
 			// cash receipt. Later I will
 			// change it to have user input
-			previousAccountingPeriod = ReusableComponents
+			previousAccountingPeriod = AccountingSeedReusableFunctionalities
 					.identifyPreviousAccountingPeriod(currentAccountingPeriodForTheTestCase);
 			currentAccountingPeriodForTheTestCase = previousAccountingPeriod;
 
@@ -4636,8 +4636,7 @@ public class CashFlowStatementPage extends DriverScript {
 		}
 		return new CashFlowStatementPage(browser);
 	}
-	
-	
+
 	/**
 	 * @author Wisefinch Menaka
 	 * @see This is to create GL account
@@ -4729,7 +4728,6 @@ public class CashFlowStatementPage extends DriverScript {
 		return new BankingLedgerPage(browser);
 	}
 
-
 	/**
 	 * @author Wisefinch Menaka
 	 * @see [CF] Verify that a CF category cannot be deleted once there are records
@@ -4753,11 +4751,97 @@ public class CashFlowStatementPage extends DriverScript {
 			LoginToWebpage();
 
 			// check Cash flow statement it should be true
-			developerConsole_QueryRun_CashFlowTrueOrFalse(threadID, tempList,
-			pathLocation, true);
-			
+			developerConsole_QueryRun_CashFlowTrueOrFalse(threadID, tempList, pathLocation, true);
+
 			// Create GL account with cash flow
 			createGLAccount(threadID, tempList, pathLocation);
+
+		} catch (throwNewException e) {
+			e.printStackTrace();
+			ReusableComponents.reportFail(threadID, tempList, testcasemethod, e.getErrorMessage(), browser,
+					pathLocation + "\\" + testcasemethod, true);
+		} catch (Exception e) {
+			e.printStackTrace();
+			ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+					"Following exception occured when executing test case test2730_CashFlowCategoryValueCanNotBeChanged"
+							+ e.getStackTrace(),
+					browser, pathLocation + "\\" + testcasemethod, true);
+		}
+		return new CashFlowStatementPage(browser);
+	}
+
+	/**
+	 * @author Wisefinch Menaka
+	 * @see [CF] Verify message shown when CF is enabled but records are
+	 *      uncategorized and Show All Periods is checked
+	 * 
+	 * @param threadID
+	 * @param tempList
+	 * @param pathLocation
+	 * @throws Exception
+	 */
+	public static CashFlowStatementPage test2731_CFEnabledRecordUnCategoricedShowAllChecked(int threadID,
+			List<String> tempList, String pathLocation) throws Exception {
+		String testcasemethod = new Object() {
+		}.getClass().getEnclosingMethod().getName();
+
+		Page page = new Page(browser);
+		page.accountingSeedReusableFunction(threadID, tempList, pathLocation);
+		testCaseNumber = "Testcase2731";
+		runTimeTestData.put("testCaseNumber", "Testcase2731");
+		currentAccountingPeriodForTheTestCase = reusableComponents
+				.getPropValues(testCaseNumber + "_AccountingPeriodForTestCase");
+		System.out.println(
+				"*********** currentAccountingPeriodForTheTestCase : " + currentAccountingPeriodForTheTestCase);
+		String previousAccountingPeriod = AccountingSeedReusableFunctionalities
+				.identifyPreviousAccountingPeriod(currentAccountingPeriodForTheTestCase);
+		runTimeTestData.put(testCaseNumber + "_previousAccountingPeriod", previousAccountingPeriod);
+		runTimeTestData.put(testCaseNumber + "_currentAccountingPeriodForTheTestCase", previousAccountingPeriod);
+		try {
+
+			// Login to webpage
+			AccountingSeedReusableFunctionalities.LoginToWebpage(threadID, tempList, pathLocation, browser);
+
+			// check Cash flow statement it should be false
+			AccountingSeedReusableFunctionalities.developerConsole_QueryRun_CashFlowTrueOrFalse(threadID, tempList,
+					pathLocation, browser, false);
+
+			// Create Test data
+			AccountingSeedReusableFunctionalities.createAccount(threadID, tempList, pathLocation, browser);
+
+			if (runTimeTestData.get(runTimeTestData.get(testCaseNumber) + "_accountCreatedStatus")
+					.equalsIgnoreCase("true")) {
+
+				AccountingSeedReusableFunctionalities.createCashReceiptWithCFCategory(threadID, tempList, pathLocation,
+						browser);
+
+				if (runTimeTestData.get(runTimeTestData.get(testCaseNumber) + "_newCashReceiptCreated")
+						.equalsIgnoreCase("true")) {
+					System.out.println("********** Good to continue with the test case ");
+
+					// Close the previous accounting period
+					AccountingSeedReusableFunctionalities.closeAccountingPeriod(threadID, tempList, pathLocation,
+							browser, previousAccountingPeriod);
+
+					// Changing current accounting period values to continue with the test case
+					runTimeTestData.put(testCaseNumber + "_currentAccountingPeriodForTheTestCase",
+							currentAccountingPeriodForTheTestCase);
+
+					// check Cash flow statement it should be true
+					AccountingSeedReusableFunctionalities.developerConsole_QueryRun_CashFlowTrueOrFalse(threadID,
+							tempList, pathLocation, browser, true);
+
+				} else {
+					ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+							"There are no new account created as part of test data creation , hence can not continue with the test case",
+							browser, pathLocation + "\\" + testcasemethod, true);
+				}
+
+			} else {
+				ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+						"There are no new account created as part of test data creation , hence can not continue with the test case",
+						browser, pathLocation + "\\" + testcasemethod, true);
+			}
 
 		} catch (throwNewException e) {
 			e.printStackTrace();
