@@ -7,6 +7,7 @@ import java.awt.Robot;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -114,6 +115,7 @@ public class T2608Page extends DriverScript {
 	
 	String[] startdate_arr;
 	ArrayList<String> enddate_arr = new ArrayList<String>();
+	ArrayList<String> outarray = new ArrayList<String>();
 
 	/***
 	 * Test case Method Name : Login 
@@ -180,7 +182,10 @@ public class T2608Page extends DriverScript {
 			ReusableComponents.wait(5000);
 			
 			String starting_period = Startingperiod;
+			outarray.add(starting_period);
 			String end_period = Endperiod;
+			outarray.add(end_period);
+			
 		
 			browser.findElement(By.cssSelector("body")).sendKeys(Keys.PAGE_DOWN);
 			ReusableComponents.wait(2200);
@@ -245,10 +250,12 @@ public class T2608Page extends DriverScript {
 								S_Z_A_R.click();
 								ReusableComponents.wait(4200);	
 								System.out.println("Suppress zero amount checkbox is unchecked");
+								outarray.add("false");
 									
 							} else {
 								
 								System.out.println("Suppress zero amount is already selected");
+								outarray.add("true");
 								}
 								
 								ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, "screen grab of balance sheet report page", browser, pathLoc+"\\"+testcasemethod, true);
@@ -265,18 +272,23 @@ public class T2608Page extends DriverScript {
 									ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, "screen grab of generated report page", browser, pathLoc+"\\"+testcasemethod, true);
 									ReusableComponents.wait(5200);
 									ReusableComponents.reportPass( threadID , tempList , testcasemethod , "report link is "+Gen_report.getAttribute("href")+" and report name is "+Gen_report.getText(), browser ,pathLoc+"\\"+testcasemethod , false);
-									
+									outarray.add(Gen_report.getAttribute("href"));
+									outarray.add(Gen_report.getText());
 								} else {
 									ReusableComponents.reportFail(threadID, tempList, testcasemethod, "run report button NOT present", browser, pathLoc + "\\" + testcasemethod, true);
-									}
+									outarray.add("report link not generated");
+									outarray.add("report name not generated");
+								}
 								
 							} else {
 								ReusableComponents.reportFail(threadID, tempList, testcasemethod, "end period searchbox NOT present", browser, pathLoc + "\\" + testcasemethod, true);
-								}
+								outarray.add("end period NA");
+							}
 							
 						} else {
 							ReusableComponents.reportFail(threadID, tempList, testcasemethod, "start period searchbox NOT present", browser, pathLoc + "\\" + testcasemethod, true);
-							}
+							outarray.add("Start period NA");	
+						}
 						
 				} else {
 					ReusableComponents.reportFail(threadID, tempList, testcasemethod, "Financial Reports tab NOT present", browser, pathLoc + "\\" + testcasemethod, true);
@@ -320,6 +332,8 @@ public class T2608Page extends DriverScript {
 			
 			PnLreport(threadID, tempList, pathLoc, Startingperiod2, Endingperiod2);
 			
+			ValidateExcelOutput(threadID, tempList, pathLoc);
+			
 
 		} catch (NoSuchElementException e) {
 			
@@ -329,6 +343,101 @@ public class T2608Page extends DriverScript {
 		
 	return new T2608Page(browser);
 		
+	}
+	
+	/***
+	 * Test case Method Name : ValidateExcelOutput Functionality : validate
+	 * navigation to Accounting seed salesforce financial reports page Lightning
+	 * Created By : Subramanya MS
+	 * 
+	 * @throws IOException
+	 * @throws AWTException
+	 * 
+	 ***/
+	public synchronized T2608Page ValidateExcelOutput(int threadID, List<String> tempList, String pathLoc)
+			throws IOException, AWTException {
+		String testcasemethod = new Object() {
+		}.getClass().getEnclosingMethod().getName();
+		try {
+
+			try {
+
+				int j = outarray.size();
+				int k = 0;
+
+				//outarray.add("=HYPERLINK(" + outarray.get(j - 2) + "," + outarray.get(j - 3) + ")");
+
+				ReusableComponents.wait(5500);
+				String sheetname = reusableComponents.getPropValues("outputSheet2608");
+				String filepath = reusableComponents.getPropValues("PNLReports");
+				String outfilename = reusableComponents.getPropValues("RER_ReportName");
+				String filedetails = workingDir + "/" + filepath + "/" + outfilename + ".xls";
+
+				FileInputStream inputStream = new FileInputStream(new File(filedetails));
+				// Workbook workbook = WorkbookFactory.create(inputStream);
+				HSSFWorkbook workbook = new HSSFWorkbook(inputStream);
+
+				Sheet sheet = workbook.getSheet(sheetname);
+
+				// HSSFSheet sheet = workbook.createSheet("outputSheet2676");// creating a blank
+				// sheet
+				int rownum = 0;
+				//k = rownum++;
+				
+				
+				// int rowCount = sheet.getLastRowNum();
+
+				if (sheet.getLastRowNum() == 0) {
+					rownum = 1;
+					System.out.println("in if");
+				} else if (sheet.getLastRowNum() > 0) {
+					rownum = sheet.getLastRowNum();
+					rownum++;
+					k = rownum;
+					System.out.println("in else if");
+				} else {
+					rownum = 0;
+					System.out.println("in else");
+				}
+				k++;
+			//	outarray.add("=HYPERLINK(G"+k+","+"F"+k+")");
+//			for (String name : outarray) {
+//				Row row = sheet.createRow(rownum++);
+//				
+//				int columncount = 0;
+//				Cell cell = row.createCell(columncount);
+//				cell.setCellValue(name);
+//
+//			}
+				Row row = sheet.createRow(rownum++);
+				for (int i = 0; i < outarray.size(); i++) {
+
+					Cell cell = row.createCell(i);
+					cell.setCellValue(outarray.get(i));
+				}
+
+				File file = new File(workingDir + "/" + filepath + "/" + outfilename + ".xls");
+				System.out.println(file);
+
+				inputStream.close();
+
+				FileOutputStream out = new FileOutputStream(file); // file name with path
+				workbook.write(out);
+				out.close();
+
+				outarray.clear();
+
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+		} catch (NoSuchElementException e) {
+			ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+					" Object is not present" + e.getStackTrace(), browser, pathLoc + "/" + testcasemethod, false);
+		}
+
+		return new T2608Page(browser);
 	}
 	
 }
