@@ -4099,7 +4099,7 @@ public class BankingLedgerPage extends DriverScript {
 			ReusableComponents.clickElement(selectStandartReport_FinancialReport, "Click Select standard reportd");
 			ReusableComponents.wait(5000);
 			ReusableComponents.clickElement(balanceSheet_selectStandartReport_FinancialReport,
-					"Click Select Balance Sheet");
+					"Select Balance Sheet");
 			ReusableComponents.wait(5000);
 
 			// As per test case we have to user previous accounting period, so we are taking

@@ -2050,17 +2050,14 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 	 * @throws Exception
 	 */
 	public static AccountingSeedReusableFunctionalities createGLAccount(int threadID, List<String> tempList,
-			String pathLocation) throws Exception {
+			String pathLocation, WebDriver browser) throws Exception {
 
 		String testcasemethod = new Object() {
 		}.getClass().getEnclosingMethod().getName();
 
-		if (reusableComponents.getPropValues(testCaseNumber + "_GLName") == null) {
-			newGLName = "GLAccount_" + testCaseNumber + "_"
-					+ ReusableComponents.getCurrentDateAndTime("yyyyMMdd_HHmmss");
-		} else {
-			newGLName = reusableComponents.getPropValues(testCaseNumber + "_GLName");
-		}
+		String testCaseNumber = runTimeTestData.get("testCaseNumber");
+		newGLName = "GLAccount_" + testCaseNumber + "_" + ReusableComponents.getCurrentDateAndTime("yyyyMMdd_HHmmss");
+
 		String glAccountTypeValue = reusableComponents.getPropValues(testCaseNumber + "_" + "GLAccountTypeValue");
 		String glAccountSubTypeValue = reusableComponents.getPropValues(testCaseNumber + "_" + "GLAccountSubTypeValue");
 
@@ -2099,6 +2096,8 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 						+ newGLName + "')]";
 				if (browser.findElement(By.xpath(newGLAccount)).isDisplayed() == true) {
 					newGLAccountCreationStatus = true;
+					runTimeTestData.put(testCaseNumber + "_newGLAccountCreationStatus", "true");
+					runTimeTestData.put(testCaseNumber + "_NewGLAccountName", newGLName);
 					ReusableComponents.reportPass(threadID, tempList, testcasemethod,
 							"New GL Account " + newGLName + " is displayed", browser,
 							pathLocation + "\\" + testcasemethod, false);
@@ -2106,6 +2105,7 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 							pathLocation + "\\" + testcasemethod, true);
 				} else {
 					newGLAccountCreationStatus = false;
+					runTimeTestData.put(testCaseNumber + "_newGLAccountCreationStatus", "false");
 					ReusableComponents.reportFail(threadID, tempList, testcasemethod,
 							"New GL Account " + newGLName + " is not displayed", browser,
 							pathLocation + "\\" + testcasemethod, true);
@@ -5397,16 +5397,27 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 
 			String account_namefull;
 
-			if (runTimeTestData.get(runTimeTestData.get(testCaseNumber) + "_newAccountname") == null) {
+			String testCaseNumber = runTimeTestData.get("testCaseNumber");
+			System.out.println("*********** testCaseNumber from hashmap : " + testCaseNumber);
+
+			String newGLName = runTimeTestData.get(testCaseNumber + "_NewGLAccountName");
+			if (runTimeTestData.get(testCaseNumber + "_newAccountname") == null) {
 				account_namefull = reusableComponents.getPropValues(testCaseNumber + "_accname");
 			} else {
-				account_namefull = runTimeTestData.get(runTimeTestData.get(testCaseNumber) + "_newAccountname");
+				account_namefull = runTimeTestData.get(testCaseNumber + "_newAccountname");
 			}
+
+			Set<String> itr = (Set<String>) runTimeTestData.keySet();
+
+			for (String s : itr) {
+				System.out.println("*********** Key : " + s);
+				System.out.println("**********value : " + runTimeTestData.get(s));
+			}
+
 			String cramount = reusableComponents.getPropValues(testCaseNumber + "_amount");
 			String crref = ReusableComponents.getCurrentDateAndTime("yyyyMMdd_HHmmss") + "_Reference";
 			String receipt_type = reusableComponents.getPropValues(testCaseNumber + "_receipttype");
-			String accounting_Period = runTimeTestData
-					.get(runTimeTestData.get(testCaseNumber) + "_currentAccountingPeriodForTheTestCase");
+			String accounting_Period = runTimeTestData.get(testCaseNumber + "_AccountingPeriodForTestDataCreation");
 
 			selectAppFromSearchAppAndItem(threadID, tempList, pathLocation, browser, "Cash Receipts",
 					selectCashReceipts);
@@ -5534,23 +5545,23 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 		}.getClass().getEnclosingMethod().getName();
 
 		try {
-			Set<String> itr = (Set<String>) runTimeTestData.keySet();
+			Set<String> keyValuesOfTestDataHashMap = (Set<String>) runTimeTestData.keySet();
 
-			for (String s : itr) {
-				System.out.println("*********** Key : " + s);
-				System.out.println("**********value : " + runTimeTestData.get(s));
+			for (String key : keyValuesOfTestDataHashMap) {
+				System.out.println("*********** Key : " + key);
+				System.out.println("**********value : " + runTimeTestData.get(key));
 			}
 
+			String testCaseNumber = runTimeTestData.get("testCaseNumber");
+			System.out.println("*********** testcasenumber from map : " + testCaseNumber);
 			navigateToAccountingHomePage(browser);
 
-			newAccountname = "Accounts_" + runTimeTestData.get(testCaseNumber) + "_"
+			newAccountname = "Accounts_" + testCaseNumber + "_"
 					+ ReusableComponents.getCurrentDateAndTime("YYMMDDhhmmss");
 
 			String acc_type;
-			if (reusableComponents
-					.getPropValues(runTimeTestData.get(testCaseNumber) + "_accountType_ForAccounts") != null) {
-				acc_type = reusableComponents
-						.getPropValues(runTimeTestData.get(testCaseNumber) + "_accountType_ForAccounts");
+			if (reusableComponents.getPropValues(testCaseNumber + "_accountType_ForAccounts") != null) {
+				acc_type = reusableComponents.getPropValues(testCaseNumber + "_accountType_ForAccounts");
 			} else {
 				acc_type = "Customer and Vendor";
 			}
@@ -5706,8 +5717,8 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 			accountCreatedStatus = false;
 			if (accountName.size() != 0) {
 				accountCreatedStatus = true;
-				runTimeTestData.put(runTimeTestData.get(testCaseNumber) + "_newAccountname", newAccountname);
-				runTimeTestData.put(runTimeTestData.get(testCaseNumber) + "_accountCreatedStatus", "true");
+				runTimeTestData.put(testCaseNumber + "_newAccountname", newAccountname);
+				runTimeTestData.put(testCaseNumber + "_accountCreatedStatus", "true");
 				ReusableComponents.reportPass(threadID, tempList, testcasemethod,
 						"New account " + newAccountname + " created successfully", browser,
 						pathLocation + "\\" + testcasemethod, false);
@@ -5716,7 +5727,7 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 						pathLocation + "\\" + testcasemethod, true);
 			} else {
 				accountCreatedStatus = false;
-				runTimeTestData.put(runTimeTestData.get(testCaseNumber) + "_accountCreatedStatus", "false");
+				runTimeTestData.put(testCaseNumber + "_accountCreatedStatus", "false");
 				ReusableComponents.reportFail(threadID, tempList, testcasemethod,
 						"New account " + newAccountname + " is not created", browser,
 						pathLocation + "\\" + testcasemethod, true);

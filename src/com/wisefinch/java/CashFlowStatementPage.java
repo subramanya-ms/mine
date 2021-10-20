@@ -4220,10 +4220,10 @@ public class CashFlowStatementPage extends DriverScript {
 
 						ReusableComponents.wait(5000);
 						ReusableComponents.clickElement(selectStandartReport_FinancialReport,
-								"Click Select standard reportd");
+								"Select standard reportd");
 						ReusableComponents.wait(5000);
 						ReusableComponents.clickElement(selectCashFlowReport_FinancialReport,
-								"Click Select cash flow report");
+								"Select cash flow report");
 						ReusableComponents.wait(5000);
 
 						ReusableComponents.clickElement(startingAccoutPeriod_FinancialReport_Clear,
@@ -4788,15 +4788,18 @@ public class CashFlowStatementPage extends DriverScript {
 		Page page = new Page(browser);
 		page.accountingSeedReusableFunction(threadID, tempList, pathLocation);
 		testCaseNumber = "Testcase2731";
-		runTimeTestData.put("testCaseNumber", "Testcase2731");
+		runTimeTestData.put("testCaseNumber", testCaseNumber);
+
 		currentAccountingPeriodForTheTestCase = reusableComponents
 				.getPropValues(testCaseNumber + "_AccountingPeriodForTestCase");
 		System.out.println(
 				"*********** currentAccountingPeriodForTheTestCase : " + currentAccountingPeriodForTheTestCase);
+		runTimeTestData.put(testCaseNumber + "_AccountingPeriodForTestCase", currentAccountingPeriodForTheTestCase);
+
 		String previousAccountingPeriod = AccountingSeedReusableFunctionalities
 				.identifyPreviousAccountingPeriod(currentAccountingPeriodForTheTestCase);
-		runTimeTestData.put(testCaseNumber + "_previousAccountingPeriod", previousAccountingPeriod);
-		runTimeTestData.put(testCaseNumber + "_currentAccountingPeriodForTheTestCase", previousAccountingPeriod);
+		runTimeTestData.put(testCaseNumber + "_AccountingPeriodForTestDataCreation", previousAccountingPeriod);
+
 		try {
 
 			// Login to webpage
@@ -4806,31 +4809,85 @@ public class CashFlowStatementPage extends DriverScript {
 			AccountingSeedReusableFunctionalities.developerConsole_QueryRun_CashFlowTrueOrFalse(threadID, tempList,
 					pathLocation, browser, false);
 
-			// Create Test data
+			// Create Test data New account
 			AccountingSeedReusableFunctionalities.createAccount(threadID, tempList, pathLocation, browser);
 
-			if (runTimeTestData.get(runTimeTestData.get(testCaseNumber) + "_accountCreatedStatus")
-					.equalsIgnoreCase("true")) {
+			if (runTimeTestData.get(testCaseNumber + "_accountCreatedStatus").equalsIgnoreCase("true")) {
 
-				AccountingSeedReusableFunctionalities.createCashReceiptWithCFCategory(threadID, tempList, pathLocation,
-						browser);
+				// Create new GL account
+				AccountingSeedReusableFunctionalities.createGLAccount(threadID, tempList, pathLocation, browser);
 
-				if (runTimeTestData.get(runTimeTestData.get(testCaseNumber) + "_newCashReceiptCreated")
-						.equalsIgnoreCase("true")) {
-					System.out.println("********** Good to continue with the test case ");
+				if (runTimeTestData.get(testCaseNumber + "_newGLAccountCreationStatus").equalsIgnoreCase("true")) {
+					// create new cash receipt
+					AccountingSeedReusableFunctionalities.createCashReceiptWithCFCategory(threadID, tempList,
+							pathLocation, browser);
 
-					// Close the previous accounting period
-					AccountingSeedReusableFunctionalities.closeAccountingPeriod(threadID, tempList, pathLocation,
-							browser, previousAccountingPeriod);
+					if (runTimeTestData.get(testCaseNumber + "_newCashReceiptCreated").equalsIgnoreCase("true")) {
+						System.out.println("********** Good to continue with the test case ");
 
-					// Changing current accounting period values to continue with the test case
-					runTimeTestData.put(testCaseNumber + "_currentAccountingPeriodForTheTestCase",
-							currentAccountingPeriodForTheTestCase);
+						// Close the previous accounting period
+						AccountingSeedReusableFunctionalities.closeAccountingPeriod(threadID, tempList, pathLocation,
+								browser, previousAccountingPeriod);
 
-					// check Cash flow statement it should be true
-					AccountingSeedReusableFunctionalities.developerConsole_QueryRun_CashFlowTrueOrFalse(threadID,
-							tempList, pathLocation, browser, true);
+						// check Cash flow statement it should be true
+						AccountingSeedReusableFunctionalities.developerConsole_QueryRun_CashFlowTrueOrFalse(threadID,
+								tempList, pathLocation, browser, true);
 
+						// Previous accounting period status should be closed
+						String expectedAccountingPeriodStatus = "Closed";
+						boolean previousAccountingPeriodStatus = false;
+						previousAccountingPeriodStatus = checkAccountPeriodStatus(threadID, tempList, pathLocation,
+								previousAccountingPeriod, expectedAccountingPeriodStatus);
+
+						if (previousAccountingPeriodStatus) {
+							System.out
+									.println("*********** Status displayed as expected. Good to go with the test case");
+
+							// Run Financial Report
+							String financialReportsURL = reusableComponents.getPropValues("FinancialReports");
+							browser.get(financialReportsURL);
+							// Browser.get is used here since there are issue in launching financial report
+							// from search app. Once the issue resolved we can comment it and unccomment
+							// selectAppFromSearchAppAndItem(threadID, tempList, testcasemethod, "Financial
+							// Reports",
+							ReusableComponents.wait(5000);
+
+							ReusableComponents.wait(5000);
+							ReusableComponents.clickElement(selectStandartReport_FinancialReport,
+									"Select standard reportd");
+							ReusableComponents.wait(5000);
+							ReusableComponents.clickElement(selectCashFlowReport_FinancialReport,
+									"Select cash flow report");
+							ReusableComponents.wait(5000);
+
+							ReusableComponents.clickElement(startingAccoutPeriod_FinancialReport_Clear,
+									"Clear button of starting account period");
+							ReusableComponents.sendKey(accountingPeriod_CashFlowReport, previousAccountingPeriod,
+									"Provide accounting period");
+							ReusableComponents.clickElement(accountingPeriod_CashFlowReport,
+									"Starting account period input box");
+							ReusableComponents.clickElement(selectAccountingPeriod_FinancialReport,
+									"Select Starting account period");
+
+							ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+									"Accounting period details provided", browser, " ", false);
+							ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ", browser,
+									pathLocation + "\\" + testcasemethod, true);
+
+						} else {
+							ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+									"Previous accounting period status is not displayed as expected. Previous accounting period "
+											+ previousAccountingPeriod + ". Expected status "
+											+ expectedAccountingPeriodStatus,
+									browser, pathLocation + "\\" + testcasemethod, true);
+
+						}
+
+					} else {
+						ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+								"There are no new GL account created as part of test data creation , hence can not continue with the test case",
+								browser, pathLocation + "\\" + testcasemethod, true);
+					}
 				} else {
 					ReusableComponents.reportFail(threadID, tempList, testcasemethod,
 							"There are no new account created as part of test data creation , hence can not continue with the test case",
@@ -4851,7 +4908,7 @@ public class CashFlowStatementPage extends DriverScript {
 			e.printStackTrace();
 			ReusableComponents.reportFail(threadID, tempList, testcasemethod,
 					"Following exception occured when executing test case test2730_CashFlowCategoryValueCanNotBeChanged"
-							+ e.getStackTrace(),
+							+ e,
 					browser, pathLocation + "\\" + testcasemethod, true);
 		}
 		return new CashFlowStatementPage(browser);
