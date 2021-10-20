@@ -792,6 +792,109 @@ public class CashFlowStatementClass extends DriverScript {
 
 	}
 
+	@Test
+	@Parameters({ "platform", "browserName", "remoteurl" })
+	public synchronized void test2731_CFEnabledRecordUnCategoricedShowAllChecked(
+			@Optional("opt platform") String platform, @Optional("opt browser name") String browserName,
+			@Optional("opt remoteurl") String remoteurl) throws Exception {
+
+		TESTCASENAME = new Object() {
+		}.getClass().getEnclosingMethod().getName();
+
+		String strClassName = new Object() {
+		}.getClass().getName();
+		String testMethod = strClassName + "_" + TESTCASENAME;
+		String workingDir = System.getProperty("user.dir");
+
+		// int threadID = (int) (long) Thread.currentThread().getId();
+		int threadID = 0;
+		List<String> tempResultList = new ArrayList<String>();
+
+		String url = reusableComponents.getPropValues("PLURL");
+		browser.manage().deleteAllCookies();
+		browser.get(url);
+
+		browser.manage().window().maximize();
+
+		Page page = new Page(browser);
+
+		String path;
+		switch (browserName) {
+
+		case "Firefox":
+			path = workingDir + reusableComponents.getPropValues("FirefoxResultspath") + "\\" + TESTCASENAME;
+			break;
+		case "Chrome":
+			path = workingDir + reusableComponents.getPropValues("ChromeResultspath") + "\\" + TESTCASENAME;
+			break;
+		case "internet explorer":
+			path = workingDir + reusableComponents.getPropValues("IEResultspath") + "\\" + TESTCASENAME;
+			break;
+		case "firefox":
+			path = workingDir + reusableComponents.getPropValues("FirefoxResultspath") + "\\" + TESTCASENAME;
+			break;
+		case "chrome":
+			path = workingDir + reusableComponents.getPropValues("ChromeResultspath") + "\\" + TESTCASENAME;
+			break;
+		default:
+			path = workingDir + reusableComponents.getPropValues("ChromeResultspath") + "\\" + TESTCASENAME;
+			break;
+		}
+		String pathLoc = reusableComponents.pathBuilder(path);
+
+		resultList = new ArrayList<String>();
+		ReusableComponents.reportInfo(threadID, tempResultList, testMethod, "Test Case Number : TEST-2731", browser,
+				pathLoc + "\\" + TESTCASENAME, false);
+		ReusableComponents.reportInfo(threadID, tempResultList, testMethod,
+				"[CF] Verify message shown when CF is enabled but records are uncategorized and Show All Periods is checked",
+				browser, pathLoc + "\\" + TESTCASENAME, false);
+
+		reusableComponents.props.get("key");
+
+		page.cashFlowStatementTest(threadID, tempResultList, pathLoc).test2731_CFEnabledRecordUnCategoricedShowAllChecked(threadID,
+				tempResultList, pathLoc);
+
+		logger = report.startTest(testMethod);
+		List<String> testList = hmap.get(0);
+
+		for (int i = 0; i < testList.size(); i++) {
+			String eachElement = testList.get(i);
+			System.out.println("Test Case in Extent Reporting with Thread Id step " + (i + 1) + " :- " + eachElement);
+			String[] testResult = eachElement.split("&");
+
+			String stepStatus = testResult[0].toLowerCase();
+
+			String testMethodName = testResult[1].toLowerCase();
+
+			// String testDesc = testResult[2].toLowerCase();
+			String testDesc = testResult[2];
+
+			String filePath = "";
+
+			if (testResult.length > 3) {
+				filePath = testResult[3].toLowerCase();
+			}
+
+			switch (stepStatus) {
+			case "info":
+				logger.log(LogStatus.INFO, testDesc);
+				break;
+			case "pass":
+				logger.log(LogStatus.PASS, testDesc);
+				break;
+			case "unknown": // updated the logger to handle specific type of logger, which was unused
+				logger.log(LogStatus.UNKNOWN, testDesc + logger.addScreenCapture(filePath));
+				break;
+			case "fail":
+				logger.log(LogStatus.FAIL, testDesc + logger.addScreenCapture(filePath));
+				failcounter++;
+				break;
+			}
+
+		}
+
+	}
+
 	@AfterClass
 	public void wrapUp() {
 

@@ -7,7 +7,7 @@
 			<class name="com.wisefinch.java.CashFlowStatementClass">
 				<methods>
 
-					<include name="cashFlowReport_2731" />
+					<include name="test2731_CFEnabledRecordUnCategoricedShowAllChecked" />
 
 				</methods>
 			</class>
