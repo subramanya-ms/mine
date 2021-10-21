@@ -63,6 +63,19 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 	}
 
 	// Webelement declaration
+
+	@FindBy(xpath = ".//*[@data-aura-class='uiOutputText' and contains(text(),'All')]")
+	static WebElement allListView_AccountingPeriod;
+
+	@FindBy(xpath = ".//button[@title='Pin this list view']")
+	static WebElement pinThisListViewButtion_AccountingPeriod;
+
+	@FindBy(xpath = ".//*[@data-aura-class='forceListViewPicker']//button")
+	static WebElement trigger_ForceListViewPicker_AccountingPeriod;
+
+	@FindBy(xpath = ".//*[@class='listContent']//*[contains(text(),'All')]")
+	static WebElement selectAll_ForceListViewPicker_AccountingPeriod;
+
 	@FindBy(xpath = "//div/h3[contains(.,'Cash Flow Statement Settings')]")
 	static WebElement CFS_Setting;
 
@@ -171,7 +184,7 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 	@FindBy(xpath = "//force-record-layout-base-input//div[@class='slds-form-element__control slds-grow']/input[@name='Name']")
 	static WebElement Account_Name;
 
-	@FindBy(xpath = "//force-record-layout-item[1]//lightning-combobox[1]//lightning-base-combobox[1]/div[1]/div[1]/input[1]")
+	@FindBy(xpath = "((.//*[@class='actionBody']//force-record-layout-section)[2]//input[@role='combobox'])[2]")
 	static WebElement Account_type;
 
 	@FindBy(xpath = "//span[@class='slds-checkbox slds-checkbox_standalone']/input[@name='AcctSeed__Accounting_Active__c']")
@@ -797,7 +810,7 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 	 * @throws IOException
 	 */
 	public static void navigateToAccountingHomePage(WebDriver browser) throws IOException {
-		String url = reusableComponents.getPropValues("salesforceurl");
+		String url = reusableComponents.getPropValues("PLURL");
 		browser.get(url);
 		ReusableComponents.wait(5000);
 		try {
@@ -814,7 +827,7 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 	 * @throws IOException
 	 */
 	public static void navigateToAccountingPeriodsPage(WebDriver browser) throws IOException {
-		String url = reusableComponents.getPropValues("AccountingPage");
+		String url = reusableComponents.getPropValues("AccountingPeriod");
 		browser.get(url);
 		ReusableComponents.wait(5000);
 		try {
@@ -850,6 +863,19 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 			// --> Move to accounting periods page
 			selectAppFromSearchAppAndItemNoScreenShot(threadID, tempList, pathLocation, browser, "Accounting Periods",
 					SelectAccountingPeriods);
+			// --> Select all from list view filter
+			ReusableComponents.clickElement(trigger_ForceListViewPicker_AccountingPeriod, "Click on list viewer");
+			ReusableComponents.wait(2000);
+			ReusableComponents.clickElement(selectAll_ForceListViewPicker_AccountingPeriod, "Click on All");
+			ReusableComponents.wait(5000);
+			// --> Pin All list view
+			String pintThisListViewButtonXpath = ".//button[@title='Pin this list view']";
+			List<WebElement> pinThisListViewButtonElements = browser
+					.findElements(By.xpath(pintThisListViewButtonXpath));
+			if (pinThisListViewButtonElements.size() == 1) {
+				ReusableComponents.clickElement(pinThisListViewButtion_AccountingPeriod,
+						"Click on pin this list view buttion");
+			}
 
 			// --> Perform search action
 			ReusableComponents.sendKey(searchTextBox_AccountPeriod, accountingPeriod, "Year close");
@@ -863,24 +889,32 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 					+ "')]//following::td)[3]//span)[2]";
 			System.out.println("********** xpathToCheckStatus " + xpathToCheckStatus);
 
-			WebElement statusElement = browser.findElement(By.xpath(xpathToCheckStatus));
+			List<WebElement> statusElement = browser.findElements(By.xpath(xpathToCheckStatus));
 
-			String statusOfTheAccountingPeriod = statusElement.getText();
+			if (statusElement.size() != 0) {
+				WebElement statusElementOfAccountingPeriod = browser.findElement(By.xpath(xpathToCheckStatus));
 
-			if (statusOfTheAccountingPeriod.equalsIgnoreCase(expectedStatus)) {
-				statusCheck = true;
-				ReusableComponents.reportPass(
-						threadID, tempList, testcasemethod, "Accounting period " + accountingPeriod
-								+ " status displayed as expected " + statusOfTheAccountingPeriod,
-						browser, pathLocation + "\\" + testcasemethod, false);
-				ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ", browser,
-						pathLocation + "\\" + testcasemethod, true);
+				String statusOfTheAccountingPeriod = statusElementOfAccountingPeriod.getText();
+
+				if (statusOfTheAccountingPeriod.equalsIgnoreCase(expectedStatus)) {
+					statusCheck = true;
+					ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+							"Accounting period " + accountingPeriod + " status displayed as expected "
+									+ statusOfTheAccountingPeriod,
+							browser, pathLocation + "\\" + testcasemethod, false);
+					ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ", browser,
+							pathLocation + "\\" + testcasemethod, true);
+				} else {
+					ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+							"Accounting period " + accountingPeriod
+									+ " status is not displayed as expected. Expedted Status " + expectedStatus
+									+ ". Current status " + statusOfTheAccountingPeriod,
+							browser, pathLocation + "\\" + testcasemethod, true);
+				}
 			} else {
 				ReusableComponents.reportFail(threadID, tempList, testcasemethod,
-						"Accounting period " + accountingPeriod
-								+ " status is not displayed as expected. Expedted Status " + expectedStatus
-								+ ". Current status " + statusOfTheAccountingPeriod,
-						browser, pathLocation + "\\" + testcasemethod, true);
+						"Accounting period " + accountingPeriod + " is not available", browser,
+						pathLocation + "\\" + testcasemethod, true);
 			}
 
 		} catch (throwNewException e) {
@@ -2089,7 +2123,7 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 				ReusableComponents.clickUsingJavaScript(browser, subTypeValueElement, "Select subtype 1 value");
 
 				ReusableComponents.clickElement(saveButton_NewGLAccount, "Click on Save");
-				ReusableComponents.wait(10000);
+				ReusableComponents.wait(15000);
 
 				// Verify new GL Account created
 				String newGLAccount = ".//*[@slot='primaryField']/lightning-formatted-text[contains(text(),'"
@@ -2763,6 +2797,19 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 
 			selectAppFromSearchAppAndItem(threadID, tempList, pathLocation, browser, "Accounting Periods",
 					SelectAccountingPeriods);
+			// --> Select all from list view filter
+			ReusableComponents.clickElement(trigger_ForceListViewPicker_AccountingPeriod, "Click on list viewer");
+			ReusableComponents.wait(2000);
+			ReusableComponents.clickElement(selectAll_ForceListViewPicker_AccountingPeriod, "Click on All");
+			ReusableComponents.wait(5000);
+			// --> Pin All list view
+			String pintThisListViewButtonXpath = ".//button[@title='Pin this list view']";
+			List<WebElement> pinThisListViewButtonElements = browser
+					.findElements(By.xpath(pintThisListViewButtonXpath));
+			if (pinThisListViewButtonElements.size() == 1) {
+				ReusableComponents.clickElement(pinThisListViewButtion_AccountingPeriod,
+						"Click on pin this list view buttion");
+			}
 
 			ReusableComponents.sendKey(searchTextBox_AccountPeriod, Integer.toString(previousYearClose),
 					"Previous year accounting periods");
@@ -3489,7 +3536,19 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 
 			selectAppFromSearchAppAndItem(threadID, tempList, pathLocation, browser, "Accounting Periods",
 					SelectAccountingPeriods);
-
+			// --> Select all from list view filter
+			ReusableComponents.clickElement(trigger_ForceListViewPicker_AccountingPeriod, "Click on list viewer");
+			ReusableComponents.wait(2000);
+			ReusableComponents.clickElement(selectAll_ForceListViewPicker_AccountingPeriod, "Click on All");
+			ReusableComponents.wait(5000);
+			// --> Pin All list view
+			String pintThisListViewButtonXpath = ".//button[@title='Pin this list view']";
+			List<WebElement> pinThisListViewButtonElements = browser
+					.findElements(By.xpath(pintThisListViewButtonXpath));
+			if (pinThisListViewButtonElements.size() == 1) {
+				ReusableComponents.clickElement(pinThisListViewButtion_AccountingPeriod,
+						"Click on pin this list view buttion");
+			}
 			ReusableComponents.wait(5200);
 			ReusableComponents.sendKey(searchTextBox_AccountPeriod, acc_period, "Nextyear Year open");
 			ReusableComponents.sendkey_InputKey(searchTextBox_AccountPeriod, Keys.ENTER, "Pass Enter");
@@ -3720,11 +3779,19 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 
 			selectAppFromSearchAppAndItem(threadID, tempList, pathLocation, browser, "Accounting Periods",
 					SelectAccountingPeriods);
-			ReusableComponents.wait(5500);
-			listview.click();
-			ReusableComponents.wait(5500);
-			all_list.click();
-			ReusableComponents.wait(5500);
+			// --> Select all from list view filter
+			ReusableComponents.clickElement(trigger_ForceListViewPicker_AccountingPeriod, "Click on list viewer");
+			ReusableComponents.wait(2000);
+			ReusableComponents.clickElement(selectAll_ForceListViewPicker_AccountingPeriod, "Click on All");
+			ReusableComponents.wait(5000);
+			// --> Pin All list view
+			String pintThisListViewButtonXpath = ".//button[@title='Pin this list view']";
+			List<WebElement> pinThisListViewButtonElements = browser
+					.findElements(By.xpath(pintThisListViewButtonXpath));
+			if (pinThisListViewButtonElements.size() == 1) {
+				ReusableComponents.clickElement(pinThisListViewButtion_AccountingPeriod,
+						"Click on pin this list view buttion");
+			}
 
 			ReusableComponents.sendKey(searchTextBox_AccountPeriod, Integer.toString(Nextyear), "Nextyear Year open");
 			ReusableComponents.sendkey_InputKey(searchTextBox_AccountPeriod, Keys.ENTER, "Pass Enter");
@@ -4114,6 +4181,19 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 			// --> Move to accounting periods page
 			selectAppFromSearchAppAndItemNoScreenShot(threadID, tempList, pathLocation, browser, "Accounting Periods",
 					SelectAccountingPeriods);
+			// --> Select all from list view filter
+			ReusableComponents.clickElement(trigger_ForceListViewPicker_AccountingPeriod, "Click on list viewer");
+			ReusableComponents.wait(2000);
+			ReusableComponents.clickElement(selectAll_ForceListViewPicker_AccountingPeriod, "Click on All");
+			ReusableComponents.wait(5000);
+			// --> Pin All list view
+			String pintThisListViewButtonXpath = ".//button[@title='Pin this list view']";
+			List<WebElement> pinThisListViewButtonElements = browser
+					.findElements(By.xpath(pintThisListViewButtonXpath));
+			if (pinThisListViewButtonElements.size() == 1) {
+				ReusableComponents.clickElement(pinThisListViewButtion_AccountingPeriod,
+						"Click on pin this list view buttion");
+			}
 
 			// --> Perform search action
 			ReusableComponents.sendKey(searchTextBox_AccountPeriod, accountingPeriod, "Year close");
@@ -4133,7 +4213,7 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 			if (openAccountingPeriod.size() != 0) {
 				WebElement openAccountingPeriodElement = browser.findElement(By.xpath(xpathToOpenAccountingPeriod));
 				ReusableComponents.clickElement(openAccountingPeriodElement, "Open accounting period");
-				ReusableComponents.wait(8000);
+				ReusableComponents.wait(10000);
 
 				String xpathToCheckAccountingPeriod = ".//*[@slot='primaryField']/lightning-formatted-text[contains(text(),'"
 						+ accountingPeriod + "')]";
@@ -4258,6 +4338,19 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 			// --> Move to accounting periods page
 			selectAppFromSearchAppAndItemNoScreenShot(threadID, tempList, pathLocation, browser, "Accounting Periods",
 					SelectAccountingPeriods);
+			// --> Select all from list view filter
+			ReusableComponents.clickElement(trigger_ForceListViewPicker_AccountingPeriod, "Click on list viewer");
+			ReusableComponents.wait(2000);
+			ReusableComponents.clickElement(selectAll_ForceListViewPicker_AccountingPeriod, "Click on All");
+			ReusableComponents.wait(5000);
+			// --> Pin All list view
+			String pintThisListViewButtonXpath = ".//button[@title='Pin this list view']";
+			List<WebElement> pinThisListViewButtonElements = browser
+					.findElements(By.xpath(pintThisListViewButtonXpath));
+			if (pinThisListViewButtonElements.size() == 1) {
+				ReusableComponents.clickElement(pinThisListViewButtion_AccountingPeriod,
+						"Click on pin this list view buttion");
+			}
 
 			// --> Perform search action
 			ReusableComponents.sendKey(searchTextBox_AccountPeriod, accountingPeriod, "Year close");
@@ -4277,7 +4370,7 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 			if (openAccountingPeriod.size() != 0) {
 				WebElement openAccountingPeriodElement = browser.findElement(By.xpath(xpathToOpenAccountingPeriod));
 				ReusableComponents.clickElement(openAccountingPeriodElement, "Open accounting period");
-				ReusableComponents.wait(8000);
+				ReusableComponents.wait(10000);
 
 				String xpathToCheckAccountingPeriod = ".//*[@slot='primaryField']/lightning-formatted-text[contains(text(),'"
 						+ accountingPeriod + "')]";
@@ -4494,6 +4587,19 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 			// --> Move to accounting periods page
 			selectAppFromSearchAppAndItemNoScreenShot(threadID, tempList, pathLoc, browser, "Accounting Periods",
 					SelectAccountingPeriods);
+			// --> Select all from list view filter
+			ReusableComponents.clickElement(trigger_ForceListViewPicker_AccountingPeriod, "Click on list viewer");
+			ReusableComponents.wait(2000);
+			ReusableComponents.clickElement(selectAll_ForceListViewPicker_AccountingPeriod, "Click on All");
+			ReusableComponents.wait(5000);
+			// --> Pin All list view
+			String pintThisListViewButtonXpath = ".//button[@title='Pin this list view']";
+			List<WebElement> pinThisListViewButtonElements = browser
+					.findElements(By.xpath(pintThisListViewButtonXpath));
+			if (pinThisListViewButtonElements.size() == 1) {
+				ReusableComponents.clickElement(pinThisListViewButtion_AccountingPeriod,
+						"Click on pin this list view buttion");
+			}
 
 			// --> Perform search action
 			ReusableComponents.sendKey(searchTextBox_AccountPeriod1, year, "Year close");
@@ -4704,6 +4810,20 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 					// --> Move to accounting periods page
 					selectAppFromSearchAppAndItemNoScreenShot(threadID, tempList, pathLoc, browser,
 							"Accounting Periods", SelectAccountingPeriods);
+					// --> Select all from list view filter
+					ReusableComponents.clickElement(trigger_ForceListViewPicker_AccountingPeriod,
+							"Click on list viewer");
+					ReusableComponents.wait(2000);
+					ReusableComponents.clickElement(selectAll_ForceListViewPicker_AccountingPeriod, "Click on All");
+					ReusableComponents.wait(5000);
+					// --> Pin All list view
+					String pintThisListViewButtonXpath = ".//button[@title='Pin this list view']";
+					List<WebElement> pinThisListViewButtonElements = browser
+							.findElements(By.xpath(pintThisListViewButtonXpath));
+					if (pinThisListViewButtonElements.size() == 1) {
+						ReusableComponents.clickElement(pinThisListViewButtion_AccountingPeriod,
+								"Click on pin this list view buttion");
+					}
 
 					// --> Perform search action for year to make sure about how many accounting
 					// years to be closed before closing actual accounting year
@@ -4807,6 +4927,12 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 								}
 
 							} else {
+								if (accountingPeriod.equalsIgnoreCase(accountingPeriodToCheck)) {
+									ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+											accountingPeriodToCheck + " is not available for the year " + currentYear,
+											browser, pathLoc + "\\" + testcasemethod, true);
+									break;
+								}
 								System.out.println(
 										accountingPeriodToCheck + " is not available for the year " + currentYear);
 								/*
@@ -4913,6 +5039,19 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 			// --> Move to accounting periods page
 			selectAppFromSearchAppAndItemNoScreenShot(threadID, tempList, pathLoc, browser, "Accounting Periods",
 					SelectAccountingPeriods);
+			// --> Select all from list view filter
+			ReusableComponents.clickElement(trigger_ForceListViewPicker_AccountingPeriod, "Click on list viewer");
+			ReusableComponents.wait(2000);
+			ReusableComponents.clickElement(selectAll_ForceListViewPicker_AccountingPeriod, "Click on All");
+			ReusableComponents.wait(5000);
+			// --> Pin All list view
+			String pintThisListViewButtonXpath = ".//button[@title='Pin this list view']";
+			List<WebElement> pinThisListViewButtonElements = browser
+					.findElements(By.xpath(pintThisListViewButtonXpath));
+			if (pinThisListViewButtonElements.size() == 1) {
+				ReusableComponents.clickElement(pinThisListViewButtion_AccountingPeriod,
+						"Click on pin this list view buttion");
+			}
 
 			// --> Perform search action
 			ReusableComponents.sendKey(searchTextBox_AccountPeriod1, year, "Year open");
@@ -5127,6 +5266,8 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 						System.out.println("*********** inside loop nextYearToOpenValue " + nextYearToOpenValue);
 					}
 
+				} else {
+					openedAllTheAccountingPeriodOfTheYear = true;
 				}
 
 				System.out
@@ -5142,6 +5283,20 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 					// --> Move to accounting periods page
 					selectAppFromSearchAppAndItemNoScreenShot(threadID, tempList, pathLoc, browser,
 							"Accounting Periods", SelectAccountingPeriods);
+					// --> Select all from list view filter
+					ReusableComponents.clickElement(trigger_ForceListViewPicker_AccountingPeriod,
+							"Click on list viewer");
+					ReusableComponents.wait(2000);
+					ReusableComponents.clickElement(selectAll_ForceListViewPicker_AccountingPeriod, "Click on All");
+					ReusableComponents.wait(5000);
+					// --> Pin All list view
+					String pintThisListViewButtonXpath = ".//button[@title='Pin this list view']";
+					List<WebElement> pinThisListViewButtonElements = browser
+							.findElements(By.xpath(pintThisListViewButtonXpath));
+					if (pinThisListViewButtonElements.size() == 1) {
+						ReusableComponents.clickElement(pinThisListViewButtion_AccountingPeriod,
+								"Click on pin this list view buttion");
+					}
 
 					// --> Perform search action for year to make sure about how many accounting
 					// years to be closed before closing actual accounting year
@@ -5243,6 +5398,14 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 								}
 
 							} else {
+								if (accountingPeriod.equalsIgnoreCase(accountingPeriodToCheck)) {
+									ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+											accountingPeriodToCheck + " is not available for the year "
+													+ accountingPeriodYear,
+											browser, pathLoc + "\\" + testcasemethod, true);
+									break;
+								}
+
 								System.out.println(accountingPeriodToCheck + " is not available for the year "
 										+ accountingPeriodYear);
 								/*
@@ -5350,12 +5513,12 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 				System.out.println("----------> previousAccountingPeriod identified as : " + previousAccountingPeriod);
 
 			} else {
+				month = month - 1;
 				if (month == 11 || month == 12 || month == 10) {
 					previousAccountingPeriod = yearValue + "-" + Integer.toString(month);
 					System.out
 							.println("----------> previousAccountingPeriod identified as :" + previousAccountingPeriod);
 				} else {
-					month = month - 1;
 					previousAccountingPeriod = yearValue + "-0" + Integer.toString(month);
 					System.out
 							.println("----------> previousAccountingPeriod identified as :" + previousAccountingPeriod);
@@ -5467,8 +5630,8 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 				ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ", browser,
 						pathLocation + "\\" + testcasemethod, true);
 
-				ReusableComponents.reportSpecific(threadID, tempList, testcasemethod,
-						"GL account name : " + clonedNewGLName, browser, pathLocation + "\\" + testcasemethod, true);
+				ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, "GL account name : " + newGLName,
+						browser, pathLocation + "\\" + testcasemethod, false);
 				ReusableComponents.scrollInToElementJavaScript(browser, cashFlowCategory_CashReceipt);
 				ReusableComponents.wait(2000);
 				ReusableComponents.sendKey(cashFlowCategory_CashReceipt, newGLName, "Provide GL Name");
@@ -5477,7 +5640,7 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 						+ "']";
 				WebElement clickGLAccountType = browser.findElement(By.xpath(glType));
 				ReusableComponents.clickElement(clickGLAccountType, "Select GL Accout Type");
-				ReusableComponents.reportPass(threadID, tempList, testcasemethod, "Cloned GL Account Selected", browser,
+				ReusableComponents.reportPass(threadID, tempList, testcasemethod, "GL Account Selected", browser,
 						pathLocation + "\\" + testcasemethod, false);
 				ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ", browser,
 						pathLocation + "\\" + testcasemethod, true);
@@ -5493,7 +5656,7 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 
 				if (cashReceiptNameList.size() != 0) {
 					newCashReceiptCreated = true;
-					runTimeTestData.put(runTimeTestData.get(testCaseNumber) + "_newCashReceiptCreated", "true");
+					runTimeTestData.put(testCaseNumber + "_newCashReceiptCreated", "true");
 					ReusableComponents.reportPass(threadID, tempList, testcasemethod,
 							"New cash receipt " + createdCashReceiptName.getText() + " is created successfully",
 							browser, pathLocation + "\\" + testcasemethod, false);
@@ -5502,7 +5665,7 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 							pathLocation + "\\" + testcasemethod, true);
 				} else {
 					newCashReceiptCreated = false;
-					runTimeTestData.put(runTimeTestData.get(testCaseNumber) + "_newCashReceiptCreated", "false");
+					runTimeTestData.put(testCaseNumber + "_newCashReceiptCreated", "false");
 					ReusableComponents.reportFail(threadID, tempList, testcasemethod, "New new cash receipt created",
 							browser, pathLocation + "\\" + testcasemethod, true);
 				}
@@ -5777,14 +5940,17 @@ public class AccountingSeedReusableFunctionalities extends DriverScript {
 		boolean cashFlowEnable = cashFlowEnableValue;
 		System.out.println("********** Expected condition cashFlowEnable : " + cashFlowEnable);
 		try {
-			try {
-				LoginToWebpage(threadID, tempList, pathLoc, browser);
+			List<WebElement> userNameFiled = browser.findElements(By.xpath("//input[@id='username']"));
+			if (userNameFiled.size() != 0) {
 				ReusableComponents.wait(5000);
-			} catch (Exception e) {
-				e.printStackTrace();
-				System.out.println("########## Login is not applicable");
+				try {
+					LoginToWebpage(threadID, tempList, pathLoc, browser);
+					ReusableComponents.wait(5000);
+				} catch (Exception e) {
+					e.printStackTrace();
+					System.out.println("########## Login is not applicable");
+				}
 			}
-
 			checkDefaultValueOfCashFlowStatement(threadID, tempList, pathLoc, browser);
 
 			navigateToAccountingHomePage(browser);

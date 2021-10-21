@@ -58,6 +58,24 @@ public class BankingLedgerPage extends DriverScript {
 
 	// Webelement declaration
 
+	@FindBy(xpath = ".//button[@title='Pin this list view']")
+	static WebElement pinThisListViewButtion_AccountingPeriod;
+
+	@FindBy(xpath = ".//*[@data-aura-class='forceListViewPicker']//button")
+	static WebElement trigger_ForceListViewPicker_AccountingPeriod;
+
+	@FindBy(xpath = ".//*[@class='listContent']//*[contains(text(),'All')]")
+	static WebElement selectAll_ForceListViewPicker_AccountingPeriod;
+
+	@FindBy(xpath = ".//*[@data-jest='showAllPeriods']//*[contains(text(),'Show All Periods')]")
+	static WebElement showAllPeriodsCheckBox_CashFlowPage;
+
+	@FindBy(xpath = ".//span[normalize-space()='Cash Flow']")
+	static WebElement selectCashFlowReport_FinancialReport;
+
+	@FindBy(xpath = "((.//*[@class='actionBody']//force-record-layout-section)[2]//input[@role='combobox'])[2]")
+	static WebElement Account_type;
+
 	@FindBy(xpath = "(.//input[@type='text'])[2]")
 	static WebElement budgetLedget_PandLVsBudget;
 
@@ -109,7 +127,7 @@ public class BankingLedgerPage extends DriverScript {
 	@FindBy(xpath = ".//*[@data-jest='suppressZeroAmountRows']//*[contains(text(),'Suppress Zero Amount')]")
 	static WebElement supressZeroAmountCheckBox;
 
-	@FindBy(xpath = "(.//*[@class='slds-form-element__control']//input)[1]")
+	@FindBy(xpath = "(.//*[@class='slds-box box-shadow']//input[@role='combobox'])[1]")
 	static WebElement ledgerTypeInputBox_TrailBalance;
 
 	@FindBy(xpath = "//span[@class='slds-listbox__option-meta slds-listbox__option-meta_entity']")
@@ -118,8 +136,11 @@ public class BankingLedgerPage extends DriverScript {
 	@FindBy(xpath = ".//button[@title='Clear Selection']")
 	static WebElement clearSectionOfLedger_TrailBalance;
 
-	@FindBy(xpath = "((.//*[@class='slds-form-element'])[2]//input)[1]")
+	@FindBy(xpath = ".//*[@role=\"textbox\"]")
 	static WebElement startingAccoutPeriodTrailBalance;
+
+	@FindBy(xpath = "(.//*[@class='slds-box box-shadow']//input)[2]")
+	static WebElement startingAccoutPeriodCashFlow;
 
 	@FindBy(xpath = ".//*[@class='actionBody']//*[contains(text(),'New Payable')]")
 	static WebElement newPayablePopUp;
@@ -135,9 +156,6 @@ public class BankingLedgerPage extends DriverScript {
 
 	@FindBy(xpath = "//force-record-layout-base-input//div[@class='slds-form-element__control slds-grow']/input[@name='Name']")
 	WebElement Account_Name;
-
-	@FindBy(xpath = "//force-record-layout-item[1]//lightning-combobox[1]//lightning-base-combobox[1]/div[1]/div[1]/input[1]")
-	WebElement Account_type;
 
 	@FindBy(xpath = "//span[@class='slds-checkbox slds-checkbox_standalone']/input[@name='AcctSeed__Accounting_Active__c']")
 	WebElement Accounting_Active;
@@ -453,7 +471,7 @@ public class BankingLedgerPage extends DriverScript {
 	@FindBy(xpath = "//span[contains(.,'All')][contains(@class,'virtualAutocompleteOptionText')]")
 	WebElement all_list;
 
-	@FindBy(xpath = ".//slot[@slot='primaryField']//lightning-formatted-text[contains(text(),'1000-Cash')]")
+	@FindBy(xpath = ".//slot[@slot='primaryField']//lightning-formatted-text[contains(text(),'1000-Cash1')]")
 	static WebElement cash1000_Page;
 
 	@FindBy(xpath = ".//button[contains(text(),'Clone')]")
@@ -726,6 +744,19 @@ public class BankingLedgerPage extends DriverScript {
 			// --> Move to accounting periods page
 			selectAppFromSearchAppAndItem(threadID, tempList, pathLocation, "Accounting Periods",
 					SelectAccountingPeriods);
+			// --> Select all from list view filter
+			ReusableComponents.clickElement(trigger_ForceListViewPicker_AccountingPeriod, "Click on list viewer");
+			ReusableComponents.wait(2000);
+			ReusableComponents.clickElement(selectAll_ForceListViewPicker_AccountingPeriod, "Click on All");
+			ReusableComponents.wait(5000);
+			// --> Pin All list view
+			String pintThisListViewButtonXpath = ".//button[@title='Pin this list view']";
+			List<WebElement> pinThisListViewButtonElements = browser
+					.findElements(By.xpath(pintThisListViewButtonXpath));
+			if (pinThisListViewButtonElements.size() == 1) {
+				ReusableComponents.clickElement(pinThisListViewButtion_AccountingPeriod,
+						"Click on pin this list view buttion");
+			}
 
 			// --> Perform search action
 			ReusableComponents.sendKey(searchTextBox_AccountPeriod, accountingPeriod, "Year close");
@@ -1842,24 +1873,24 @@ public class BankingLedgerPage extends DriverScript {
 			// --> Click on 1000-Cash under GL account page
 			try {
 				List<WebElement> glAccountNameList = browser
-						.findElements(By.xpath(".//*[contains(text(),'1000-Cash')]"));
+						.findElements(By.xpath(".//*[contains(text(),'1000-Cash1')]"));
 				int numberGLAccountFould = glAccountNameList.size();
+				System.out.println("*********** numberGLAccountFould " + numberGLAccountFould);
 				boolean GLAccountSelected = false;
 				for (int j = 0; j <= numberGLAccountFould; j++) {
 					String name = glAccountNameList.get(j).getText();
 					System.out.println("********** GL Account Name " + name);
 
-					if (name.equals("1000-Cash")) {
+					if (name.equals("1000-Cash1")) {
 						glAccountNameList.get(j).click();
 						ReusableComponents.wait(10000);
 						if (cash1000_Page.isDisplayed()) {
 							ReusableComponents.reportSpecific(threadID, tempList, testcasemethod,
-									"1000-Cash page opened", browser, pathLocation + "\\" + testcasemethod, true);
-							ReusableComponents.reportSpecific(threadID, tempList, testcasemethod,
-									"1000-Cash page opened", browser, pathLocation + "\\" + testcasemethod, true);
+									"1000-Cash1 page opened", browser, pathLocation + "\\" + testcasemethod, true);
+
 						} else {
 							ReusableComponents.reportFail(threadID, tempList, testcasemethod,
-									"1000-cash page is not opened", browser, pathLocation + "\\" + testcasemethod,
+									"1000-cash1 page is not opened", browser, pathLocation + "\\" + testcasemethod,
 									true);
 						}
 						GLAccountSelected = true;
@@ -2049,8 +2080,9 @@ public class BankingLedgerPage extends DriverScript {
 			String CDtype = reusableComponents.getPropValues(testCaseNumber + "_cdtype");
 			String CD_Amount = reusableComponents.getPropValues(testCaseNumber + "_amount");
 			String account_namefull;
-			if (newAccountname == null) {
 
+			System.out.println("********** newAccountname " + newAccountname);
+			if (newAccountname == null) {
 				account_namefull = reusableComponents.getPropValues(testCaseNumber + "_accname");
 			} else {
 				account_namefull = newAccountname;
@@ -2206,11 +2238,12 @@ public class BankingLedgerPage extends DriverScript {
 										 */
 										ReusableComponents.wait(5200);
 
-										ReusableComponents.sendKey(CFCategory, "Balance", "Cash Flow Category");
+										ReusableComponents.sendKey(CFCategory, "GLAccount_Testcase2691_20211021_141326",
+												"Cash Flow Category");
 										ReusableComponents.wait(5200);
 										// lightning-base-combobox-item[@id='input-1292-1-1292']//span[@class='slds-listbox__option-text
 										// slds-listbox__option-text_entity']
-										String cashFlowSelect = "(.//*[contains(text(),'Balance')])[2]";
+										String cashFlowSelect = "(.//*[contains(text(),'GLAccount_Testcase2691_20211021_141326')])[2]";
 										List<WebElement> cashFlowCategorySelect = browser
 												.findElements(By.xpath(cashFlowSelect));
 
@@ -2657,6 +2690,19 @@ public class BankingLedgerPage extends DriverScript {
 
 			selectAppFromSearchAppAndItem(threadID, tempList, pathLocation, "Accounting Periods",
 					SelectAccountingPeriods);
+			// --> Select all from list view filter
+			ReusableComponents.clickElement(trigger_ForceListViewPicker_AccountingPeriod, "Click on list viewer");
+			ReusableComponents.wait(2000);
+			ReusableComponents.clickElement(selectAll_ForceListViewPicker_AccountingPeriod, "Click on All");
+			ReusableComponents.wait(5000);
+			// --> Pin All list view
+			String pintThisListViewButtonXpath = ".//button[@title='Pin this list view']";
+			List<WebElement> pinThisListViewButtonElements = browser
+					.findElements(By.xpath(pintThisListViewButtonXpath));
+			if (pinThisListViewButtonElements.size() == 1) {
+				ReusableComponents.clickElement(pinThisListViewButtion_AccountingPeriod,
+						"Click on pin this list view buttion");
+			}
 
 			ReusableComponents.sendKey(searchTextBox_AccountPeriod, Integer.toString(previousYearClose),
 					"Previous year accounting periods");
@@ -3387,6 +3433,19 @@ public class BankingLedgerPage extends DriverScript {
 
 			selectAppFromSearchAppAndItem(threadID, tempList, pathLocation, "Accounting Periods",
 					SelectAccountingPeriods);
+			// --> Select all from list view filter
+			ReusableComponents.clickElement(trigger_ForceListViewPicker_AccountingPeriod, "Click on list viewer");
+			ReusableComponents.wait(2000);
+			ReusableComponents.clickElement(selectAll_ForceListViewPicker_AccountingPeriod, "Click on All");
+			ReusableComponents.wait(5000);
+			// --> Pin All list view
+			String pintThisListViewButtonXpath = ".//button[@title='Pin this list view']";
+			List<WebElement> pinThisListViewButtonElements = browser
+					.findElements(By.xpath(pintThisListViewButtonXpath));
+			if (pinThisListViewButtonElements.size() == 1) {
+				ReusableComponents.clickElement(pinThisListViewButtion_AccountingPeriod,
+						"Click on pin this list view buttion");
+			}
 
 			ReusableComponents.wait(5200);
 			ReusableComponents.sendKey(searchTextBox_AccountPeriod, acc_period, "Nextyear Year open");
@@ -3622,11 +3681,19 @@ public class BankingLedgerPage extends DriverScript {
 
 			selectAppFromSearchAppAndItem(threadID, tempList, pathLocation, "Accounting Periods",
 					SelectAccountingPeriods);
-			ReusableComponents.wait(5500);
-			listview.click();
-			ReusableComponents.wait(5500);
-			all_list.click();
-			ReusableComponents.wait(5500);
+			// --> Select all from list view filter
+			ReusableComponents.clickElement(trigger_ForceListViewPicker_AccountingPeriod, "Click on list viewer");
+			ReusableComponents.wait(2000);
+			ReusableComponents.clickElement(selectAll_ForceListViewPicker_AccountingPeriod, "Click on All");
+			ReusableComponents.wait(5000);
+			// --> Pin All list view
+			String pintThisListViewButtonXpath = ".//button[@title='Pin this list view']";
+			List<WebElement> pinThisListViewButtonElements = browser
+					.findElements(By.xpath(pintThisListViewButtonXpath));
+			if (pinThisListViewButtonElements.size() == 1) {
+				ReusableComponents.clickElement(pinThisListViewButtion_AccountingPeriod,
+						"Click on pin this list view buttion");
+			}
 
 			ReusableComponents.sendKey(searchTextBox_AccountPeriod, Integer.toString(Nextyear), "Nextyear Year open");
 			ReusableComponents.sendkey_InputKey(searchTextBox_AccountPeriod, Keys.ENTER, "Pass Enter");
@@ -4098,8 +4165,7 @@ public class BankingLedgerPage extends DriverScript {
 			ReusableComponents.wait(5000);
 			ReusableComponents.clickElement(selectStandartReport_FinancialReport, "Click Select standard reportd");
 			ReusableComponents.wait(5000);
-			ReusableComponents.clickElement(balanceSheet_selectStandartReport_FinancialReport,
-					"Select Balance Sheet");
+			ReusableComponents.clickElement(balanceSheet_selectStandartReport_FinancialReport, "Select Balance Sheet");
 			ReusableComponents.wait(5000);
 
 			// As per test case we have to user previous accounting period, so we are taking
@@ -6009,6 +6075,19 @@ public class BankingLedgerPage extends DriverScript {
 			// --> Move to accounting periods page
 			selectAppFromSearchAppAndItem(threadID, tempList, pathLocation, "Accounting Periods",
 					SelectAccountingPeriods);
+			// --> Select all from list view filter
+			ReusableComponents.clickElement(trigger_ForceListViewPicker_AccountingPeriod, "Click on list viewer");
+			ReusableComponents.wait(2000);
+			ReusableComponents.clickElement(selectAll_ForceListViewPicker_AccountingPeriod, "Click on All");
+			ReusableComponents.wait(5000);
+			// --> Pin All list view
+			String pintThisListViewButtonXpath = ".//button[@title='Pin this list view']";
+			List<WebElement> pinThisListViewButtonElements = browser
+					.findElements(By.xpath(pintThisListViewButtonXpath));
+			if (pinThisListViewButtonElements.size() == 1) {
+				ReusableComponents.clickElement(pinThisListViewButtion_AccountingPeriod,
+						"Click on pin this list view buttion");
+			}
 
 			// --> Perform search action
 			ReusableComponents.sendKey(searchTextBox_AccountPeriod, accountingPeriod, "Year close");
@@ -6125,6 +6204,19 @@ public class BankingLedgerPage extends DriverScript {
 			// --> Move to accounting periods page
 			selectAppFromSearchAppAndItem(threadID, tempList, pathLocation, "Accounting Periods",
 					SelectAccountingPeriods);
+			// --> Select all from list view filter
+			ReusableComponents.clickElement(trigger_ForceListViewPicker_AccountingPeriod, "Click on list viewer");
+			ReusableComponents.wait(2000);
+			ReusableComponents.clickElement(selectAll_ForceListViewPicker_AccountingPeriod, "Click on All");
+			ReusableComponents.wait(5000);
+			// --> Pin All list view
+			String pintThisListViewButtonXpath = ".//button[@title='Pin this list view']";
+			List<WebElement> pinThisListViewButtonElements = browser
+					.findElements(By.xpath(pintThisListViewButtonXpath));
+			if (pinThisListViewButtonElements.size() == 1) {
+				ReusableComponents.clickElement(pinThisListViewButtion_AccountingPeriod,
+						"Click on pin this list view buttion");
+			}
 
 			// --> Perform search action
 			ReusableComponents.sendKey(searchTextBox_AccountPeriod, accountingPeriod, "Year close");
@@ -6718,17 +6810,19 @@ public class BankingLedgerPage extends DriverScript {
 																	"Click Select Trial Balance");
 															ReusableComponents.wait(5000);
 
-															ReusableComponents.clickElement(
-																	clearSectionOfLedger_TrailBalance,
-																	"Clear button of Ledger input box period");
-															ReusableComponents.sendKey(ledgerTypeInputBox_TrailBalance,
-																	ledgerValue, "Accounting period");
-															String selcectLedgerValueXpath = "//lightning-base-combobox-formatted-text[@title='"
-																	+ ledgerValue + "']";
-															WebElement selectValueElement = browser
-																	.findElement(By.xpath(selcectLedgerValueXpath));
-															ReusableComponents.clickElement(selectValueElement,
-																	"Select Ledger Type");
+															/*
+															 * ReusableComponents.clickElement(
+															 * clearSectionOfLedger_TrailBalance,
+															 * "Clear button of Ledger input box period");
+															 * ReusableComponents.sendKey(
+															 * ledgerTypeInputBox_TrailBalance, ledgerValue,
+															 * "Accounting period"); String selcectLedgerValueXpath =
+															 * "//lightning-base-combobox-formatted-text[@title='" +
+															 * ledgerValue + "']"; WebElement selectValueElement =
+															 * browser .findElement(By.xpath(selcectLedgerValueXpath));
+															 * ReusableComponents.clickElement(selectValueElement,
+															 * "Select Ledger Type");
+															 */
 
 															ReusableComponents.clickElement(
 																	startingAccoutPeriod_FinancialReport_Clear,
@@ -7439,17 +7533,19 @@ public class BankingLedgerPage extends DriverScript {
 																	"Click Select Trial Balance");
 															ReusableComponents.wait(5000);
 
-															ReusableComponents.clickElement(
-																	clearSectionOfLedger_TrailBalance,
-																	"Clear button of Ledger input box period");
-															ReusableComponents.sendKey(ledgerTypeInputBox_TrailBalance,
-																	ledgerValue, "Accounting period");
-															String selcectLedgerValueXpath = "//lightning-base-combobox-formatted-text[@title='"
-																	+ ledgerValue + "']";
-															WebElement selectValueElement = browser
-																	.findElement(By.xpath(selcectLedgerValueXpath));
-															ReusableComponents.clickElement(selectValueElement,
-																	"Select Ledger Type");
+															/*
+															 * ReusableComponents.clickElement(
+															 * clearSectionOfLedger_TrailBalance,
+															 * "Clear button of Ledger input box period");
+															 * ReusableComponents.sendKey(
+															 * ledgerTypeInputBox_TrailBalance, ledgerValue,
+															 * "Accounting period"); String selcectLedgerValueXpath =
+															 * "//lightning-base-combobox-formatted-text[@title='" +
+															 * ledgerValue + "']"; WebElement selectValueElement =
+															 * browser .findElement(By.xpath(selcectLedgerValueXpath));
+															 * ReusableComponents.clickElement(selectValueElement,
+															 * "Select Ledger Type");
+															 */
 
 															ReusableComponents.clickElement(
 																	startingAccoutPeriod_FinancialReport_Clear,
@@ -8133,17 +8229,19 @@ public class BankingLedgerPage extends DriverScript {
 																	"Click Select Trial Balance");
 															ReusableComponents.wait(5000);
 
-															ReusableComponents.clickElement(
-																	clearSectionOfLedger_TrailBalance,
-																	"Clear button of Ledger input box period");
-															ReusableComponents.sendKey(ledgerTypeInputBox_TrailBalance,
-																	ledgerValue, "Accounting period");
-															String selcectLedgerValueXpath = "//lightning-base-combobox-formatted-text[@title='"
-																	+ ledgerValue + "']";
-															WebElement selectValueElement = browser
-																	.findElement(By.xpath(selcectLedgerValueXpath));
-															ReusableComponents.clickElement(selectValueElement,
-																	"Select Ledger Type");
+															/*
+															 * ReusableComponents.clickElement(
+															 * clearSectionOfLedger_TrailBalance,
+															 * "Clear button of Ledger input box period");
+															 * ReusableComponents.sendKey(
+															 * ledgerTypeInputBox_TrailBalance, ledgerValue,
+															 * "Accounting period"); String selcectLedgerValueXpath =
+															 * "//lightning-base-combobox-formatted-text[@title='" +
+															 * ledgerValue + "']"; WebElement selectValueElement =
+															 * browser .findElement(By.xpath(selcectLedgerValueXpath));
+															 * ReusableComponents.clickElement(selectValueElement,
+															 * "Select Ledger Type");
+															 */
 
 															ReusableComponents.clickElement(
 																	startingAccoutPeriod_FinancialReport_Clear,
@@ -10452,32 +10550,30 @@ public class BankingLedgerPage extends DriverScript {
 		String testcasemethod = new Object() {
 		}.getClass().getEnclosingMethod().getName();
 
-		String currentAccoutingPeriod, openAccountingPeriodForTestDataCreation = "NA",
-				currentAccountPeriodExpectedStatus = null, expectedAccountingPeriodStatus = null;
-		boolean accountPeriodStatusCheck = false, actualAccountingPeriodStatus = false,
-				currentAccountingPeriodActualStatus = false;
-
-		String path = workingDir + reusableComponents.getPropValues("ChromeResultspath") + "\\" + TESTCASENAME;
-		pathLocation = reusableComponents.pathBuilder(path);
-
+		Page page = new Page(browser);
+		page.accountingSeedReusableFunction(threadID, tempList, pathLocation);
 		testCaseNumber = "Testcase2691";
+		runTimeTestData.put("testCaseNumber", testCaseNumber);
+
+		currentAccountingPeriodForTheTestCase = reusableComponents
+				.getPropValues(testCaseNumber + "_AccountingPeriodForTestCase");
+		System.out.println(
+				"*********** currentAccountingPeriodForTheTestCase : " + currentAccountingPeriodForTheTestCase);
+		runTimeTestData.put(testCaseNumber + "_AccountingPeriodForTestCase", currentAccountingPeriodForTheTestCase);
+
+		String previousAccountingPeriod = AccountingSeedReusableFunctionalities
+				.identifyPreviousAccountingPeriod(currentAccountingPeriodForTheTestCase);
+		System.out.println("********** previousAccountingPeriod : " + previousAccountingPeriod);
+		runTimeTestData.put(testCaseNumber + "_AccountingPeriodForTestDataCreation", previousAccountingPeriod);
+
+		String expectedErrorMessageHeading = reusableComponents.getPropValues(testCaseNumber + "_ErrorTextHeading");
+		String expectedErrorMessage = reusableComponents.getPropValues(testCaseNumber + "_ErrorMessage");
 		String ledgerValue = reusableComponents.getPropValues(testCaseNumber + "_LedgerValue");
-		currentAccoutingPeriod = reusableComponents.getPropValues(testCaseNumber + "_" + "AccountingPeriodForTestCase");
-		currentAccountingPeriodForTheTestCase = "2020-10";
-		newLedgerName = "Ledger_Testcase2623_20211012_131139";
+
 		try {
-			Page page = new Page(browser);
+
 			page.accountingSeedReusableFunction(threadID, tempList, pathLocation);
 			AccountingSeedReusableFunctionalities.LoginToWebpage(threadID, tempList, pathLocation, browser);
-
-			try {
-				CashDisbursement(threadID, tempList, pathLocation);
-
-			} catch (Exception e) {
-				ReusableComponents.reportFail(threadID, tempList, testcasemethod,
-						"Exception when trying to create new cash disbursement" + e.getStackTrace(), browser,
-						pathLocation + "\\" + testcasemethod, true);
-			}
 
 		} catch (Exception e) {
 

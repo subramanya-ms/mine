@@ -220,8 +220,11 @@ public class Page extends DriverScript {
 	public synchronized SearchAppItemPage testSearchAppItemPage(int threadID, List<String> tempList, String pathLoc) {
 		String testcasemethod = new Object() {
 		}.getClass().getEnclosingMethod().getName();
-		ReusableComponents.reportInfo(threadID, tempList, testcasemethod, "Validation searchapp item Page", browser,
-				pathLoc + "/" + testcasemethod, false);
+		/*
+		 * ReusableComponents.reportInfo(threadID, tempList, testcasemethod,
+		 * "Validation searchapp item Page", browser, pathLoc + "/" + testcasemethod,
+		 * false);
+		 */
 		return new SearchAppItemPage(browser);
 	}
 
@@ -297,8 +300,11 @@ public class Page extends DriverScript {
 	public synchronized JournalEntryPage journalEntryPageTest(int threadID, List<String> tempList, String pathLoc) {
 		String testcasemethod = new Object() {
 		}.getClass().getEnclosingMethod().getName();
-		ReusableComponents.reportInfo(threadID, tempList, testcasemethod, "Validation searchapp item Page", browser,
-				pathLoc + "/" + testcasemethod, false);
+		/*
+		 * ReusableComponents.reportInfo(threadID, tempList, testcasemethod,
+		 * "Validation searchapp item Page", browser, pathLoc + "/" + testcasemethod,
+		 * false);
+		 */
 		return new JournalEntryPage(browser);
 	}
 
@@ -428,8 +434,11 @@ public class Page extends DriverScript {
 			String pathLoc) {
 		String testcasemethod = new Object() {
 		}.getClass().getEnclosingMethod().getName();
-		ReusableComponents.reportInfo(threadID, tempList, testcasemethod, "Validation searchapp item Page", browser,
-				pathLoc + "/" + testcasemethod, false);
+		/*
+		 * ReusableComponents.reportInfo(threadID, tempList, testcasemethod,
+		 * "Validation searchapp item Page", browser, pathLoc + "/" + testcasemethod,
+		 * false);
+		 */
 		return new CashFlowStatementPage(browser);
 	}
 
@@ -441,8 +450,11 @@ public class Page extends DriverScript {
 	public synchronized GLAccountPageMenaka glAccountCreationTest(int threadID, List<String> tempList, String pathLoc) {
 		String testcasemethod = new Object() {
 		}.getClass().getEnclosingMethod().getName();
-		ReusableComponents.reportInfo(threadID, tempList, testcasemethod, "Validation searchapp item Page", browser,
-				pathLoc + "/" + testcasemethod, false);
+		/*
+		 * ReusableComponents.reportInfo(threadID, tempList, testcasemethod,
+		 * "Validation searchapp item Page", browser, pathLoc + "/" + testcasemethod,
+		 * false);
+		 */
 		return new GLAccountPageMenaka(browser);
 	}
 
@@ -454,8 +466,11 @@ public class Page extends DriverScript {
 	public synchronized BankingLedgerPage bankingLedgerTest(int threadID, List<String> tempList, String pathLoc) {
 		String testcasemethod = new Object() {
 		}.getClass().getEnclosingMethod().getName();
-		ReusableComponents.reportInfo(threadID, tempList, testcasemethod, "Validation searchapp item Page", browser,
-				pathLoc + "/" + testcasemethod, false);
+		/*
+		 * ReusableComponents.reportInfo(threadID, tempList, testcasemethod,
+		 * "Validation searchapp item Page", browser, pathLoc + "/" + testcasemethod,
+		 * false);
+		 */
 		return new BankingLedgerPage(browser);
 	}
 
@@ -721,14 +736,23 @@ public class Page extends DriverScript {
 
 	/***
 	 * Created By : Menaka
+	 * 
+	 * @throws throwNewException
 	 *
 	 ***/
 	public synchronized AccountingSeedReusableFunctionalities accountingSeedReusableFunction(int threadID,
-			List<String> tempList, String pathLoc) {
+			List<String> tempList, String pathLoc) throws throwNewException {
 		String testcasemethod = new Object() {
 		}.getClass().getEnclosingMethod().getName();
-		ReusableComponents.reportInfo(threadID, tempList, testcasemethod, "Validation searchapp item Page", browser,
-				pathLoc + "/" + testcasemethod, false);
+		/*
+		 * String testCaseStartTime =
+		 * ReusableComponents.getCurrentDateAndTime("yyyy-MM-dd HH:mm:ss");
+		 * 
+		 * ReusableComponents.reportInfo(threadID, tempList, testcasemethod,
+		 * "Test case started at " + testCaseStartTime, browser, pathLoc + "/" +
+		 * testcasemethod, false);
+		 */
+
 		return new AccountingSeedReusableFunctionalities(browser);
 	}
 

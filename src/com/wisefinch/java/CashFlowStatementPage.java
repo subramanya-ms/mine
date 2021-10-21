@@ -51,6 +51,41 @@ public class CashFlowStatementPage extends DriverScript {
 			e.printStackTrace();
 		}
 	}
+	@FindBy(xpath = ".//button[@title='Pin this list view']")
+	static WebElement pinThisListViewButtion_AccountingPeriod;
+
+	@FindBy(xpath = ".//*[@data-aura-class='forceListViewPicker']//button")
+	static WebElement trigger_ForceListViewPicker_AccountingPeriod;
+
+	@FindBy(xpath = ".//*[@class='listContent']//*[contains(text(),'All')]")
+	static WebElement selectAll_ForceListViewPicker_AccountingPeriod;
+
+	@FindBy(xpath = ".//*[@data-jest='showAllPeriods']//*[contains(text(),'Show All Periods')]")
+	static WebElement showAllPeriodsCheckBox_CashFlowPage;
+
+	@FindBy(xpath = ".//*[@class='slds-text-heading_small']")
+	static WebElement trialBalanceErrorMessageHeading;
+
+	@FindBy(xpath = ".//*[@class='inline-error-msg']//li")
+	static WebElement trialBalanceErrorMessage;
+
+	@FindBy(xpath = ".//*[@data-jest='suppressZeroAmountRows']//*[contains(text(),'Suppress Zero Amount')]")
+	static WebElement supressZeroAmountCheckBox;
+
+	@FindBy(xpath = "(.//*[@class='slds-box box-shadow']//input)[2]")
+	static WebElement startingAccoutPeriodCashFlow;
+
+	@FindBy(xpath = "((.//*[@class='slds-form-element'])[2]//input)[1]")
+	static WebElement startingAccoutPeriodTrailBalance;
+
+	@FindBy(xpath = "(.//*[@class='slds-form-element__control']//input)[1]")
+	static WebElement ledgerTypeInputBox_TrailBalance;
+
+	@FindBy(xpath = "//span[@class='slds-listbox__option-meta slds-listbox__option-meta_entity']")
+	static WebElement selectLedgerType_TrailBalance;
+
+	@FindBy(xpath = ".//button[@title='Clear Selection']")
+	static WebElement clearSectionOfLedger_TrailBalance;
 
 	@FindBy(xpath = ".//*[@class='actionBody']//*[contains(text(),'New GL Account')]")
 	static WebElement newGLAccountPopup;
@@ -177,7 +212,7 @@ public class CashFlowStatementPage extends DriverScript {
 	@FindBy(xpath = "//force-record-layout-base-input//div[@class='slds-form-element__control slds-grow']/input[@name='Name']")
 	static WebElement Account_Name;
 
-	@FindBy(xpath = "((.//*[@class='actionBody']//*[@class=\"slds-form\"])[2]//input[@role='combobox'])[2]")
+	@FindBy(xpath = "((.//*[@class='actionBody']//force-record-layout-section)[2]//input[@role='combobox'])[2]")
 	static WebElement Account_type;
 
 	@FindBy(xpath = "//span[@class='slds-checkbox slds-checkbox_standalone']/input[@name='AcctSeed__Accounting_Active__c']")
@@ -3982,6 +4017,19 @@ public class CashFlowStatementPage extends DriverScript {
 			// --> Move to accounting periods page
 			selectAppFromSearchAppAndItem(threadID, tempList, pathLocation, "Accounting Periods",
 					SelectAccountingPeriods);
+			// --> Select all from list view filter
+			ReusableComponents.clickElement(trigger_ForceListViewPicker_AccountingPeriod, "Click on list viewer");
+			ReusableComponents.wait(2000);
+			ReusableComponents.clickElement(selectAll_ForceListViewPicker_AccountingPeriod, "Click on All");
+			ReusableComponents.wait(5000);
+			// --> Pin All list view
+			String pintThisListViewButtonXpath = ".//button[@title='Pin this list view']";
+			List<WebElement> pinThisListViewButtonElements = browser
+					.findElements(By.xpath(pintThisListViewButtonXpath));
+			if (pinThisListViewButtonElements.size() == 1) {
+				ReusableComponents.clickElement(pinThisListViewButtion_AccountingPeriod,
+						"Click on pin this list view buttion");
+			}
 
 			// --> Perform search action
 			ReusableComponents.sendKey(searchTextBox_AccountPeriod, accountingPeriod, "Year close");
@@ -4056,6 +4104,19 @@ public class CashFlowStatementPage extends DriverScript {
 			// --> Move to accounting periods page
 			selectAppFromSearchAppAndItem(threadID, tempList, pathLocation, "Accounting Periods",
 					SelectAccountingPeriods);
+			// --> Select all from list view filter
+			ReusableComponents.clickElement(trigger_ForceListViewPicker_AccountingPeriod, "Click on list viewer");
+			ReusableComponents.wait(2000);
+			ReusableComponents.clickElement(selectAll_ForceListViewPicker_AccountingPeriod, "Click on All");
+			ReusableComponents.wait(5000);
+			// --> Pin All list view
+			String pintThisListViewButtonXpath = ".//button[@title='Pin this list view']";
+			List<WebElement> pinThisListViewButtonElements = browser
+					.findElements(By.xpath(pintThisListViewButtonXpath));
+			if (pinThisListViewButtonElements.size() == 1) {
+				ReusableComponents.clickElement(pinThisListViewButtion_AccountingPeriod,
+						"Click on pin this list view buttion");
+			}
 
 			// --> Perform search action
 			ReusableComponents.sendKey(searchTextBox_AccountPeriod, accountingPeriod, "Year close");
@@ -4798,105 +4859,742 @@ public class CashFlowStatementPage extends DriverScript {
 
 		String previousAccountingPeriod = AccountingSeedReusableFunctionalities
 				.identifyPreviousAccountingPeriod(currentAccountingPeriodForTheTestCase);
+		System.out.println("********** previousAccountingPeriod : " + previousAccountingPeriod);
 		runTimeTestData.put(testCaseNumber + "_AccountingPeriodForTestDataCreation", previousAccountingPeriod);
+
+		String expectedErrorMessageHeading = reusableComponents.getPropValues(testCaseNumber + "_ErrorTextHeading");
+		String expectedErrorMessage = reusableComponents.getPropValues(testCaseNumber + "_ErrorMessage");
+		String ledgerValue = reusableComponents.getPropValues(testCaseNumber + "_LedgerValue");
 
 		try {
 
-			// Login to webpage
+			// --> Login to webpage
 			AccountingSeedReusableFunctionalities.LoginToWebpage(threadID, tempList, pathLocation, browser);
 
-			// check Cash flow statement it should be false
+			// --> check Cash flow statement it should be false
 			AccountingSeedReusableFunctionalities.developerConsole_QueryRun_CashFlowTrueOrFalse(threadID, tempList,
 					pathLocation, browser, false);
 
-			// Create Test data New account
-			AccountingSeedReusableFunctionalities.createAccount(threadID, tempList, pathLocation, browser);
+			// --> Open the previous accounting period
+			AccountingSeedReusableFunctionalities.openAccountingPeriod(threadID, tempList, pathLocation, browser,
+					previousAccountingPeriod);
 
-			if (runTimeTestData.get(testCaseNumber + "_accountCreatedStatus").equalsIgnoreCase("true")) {
+			String expectedAccountingPeriodStatus = "Open";
+			Boolean actualAccountingPeriodStatus = false;
+			actualAccountingPeriodStatus = AccountingSeedReusableFunctionalities.checkAccountPeriodStatus(threadID,
+					tempList, pathLocation, browser, previousAccountingPeriod, expectedAccountingPeriodStatus);
 
-				// Create new GL account
-				AccountingSeedReusableFunctionalities.createGLAccount(threadID, tempList, pathLocation, browser);
+			if (actualAccountingPeriodStatus) {
+				// --> Create Test data New account
+				AccountingSeedReusableFunctionalities.createAccount(threadID, tempList, pathLocation, browser);
 
-				if (runTimeTestData.get(testCaseNumber + "_newGLAccountCreationStatus").equalsIgnoreCase("true")) {
-					// create new cash receipt
-					AccountingSeedReusableFunctionalities.createCashReceiptWithCFCategory(threadID, tempList,
-							pathLocation, browser);
+				if (runTimeTestData.get(testCaseNumber + "_accountCreatedStatus").equalsIgnoreCase("true")) {
 
-					if (runTimeTestData.get(testCaseNumber + "_newCashReceiptCreated").equalsIgnoreCase("true")) {
-						System.out.println("********** Good to continue with the test case ");
+					// --> Create new GL account
+					AccountingSeedReusableFunctionalities.createGLAccount(threadID, tempList, pathLocation, browser);
 
-						// Close the previous accounting period
-						AccountingSeedReusableFunctionalities.closeAccountingPeriod(threadID, tempList, pathLocation,
-								browser, previousAccountingPeriod);
+					if (runTimeTestData.get(testCaseNumber + "_newGLAccountCreationStatus").equalsIgnoreCase("true")) {
 
-						// check Cash flow statement it should be true
-						AccountingSeedReusableFunctionalities.developerConsole_QueryRun_CashFlowTrueOrFalse(threadID,
-								tempList, pathLocation, browser, true);
+						// --> create new cash receipt
+						AccountingSeedReusableFunctionalities.createCashReceiptWithCFCategory(threadID, tempList,
+								pathLocation, browser);
 
-						// Previous accounting period status should be closed
-						String expectedAccountingPeriodStatus = "Closed";
-						boolean previousAccountingPeriodStatus = false;
-						previousAccountingPeriodStatus = checkAccountPeriodStatus(threadID, tempList, pathLocation,
-								previousAccountingPeriod, expectedAccountingPeriodStatus);
+						if (runTimeTestData.get(testCaseNumber + "_newCashReceiptCreated").equalsIgnoreCase("true")) {
+							System.out.println("********** Good to continue with the test case ");
 
-						if (previousAccountingPeriodStatus) {
-							System.out
-									.println("*********** Status displayed as expected. Good to go with the test case");
+							// --> Close the previous accounting period
+							AccountingSeedReusableFunctionalities.closeAccountingPeriod(threadID, tempList,
+									pathLocation, browser, previousAccountingPeriod);
 
-							// Run Financial Report
-							String financialReportsURL = reusableComponents.getPropValues("FinancialReports");
-							browser.get(financialReportsURL);
-							// Browser.get is used here since there are issue in launching financial report
-							// from search app. Once the issue resolved we can comment it and unccomment
-							// selectAppFromSearchAppAndItem(threadID, tempList, testcasemethod, "Financial
-							// Reports",
-							ReusableComponents.wait(5000);
+							// --> Previous accounting period status should be closed
+							expectedAccountingPeriodStatus = "Closed";
+							boolean previousAccountingPeriodStatus = false;
+							previousAccountingPeriodStatus = AccountingSeedReusableFunctionalities
+									.checkAccountPeriodStatus(threadID, tempList, pathLocation, browser,
+											previousAccountingPeriod, expectedAccountingPeriodStatus);
 
-							ReusableComponents.wait(5000);
-							ReusableComponents.clickElement(selectStandartReport_FinancialReport,
-									"Select standard reportd");
-							ReusableComponents.wait(5000);
-							ReusableComponents.clickElement(selectCashFlowReport_FinancialReport,
-									"Select cash flow report");
-							ReusableComponents.wait(5000);
+							if (previousAccountingPeriodStatus) {
 
-							ReusableComponents.clickElement(startingAccoutPeriod_FinancialReport_Clear,
-									"Clear button of starting account period");
-							ReusableComponents.sendKey(accountingPeriod_CashFlowReport, previousAccountingPeriod,
-									"Provide accounting period");
-							ReusableComponents.clickElement(accountingPeriod_CashFlowReport,
-									"Starting account period input box");
-							ReusableComponents.clickElement(selectAccountingPeriod_FinancialReport,
-									"Select Starting account period");
+								// --> check Cash flow statement it should be true
+								AccountingSeedReusableFunctionalities.developerConsole_QueryRun_CashFlowTrueOrFalse(
+										threadID, tempList, pathLocation, browser, true);
 
-							ReusableComponents.reportPass(threadID, tempList, testcasemethod,
-									"Accounting period details provided", browser, " ", false);
-							ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ", browser,
-									pathLocation + "\\" + testcasemethod, true);
+								System.out.println(
+										"*********** Status displayed as expected. Good to go with the test case");
+
+								// --> Run Financial Report
+								String financialReportsURL = reusableComponents.getPropValues("FinancialReports");
+								browser.get(financialReportsURL);
+								// Browser.get is used here since there are issue in launching financial report
+								// from search app. Once the issue resolved we can comment it and unccomment
+								// selectAppFromSearchAppAndItem(threadID, tempList, testcasemethod, "Financial
+								// Reports",
+								ReusableComponents.wait(5000);
+
+								ReusableComponents.wait(5000);
+								ReusableComponents.clickElement(selectStandartReport_FinancialReport,
+										"Select standard reportd");
+								ReusableComponents.wait(5000);
+								ReusableComponents.clickElement(selectCashFlowReport_FinancialReport,
+										"Select cash flow report");
+								ReusableComponents.wait(5000);
+
+								/*
+								 * ReusableComponents.clickElement(clearSectionOfLedger_TrailBalance,
+								 * "Clear button of Ledger input box period");
+								 * ReusableComponents.sendKey(ledgerTypeInputBox_TrailBalance, ledgerValue,
+								 * "Accounting period"); String selcectLedgerValueXpath =
+								 * "//lightning-base-combobox-formatted-text[@title='" + ledgerValue + "']";
+								 * WebElement selectValueElement =
+								 * browser.findElement(By.xpath(selcectLedgerValueXpath));
+								 * ReusableComponents.clickElement(selectValueElement, "Select Ledger Type");
+								 */
+
+								ReusableComponents.clickElement(startingAccoutPeriod_FinancialReport_Clear,
+										"Clear button of starting account period");
+								ReusableComponents.sendKey(startingAccoutPeriodCashFlow, previousAccountingPeriod,
+										"Accounting period");
+								ReusableComponents.clickElement(selectAccountingPeriod_FinancialReport,
+										"Select Starting account period");
+
+								ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+										"Ledger and Accounting period values are given to run report", browser,
+										pathLocation + "\\" + testcasemethod, false);
+								ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ", browser,
+										pathLocation + "\\" + testcasemethod, true);
+
+								// --> check suppress zero amount check box
+								ReusableComponents.scrollJavaScriptDown(browser, supressZeroAmountCheckBox);
+								ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+										"By default, Supress Zero amount check box will be checked.  so the assumption will be the check box is checked",
+										browser, pathLocation + "\\" + testcasemethod, false);
+								ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ", browser,
+										pathLocation + "\\" + testcasemethod, true);
+
+								// --> Click on show all period check box
+								ReusableComponents.clickElement(showAllPeriodsCheckBox_CashFlowPage,
+										"Click Show all periods Check box");
+								ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+										"By default, Show all periods check box will be unchecked.  so the assumption will be clicking it once will make check box is checked",
+										browser, pathLocation + "\\" + testcasemethod, false);
+								ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ", browser,
+										pathLocation + "\\" + testcasemethod, true);
+
+								List<WebElement> recordsList = browser.findElements(
+										By.xpath(".//tr//*[@class='slds-truncate']//a[contains(text(),'FRR')]"));
+								System.out.println("************ Number of reports " + recordsList.size());
+
+								if (recordsList.size() != 0) {
+									String oldRecordName = firstReport_FinancialReport.getText();
+									System.out.println("*********** oldRecordName " + oldRecordName);
+									ReusableComponents.clickElement(runButton_FinancialReport, "Clicked on run button");
+									ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+											"Run button clicked", browser, " ", false);
+
+									ReusableComponents.wait(20000);
+
+									try {
+										String errorMessageHeading = trialBalanceErrorMessageHeading.getText();
+										String errorMessage = trialBalanceErrorMessage.getText();
+
+										if (errorMessageHeading.equalsIgnoreCase(expectedErrorMessageHeading)) {
+											ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+													"Error Message Heading displayed as expected", browser,
+													pathLocation + "\\" + testcasemethod, false);
+											ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ",
+													browser, pathLocation + "\\" + testcasemethod, true);
+										} else {
+											ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+													"Error Message Heading is not displayed as expected. Expected heading : "
+															+ expectedErrorMessageHeading + ". Actual heading : "
+															+ errorMessageHeading,
+													browser, pathLocation + "\\" + testcasemethod, true);
+										}
+
+										if (errorMessage.equalsIgnoreCase(expectedErrorMessage)) {
+											ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+													"Error Message displayed as expected", browser,
+													pathLocation + "\\" + testcasemethod, false);
+											ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ",
+													browser, pathLocation + "\\" + testcasemethod, true);
+										} else {
+											ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+													"Error Message is not displayed as expected. Expected error message :"
+															+ expectedErrorMessage + ". Actual error message : "
+															+ errorMessage,
+													browser, pathLocation + "\\" + testcasemethod, true);
+										}
+
+									} catch (NoSuchElementException e) {
+										e.printStackTrace();
+										ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+												"Exception when reading error text. Error Message is not displayed as expected. "
+														+ e,
+												browser, pathLocation + "\\" + testcasemethod, true);
+									} catch (Exception e) {
+										e.printStackTrace();
+										ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+												"Exception when trying to read the error message. " + e.getMessage(),
+												browser, pathLocation + "\\" + testcasemethod, true);
+									}
+
+									ReusableComponents.scrollDown(browser, 500);
+
+									ReusableComponents.wait(20000);
+
+									String newRecord = firstReport_FinancialReport.getText();
+
+									if (!newRecord.contains("FRR")) {
+										ReusableComponents.wait(20000);
+
+										newRecord = firstReport_FinancialReport.getText();
+									}
+
+									System.out.println("*********** newRecord " + newRecord);
+									if (newRecord.contains("FRR") && oldRecordName.equalsIgnoreCase(newRecord)) {
+										ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+												"As per the functionality there should not be any new report created when current and previous accounting periods are in open status. Functionality working fine",
+												browser, pathLocation + "\\" + testcasemethod, false);
+										ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ",
+												browser, pathLocation + "\\" + testcasemethod, true);
+									} else {
+										String hreflink = reusableComponents.getAttribute(firstReport_FinancialReport,
+												"href");
+										ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+												"As per the functionality there should not be any new report created when current and previous accounting periods are in open status. However new Financial report created. Name : "
+														+ newRecord + ". Link of created financial report : "
+														+ hreflink,
+												browser, pathLocation + "\\" + testcasemethod, true);
+									}
+								} else {
+
+									ReusableComponents.clickElement(runButton_FinancialReport, "Clicked on run button");
+									ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+											"Run button clicked", browser, pathLocation + "\\" + testcasemethod, false);
+
+									ReusableComponents.wait(20000);
+
+									try {
+										String errorMessageHeading = trialBalanceErrorMessageHeading.getText();
+										String errorMessage = trialBalanceErrorMessage.getText();
+
+										if (errorMessageHeading.equalsIgnoreCase(expectedErrorMessageHeading)) {
+											ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+													"Error Message Heading displayed as expected", browser,
+													pathLocation + "\\" + testcasemethod, false);
+											ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ",
+													browser, pathLocation + "\\" + testcasemethod, true);
+										} else {
+											ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+													"Error Message Heading is not displayed as expected", browser,
+													pathLocation + "\\" + testcasemethod, true);
+										}
+
+										if (errorMessage.equalsIgnoreCase(expectedErrorMessage)) {
+											ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+													"Error Message displayed as expected", browser,
+													pathLocation + "\\" + testcasemethod, false);
+											ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ",
+													browser, pathLocation + "\\" + testcasemethod, true);
+										} else {
+											ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+													"Error Message is not displayed as expected. Expected error message :"
+															+ expectedErrorMessage + ". Actual error message : "
+															+ errorMessage,
+													browser, pathLocation + "\\" + testcasemethod, true);
+										}
+
+									} catch (NoSuchElementException e) {
+										e.printStackTrace();
+										ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+												"Exception when reading error message. Error Message is not displayed as expected"
+														+ e,
+												browser, pathLocation + "\\" + testcasemethod, true);
+									} catch (Exception e) {
+										e.printStackTrace();
+										ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+												"Exception when trying to read the error message. " + e.getMessage(),
+												browser, pathLocation + "\\" + testcasemethod, true);
+									}
+									ReusableComponents.scrollDown(browser, 500);
+
+									ReusableComponents.wait(20000);
+
+									List<WebElement> newRecordsList = browser.findElements(By
+											.xpath("(.//tr//*[@class='slds-truncate']//a[contains(text(),'FRR')])[1]"));
+									System.out.println("************ Number of elements " + newRecordsList.size());
+
+									if (newRecordsList.size() == 0) {
+										ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+												"As per the functionality there should not be any new report created when current and previous accounting periods are open. Functionality working fine",
+												browser, pathLocation + "\\" + testcasemethod, false);
+										ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ",
+												browser, pathLocation + "\\" + testcasemethod, true);
+									} else {
+										String newRecord = firstReport_FinancialReport.getText();
+										String hreflink = reusableComponents.getAttribute(firstReport_FinancialReport,
+												"href");
+										ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+												"As per the functionality there should not be any new report created when current and previous accounting periods are open. However new Financial report created. Name : "
+														+ newRecord + ". Link of created financial report : "
+														+ hreflink,
+												browser, pathLocation + "\\" + testcasemethod, true);
+									}
+								}
+
+								// ------------------------------------------------------------------------------------
+								// --> Uncheck show all periods check box and verify the results
+								// --> Run Financial Report
+								financialReportsURL = reusableComponents.getPropValues("FinancialReports");
+								browser.get(financialReportsURL);
+								// Browser.get is used here since there are issue in launching financial report
+								// from search app. Once the issue resolved we can comment it and unccomment
+								// selectAppFromSearchAppAndItem(threadID, tempList, testcasemethod, "Financial
+								// Reports",
+								ReusableComponents.wait(5000);
+
+								ReusableComponents.wait(5000);
+								ReusableComponents.clickElement(selectStandartReport_FinancialReport,
+										"Select standard reportd");
+								ReusableComponents.wait(5000);
+								ReusableComponents.clickElement(selectCashFlowReport_FinancialReport,
+										"Select cash flow report");
+								ReusableComponents.wait(5000);
+
+								/*
+								 * ReusableComponents.clickElement(clearSectionOfLedger_TrailBalance,
+								 * "Clear button of Ledger input box period");
+								 * ReusableComponents.sendKey(ledgerTypeInputBox_TrailBalance, ledgerValue,
+								 * "Accounting period"); String selcectLedgerValueXpath =
+								 * "//lightning-base-combobox-formatted-text[@title='" + ledgerValue + "']";
+								 * WebElement selectValueElement =
+								 * browser.findElement(By.xpath(selcectLedgerValueXpath));
+								 * ReusableComponents.clickElement(selectValueElement, "Select Ledger Type");
+								 */
+
+								ReusableComponents.clickElement(startingAccoutPeriod_FinancialReport_Clear,
+										"Clear button of starting account period");
+								ReusableComponents.sendKey(startingAccoutPeriodCashFlow, previousAccountingPeriod,
+										"Accounting period");
+								ReusableComponents.clickElement(selectAccountingPeriod_FinancialReport,
+										"Select Starting account period");
+
+								ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+										"Ledger and Accounting period values are given to run report", browser,
+										pathLocation + "\\" + testcasemethod, false);
+								ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ", browser,
+										pathLocation + "\\" + testcasemethod, true);
+								ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+										"By default show all periods check box will not be selected. so the assumption will be check box unchecked",
+										browser, pathLocation + "\\" + testcasemethod, false);
+								ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ", browser,
+										pathLocation + "\\" + testcasemethod, true);
+
+								recordsList.clear();
+								recordsList = browser.findElements(
+										By.xpath(".//tr//*[@class='slds-truncate']//a[contains(text(),'FRR')]"));
+								System.out.println("************ Number of reports " + recordsList.size());
+
+								if (recordsList.size() != 0) {
+									String oldRecordName = firstReport_FinancialReport.getText();
+									System.out.println("*********** oldRecordName " + oldRecordName);
+									ReusableComponents.clickElement(runButton_FinancialReport, "Clicked on run button");
+									ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+											"Run button clicked", browser, " ", false);
+
+									ReusableComponents.wait(20000);
+
+									try {
+										String errorMessageHeading = trialBalanceErrorMessageHeading.getText();
+										String errorMessage = trialBalanceErrorMessage.getText();
+
+										if (errorMessageHeading.equalsIgnoreCase(expectedErrorMessageHeading)) {
+											ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+													"Error Message Heading displayed as expected", browser,
+													pathLocation + "\\" + testcasemethod, false);
+											ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ",
+													browser, pathLocation + "\\" + testcasemethod, true);
+										} else {
+											ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+													"Error Message Heading is not displayed as expected. Expected heading : "
+															+ expectedErrorMessageHeading + ". Actual heading : "
+															+ errorMessageHeading,
+													browser, pathLocation + "\\" + testcasemethod, true);
+										}
+
+										if (errorMessage.equalsIgnoreCase(expectedErrorMessage)) {
+											ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+													"Error Message displayed as expected", browser,
+													pathLocation + "\\" + testcasemethod, false);
+											ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ",
+													browser, pathLocation + "\\" + testcasemethod, true);
+										} else {
+											ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+													"Error Message is not displayed as expected. Expected error message :"
+															+ expectedErrorMessage + ". Actual error message : "
+															+ errorMessage,
+													browser, pathLocation + "\\" + testcasemethod, true);
+										}
+
+									} catch (NoSuchElementException e) {
+										e.printStackTrace();
+										ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+												"Exception when reading error message. Error Message is not displayed as expected"
+														+ e,
+												browser, pathLocation + "\\" + testcasemethod, true);
+									} catch (Exception e) {
+										e.printStackTrace();
+										ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+												"Exception when trying to read the error message. " + e.getMessage(),
+												browser, pathLocation + "\\" + testcasemethod, true);
+									}
+
+									ReusableComponents.scrollDown(browser, 500);
+
+									ReusableComponents.wait(20000);
+
+									String newRecord = firstReport_FinancialReport.getText();
+
+									if (!newRecord.contains("FRR")) {
+										ReusableComponents.wait(20000);
+
+										newRecord = firstReport_FinancialReport.getText();
+									}
+
+									System.out.println("*********** newRecord " + newRecord);
+									if (newRecord.contains("FRR") && oldRecordName.equalsIgnoreCase(newRecord)) {
+										ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+												"As per the functionality there should not be any new report created when current and previous accounting periods are in open status. Functionality working fine",
+												browser, pathLocation + "\\" + testcasemethod, false);
+										ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ",
+												browser, pathLocation + "\\" + testcasemethod, true);
+									} else {
+										String hreflink = reusableComponents.getAttribute(firstReport_FinancialReport,
+												"href");
+										ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+												"As per the functionality there should not be any new report created when current and previous accounting periods are in open status. However new Financial report created. Name : "
+														+ newRecord + ". Link of created financial report : "
+														+ hreflink,
+												browser, pathLocation + "\\" + testcasemethod, true);
+									}
+								} else {
+
+									ReusableComponents.clickElement(runButton_FinancialReport, "Clicked on run button");
+									ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+											"Run button clicked", browser, pathLocation + "\\" + testcasemethod, false);
+
+									ReusableComponents.wait(20000);
+
+									try {
+										String errorMessageHeading = trialBalanceErrorMessageHeading.getText();
+										String errorMessage = trialBalanceErrorMessage.getText();
+
+										if (errorMessageHeading.equalsIgnoreCase(expectedErrorMessageHeading)) {
+											ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+													"Error Message Heading displayed as expected", browser,
+													pathLocation + "\\" + testcasemethod, false);
+											ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ",
+													browser, pathLocation + "\\" + testcasemethod, true);
+										} else {
+											ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+													"Error Message Heading is not displayed as expected. Expected heading : "
+															+ expectedErrorMessageHeading + ". Actual heading : "
+															+ errorMessageHeading,
+													browser, pathLocation + "\\" + testcasemethod, true);
+										}
+
+										if (errorMessage.equalsIgnoreCase(expectedErrorMessage)) {
+											ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+													"Error Message displayed as expected", browser,
+													pathLocation + "\\" + testcasemethod, false);
+											ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ",
+													browser, pathLocation + "\\" + testcasemethod, true);
+										} else {
+											ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+													"Error Message is not displayed as expected. Expected error message :"
+															+ expectedErrorMessage + ". Actual error message : "
+															+ errorMessage,
+													browser, pathLocation + "\\" + testcasemethod, true);
+										}
+
+									} catch (NoSuchElementException e) {
+										e.printStackTrace();
+										ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+												"Exception when reading error message. Error Message is not displayed as expected"
+														+ e,
+												browser, pathLocation + "\\" + testcasemethod, true);
+									} catch (Exception e) {
+										e.printStackTrace();
+										ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+												"Exception when trying to read the error message. " + e.getMessage(),
+												browser, pathLocation + "\\" + testcasemethod, true);
+									}
+									ReusableComponents.scrollDown(browser, 500);
+
+									ReusableComponents.wait(20000);
+
+									List<WebElement> newRecordsList = browser.findElements(By
+											.xpath("(.//tr//*[@class='slds-truncate']//a[contains(text(),'FRR')])[1]"));
+									System.out.println("************ Number of elements " + newRecordsList.size());
+
+									if (newRecordsList.size() == 0) {
+										ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+												"As per the functionality there should not be any new report created when current and previous accounting periods are open. Functionality working fine",
+												browser, pathLocation + "\\" + testcasemethod, false);
+										ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ",
+												browser, pathLocation + "\\" + testcasemethod, true);
+									} else {
+										String newRecord = firstReport_FinancialReport.getText();
+										String hreflink = reusableComponents.getAttribute(firstReport_FinancialReport,
+												"href");
+										ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+												"As per the functionality there should not be any new report created when current and previous accounting periods are open. However new Financial report created. Name : "
+														+ newRecord + ". Link of created financial report : "
+														+ hreflink,
+												browser, pathLocation + "\\" + testcasemethod, true);
+									}
+								}
+
+								// --------------------------------------------------------------------
+								// --> Provide current accounting period and verify the results.
+								financialReportsURL = reusableComponents.getPropValues("FinancialReports");
+								browser.get(financialReportsURL);
+								// Browser.get is used here since there are issue in launching financial report
+								// from search app. Once the issue resolved we can comment it and unccomment
+								// selectAppFromSearchAppAndItem(threadID, tempList, testcasemethod, "Financial
+								// Reports",
+								ReusableComponents.wait(5000);
+
+								ReusableComponents.wait(5000);
+								ReusableComponents.clickElement(selectStandartReport_FinancialReport,
+										"Select standard reportd");
+								ReusableComponents.wait(5000);
+								ReusableComponents.clickElement(selectCashFlowReport_FinancialReport,
+										"Select cash flow report");
+								ReusableComponents.wait(5000);
+								
+								ReusableComponents.clickElement(startingAccoutPeriod_FinancialReport_Clear,
+										"Clear button of starting account period");
+								ReusableComponents.sendKey(startingAccoutPeriodCashFlow,
+										currentAccountingPeriodForTheTestCase, "Accounting period");
+								ReusableComponents.clickElement(selectAccountingPeriod_FinancialReport,
+										"Select Starting account period");
+
+								ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+										"Ledger and Accounting period values are given to run report", browser,
+										pathLocation + "\\" + testcasemethod, false);
+								ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ", browser,
+										pathLocation + "\\" + testcasemethod, true);
+
+								// --> check supress zero amount check box
+								ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+										"By default, Supress Zero amount check box will be checked.  so the assumption will be the check box is checked",
+										browser, pathLocation + "\\" + testcasemethod, false);
+								ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ", browser,
+										pathLocation + "\\" + testcasemethod, true);
+
+								// --> Click on show all period check box
+								ReusableComponents.clickElement(showAllPeriodsCheckBox_CashFlowPage,
+										"Click Show all periods Check box");
+								ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+										"By default, Show all periods check box will be unchecked.  so the assumption will be clicking it once will make check box is checked",
+										browser, pathLocation + "\\" + testcasemethod, false);
+								ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ", browser,
+										pathLocation + "\\" + testcasemethod, true);
+
+								recordsList.clear();
+								recordsList = browser.findElements(
+										By.xpath(".//tr//*[@class='slds-truncate']//a[contains(text(),'FRR')]"));
+								System.out.println("************ Number of reports " + recordsList.size());
+
+								if (recordsList.size() != 0) {
+									String oldRecordName = firstReport_FinancialReport.getText();
+									System.out.println("*********** oldRecordName " + oldRecordName);
+									ReusableComponents.clickElement(runButton_FinancialReport, "Clicked on run button");
+									ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+											"Run button clicked", browser, " ", false);
+
+									ReusableComponents.wait(20000);
+
+									try {
+										String errorMessageHeading = trialBalanceErrorMessageHeading.getText();
+										String errorMessage = trialBalanceErrorMessage.getText();
+
+										if (ReusableComponents.isDisplayed(trialBalanceErrorMessageHeading,
+												"Error Message heading")) {
+											ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+													"Error Message Heading is displayed", browser,
+													pathLocation + "\\" + testcasemethod, true);
+
+										} else {
+											ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+													"Error Message Heading is not displayed", browser,
+													pathLocation + "\\" + testcasemethod, false);
+											ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ",
+													browser, pathLocation + "\\" + testcasemethod, true);
+										}
+
+										if (ReusableComponents.isDisplayed(trialBalanceErrorMessage, "Error Message")) {
+											ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+													"Error Message is displayed", browser,
+													pathLocation + "\\" + testcasemethod, false);
+										} else {
+											ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+													"Error Message is not displayed", browser,
+													pathLocation + "\\" + testcasemethod, false);
+											ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ",
+													browser, pathLocation + "\\" + testcasemethod, true);
+										}
+
+									} catch (NoSuchElementException e) {
+										e.printStackTrace();
+										ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+												"Error Message is not displayed", browser,
+												pathLocation + "\\" + testcasemethod, true);
+										ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ",
+												browser, pathLocation + "\\" + testcasemethod, true);
+									} catch (Exception e) {
+										e.printStackTrace();
+										ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+												"Exception when trying to read the error message. " + e.getMessage(),
+												browser, pathLocation + "\\" + testcasemethod, true);
+									}
+
+									ReusableComponents.scrollDown(browser, 500);
+
+									ReusableComponents.wait(20000);
+
+									String newRecord = firstReport_FinancialReport.getText();
+
+									if (!newRecord.contains("FRR")) {
+										ReusableComponents.wait(20000);
+
+										newRecord = firstReport_FinancialReport.getText();
+									}
+
+									System.out.println("*********** newRecord " + newRecord);
+									if (newRecord.contains("FRR") && !oldRecordName.equalsIgnoreCase(newRecord)) {
+										String hreflink = reusableComponents.getAttribute(firstReport_FinancialReport,
+												"href");
+										ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+												"New report created when providing first open period. Name : "
+														+ newRecord + ". Link of created financial report : "
+														+ hreflink,
+												browser, pathLocation + "\\" + testcasemethod, false);
+										ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ",
+												browser, pathLocation + "\\" + testcasemethod, true);
+
+									} else {
+										ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+												"There are no new report created", browser,
+												pathLocation + "\\" + testcasemethod, true);
+									}
+								} else {
+
+									ReusableComponents.clickElement(runButton_FinancialReport, "Clicked on run button");
+									ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+											"Run button clicked", browser, pathLocation + "\\" + testcasemethod, false);
+
+									ReusableComponents.wait(20000);
+
+									try {
+										String errorMessageHeading = trialBalanceErrorMessageHeading.getText();
+										String errorMessage = trialBalanceErrorMessage.getText();
+
+										if (ReusableComponents.isDisplayed(trialBalanceErrorMessageHeading,
+												"Error Message heading")) {
+											ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+													"Error Message Heading is displayed", browser,
+													pathLocation + "\\" + testcasemethod, true);
+
+										} else {
+											ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+													"Error Message Heading is not displayed", browser,
+													pathLocation + "\\" + testcasemethod, false);
+											ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ",
+													browser, pathLocation + "\\" + testcasemethod, true);
+										}
+
+										if (ReusableComponents.isDisplayed(trialBalanceErrorMessage, "Error message")) {
+											ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+													"Error Message displayed", browser,
+													pathLocation + "\\" + testcasemethod, true);
+
+										} else {
+											ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+													"Error Message is not displayed", browser,
+													pathLocation + "\\" + testcasemethod, true);
+											ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ",
+													browser, pathLocation + "\\" + testcasemethod, true);
+										}
+
+									} catch (NoSuchElementException e) {
+										e.printStackTrace();
+										ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+												"There are no Error Message displayed ", browser,
+												pathLocation + "\\" + testcasemethod, false);
+										ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ",
+												browser, pathLocation + "\\" + testcasemethod, true);
+									} catch (Exception e) {
+										e.printStackTrace();
+										ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+												"Exception when trying to read the error message. " + e.getMessage(),
+												browser, pathLocation + "\\" + testcasemethod, true);
+									}
+									ReusableComponents.scrollDown(browser, 500);
+
+									ReusableComponents.wait(20000);
+
+									List<WebElement> newRecordsList = browser.findElements(By
+											.xpath("(.//tr//*[@class='slds-truncate']//a[contains(text(),'FRR')])[1]"));
+									System.out.println("************ Number of elements " + newRecordsList.size());
+
+									if (newRecordsList.size() == 0) {
+										ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+												"There are no new record created", browser,
+												pathLocation + "\\" + testcasemethod, false);
+									} else {
+										String newRecord = firstReport_FinancialReport.getText();
+										String hreflink = reusableComponents.getAttribute(firstReport_FinancialReport,
+												"href");
+										ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+												"New Financial report created. Name : " + newRecord
+														+ ". Link of created financial report : " + hreflink,
+												browser, pathLocation + "\\" + testcasemethod, false);
+										ReusableComponents.reportSpecific(threadID, tempList, testcasemethod, " ",
+												browser, pathLocation + "\\" + testcasemethod, true);
+									}
+								}
+
+							} else {
+								ReusableComponents.reportPass(threadID, tempList, testcasemethod,
+										"Previous accounting period status is not displayed as expected. Previous accounting period "
+												+ previousAccountingPeriod + ". Expected status "
+												+ expectedAccountingPeriodStatus,
+										browser, pathLocation + "\\" + testcasemethod, true);
+
+							}
 
 						} else {
-							ReusableComponents.reportPass(threadID, tempList, testcasemethod,
-									"Previous accounting period status is not displayed as expected. Previous accounting period "
-											+ previousAccountingPeriod + ". Expected status "
-											+ expectedAccountingPeriodStatus,
+							ReusableComponents.reportFail(threadID, tempList, testcasemethod,
+									"There are no new GL account created as part of test data creation , hence can not continue with the test case",
 									browser, pathLocation + "\\" + testcasemethod, true);
-
 						}
-
 					} else {
 						ReusableComponents.reportFail(threadID, tempList, testcasemethod,
-								"There are no new GL account created as part of test data creation , hence can not continue with the test case",
+								"There are no new account created as part of test data creation , hence can not continue with the test case",
 								browser, pathLocation + "\\" + testcasemethod, true);
 					}
+
 				} else {
 					ReusableComponents.reportFail(threadID, tempList, testcasemethod,
 							"There are no new account created as part of test data creation , hence can not continue with the test case",
 							browser, pathLocation + "\\" + testcasemethod, true);
 				}
-
 			} else {
 				ReusableComponents.reportFail(threadID, tempList, testcasemethod,
-						"There are no new account created as part of test data creation , hence can not continue with the test case",
+						"Previous accounting period status is not open , Hence can not continue with the test case. Previous accounting period "
+								+ previousAccountingPeriod,
 						browser, pathLocation + "\\" + testcasemethod, true);
 			}
 
